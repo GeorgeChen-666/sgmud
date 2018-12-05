@@ -20,7 +20,7 @@
         {"code":401,"indent":0,"parameters":["                      ==投篮游戏=="]},
         {"code":102,"indent":0,"parameters":[["开始游戏","游戏说明","退出游戏"],2,0,1,0]},
         {"code":402,"indent":0,"parameters":[0,"开始游戏"]},
-        {"code":0,"indent":1,"parameters":[]},
+        {"code":355,"indent":1,"parameters":["SceneManager.push(Scene_Basketball)"]},
         {"code":402,"indent":0,"parameters":[1,"游戏说明"]},
         {"code":105,"indent":1,"parameters":[2,false]},
         {"code":405,"indent":1,"parameters":["这是一段很长很长的说明啊啊啊啊啊啊啊啊啊"]},
