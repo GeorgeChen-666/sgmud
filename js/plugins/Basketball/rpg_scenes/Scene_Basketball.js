@@ -1,6 +1,6 @@
 import Window_PowerBar from '../rpg_windows/Window_PowerBar.js';
 const { Sprite, Input, TouchInput, SceneManager, SoundManager, Scene_Base } = window;
-export class Scene_Basketball extends Scene_Base {
+export default class Scene_Basketball extends Scene_Base {
   constructor() {
     super();
     this.initialize(arguments);

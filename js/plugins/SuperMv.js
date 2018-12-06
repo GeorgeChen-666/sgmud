@@ -46,4 +46,32 @@
     }
     return bitmap;
   };
+
+  DataManager.setMapCache = function (mapId, data) {
+    DataManager._mapCache[mapId] = data;
+  };
+  /**
+   * 更强大的地图加载器，支持缓存。
+   * @param mapId 地图ID
+   * @param isRefresh 是否刷新缓存
+   * @param nameTempl 地图文件名模版（支持通过../读取其它文件夹下的地图数据，base：data/）
+   */
+  DataManager.loadMapData = function(mapId, isRefresh=false, nameTempl = 'Map%1.json') {
+    DataManager._mapCache = (DataManager._mapCache || {});
+    if (mapId > 0) {
+      var cachedMap = DataManager._mapCache[mapId];
+      if(cachedMap && isRefresh) {
+        $dataMap = cachedMap;
+      } else {
+        var filename = nameTempl.format(mapId.padZero(3));
+        this._mapLoader = ResourceHandler.createLoader('data/' + filename, this.loadDataFile.bind(this, '$dataMap', filename));
+        this.loadDataFile('$dataMap', filename);
+        setTimeout(function () {
+          DataManager.setMapCache(mapId, $dataMap);
+        },500);
+      }
+    } else {
+      this.makeEmptyMap();
+    }
+  };
 })();
