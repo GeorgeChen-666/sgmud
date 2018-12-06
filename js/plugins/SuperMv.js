@@ -26,6 +26,15 @@
       .concat(listCmds.slice(cuCmdIndex + 1,listCount));
   }
 
+  SceneManager.backgroundBitmapNoBlur = function() {
+    return this._backgroundBitmapNoBlur;
+  };
+  SceneManager.snapForBackground = function() {
+    this._backgroundBitmap = this.snap();
+    this._backgroundBitmapNoBlur = this.snap();
+    this._backgroundBitmap.blur();
+  };
+
   ImageManager.loadBase64Bitmap = function(path, data, hue) {
     var key = this._generateCacheKey(path, hue);
     var bitmap = this._imageCache.get(key);
@@ -60,7 +69,7 @@
     DataManager._mapCache = (DataManager._mapCache || {});
     if (mapId > 0) {
       var cachedMap = DataManager._mapCache[mapId];
-      if(cachedMap && isRefresh) {
+      if(cachedMap && !isRefresh) {
         $dataMap = cachedMap;
       } else {
         var filename = nameTempl.format(mapId.padZero(3));

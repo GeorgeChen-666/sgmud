@@ -1,3 +1,5 @@
+import Scene_Basketball from '../rpg_scenes/Scene_Basketball.js'
+
 DataManager.loadMapData(1001,false,'Map002.json');
 export default class BasketballManager {
   static enter() {
@@ -9,8 +11,6 @@ export default class BasketballManager {
       }
     } = window;
     this._locHistory = { x, y, direction, mapId,};
-
-
     itpr.insertCommands([
       {"code":201,"indent":0,"parameters":[0,1001,-1,-1,0,0]},
       {"code":355,"indent":0,"parameters":["BasketballManager.showMenu()"]},
@@ -19,6 +19,7 @@ export default class BasketballManager {
   }
   static showMenu() {// _interpreter
     const {
+      SceneManager,
       $gameMap:{
         _interpreter:itpr,
       }
@@ -31,7 +32,7 @@ export default class BasketballManager {
       {"code":401,"indent":0,"parameters":["                      ==投篮游戏=="]},
       {"code":102,"indent":0,"parameters":[["开始游戏","游戏说明","退出游戏"],2,0,1,0]},
       {"code":402,"indent":0,"parameters":[0,"开始游戏"]},
-      {"code":355,"indent":1,"parameters":["SceneManager.push(Scene_Basketball)"]},
+      {"code":355,"indent":1,"parameters":["BasketballManager.start();"]},
       {"code":402,"indent":0,"parameters":[1,"游戏说明"]},
       {"code":105,"indent":1,"parameters":[2,false]},
       {"code":405,"indent":1,"parameters":["这是一段很长很长的说明啊啊啊啊啊啊啊啊啊"]},
@@ -41,6 +42,10 @@ export default class BasketballManager {
       {"code":0,"indent":1,"parameters":[]},
       {"code":404,"indent":0,"parameters":[]},
     ]);
+  }
+  static start() {
+    SceneManager.push(Scene_Basketball);
+
   }
   static exit() {
     const {
