@@ -1,6 +1,8 @@
-import Scene_Basketball from '../rpg_scenes/Scene_Basketball.js'
+import Window_PowerBar from '../rpg_windows/Window_PowerBar.js';
+const { DataManager, Scene_Map } = window;
 
 DataManager.loadMapData(1001,false,'Map002.json');
+let onMapLoaded,onSceneMapUpdate;
 export default class BasketballManager {
   static enter() {
     const {
@@ -10,16 +12,40 @@ export default class BasketballManager {
         _interpreter:itpr,
       }
     } = window;
+    this.CustomWindow = (this.CustomWindow||[]);
+    //记录之前位置
     this._locHistory = { x, y, direction, mapId,};
+    //插入自定元素
+    this._powerWindow = new Window_PowerBar();
+    this._powerWindow.open();
+    this.CustomWindow.push(this._powerWindow);
+
+
+    //劫持onMapLoaded显示自定义窗口
+    onMapLoaded = Scene_Map.prototype.onMapLoaded;
+    Scene_Map.prototype.onMapLoaded = function() {
+      onMapLoaded.call(this);
+      BasketballManager.CustomWindow.forEach(child => {
+        child.close();
+        this.addWindow(child);
+      });
+    };
+    //劫持update
+    onSceneMapUpdate = Scene_Map.prototype.update;
+    Scene_Map.prototype.update = function () {
+      onSceneMapUpdate.call(this);
+      BasketballManager.update();
+    };
+
     itpr.insertCommands([
       {"code":201,"indent":0,"parameters":[0,1001,-1,-1,0,0]},
       {"code":355,"indent":0,"parameters":["BasketballManager.showMenu()"]},
       {"code":0,"indent":0,"parameters":[]}
     ]);
   }
+
   static showMenu() {// _interpreter
     const {
-      SceneManager,
       $gameMap:{
         _interpreter:itpr,
       }
@@ -44,7 +70,10 @@ export default class BasketballManager {
     ]);
   }
   static start() {
-    SceneManager.push(Scene_Basketball);
+    // SceneManager.push(Scene_Basketball);
+    this._powerWindow.open();
+  }
+  static update() {
 
   }
   static exit() {
@@ -55,5 +84,8 @@ export default class BasketballManager {
     } = window;
     const { x, y, direction, mapId,} = this._locHistory;
     itpr.insertCommands([{"code":201,"indent":0,"parameters":[0,mapId,x,y,direction,0]}]);
+    // 恢复之前的劫持
+    Scene_Map.prototype.onMapLoaded = onMapLoaded;
+    Scene_Map.prototype.update = onSceneMapUpdate;
   }
 }

@@ -14,6 +14,7 @@
    * 扩展解释器，在解析器当前执行的命令后面插入命令
    */
   Game_Interpreter.prototype.insertCommands = function(jsonCmds) {
+    this._list = (this._list || []);
     var listCmds = this._list;// 命令列表
     var listCount = listCmds.length;// 这个事件队列中一共多少条命令
     var cuCmdIndex = this._index;// 当前执行的是第几条命令
@@ -24,15 +25,6 @@
     this._list = listCmds.slice(0,cuCmdIndex + 1)// 在当前执行的事件后面插入
       .concat(jsonCmds)
       .concat(listCmds.slice(cuCmdIndex + 1,listCount));
-  }
-
-  SceneManager.backgroundBitmapNoBlur = function() {
-    return this._backgroundBitmapNoBlur;
-  };
-  SceneManager.snapForBackground = function() {
-    this._backgroundBitmap = this.snap();
-    this._backgroundBitmapNoBlur = this.snap();
-    this._backgroundBitmap.blur();
   };
 
   ImageManager.loadBase64Bitmap = function(path, data, hue) {
@@ -56,9 +48,6 @@
     return bitmap;
   };
 
-  DataManager.setMapCache = function (mapId, data) {
-    DataManager._mapCache[mapId] = data;
-  };
   /**
    * 更强大的地图加载器，支持缓存。
    * @param mapId 地图ID
@@ -83,4 +72,8 @@
       this.makeEmptyMap();
     }
   };
+  DataManager.setMapCache = function (mapId, data) {
+    DataManager._mapCache[mapId] = data;
+  };
+
 })();
