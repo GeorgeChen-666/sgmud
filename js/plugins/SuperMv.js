@@ -14,19 +14,187 @@
    * 扩展解释器，在解析器当前执行的命令后面插入命令
    */
   Game_Interpreter.prototype.insertCommands = function(jsonCmds) {
-    this._list = (this._list || []);
-    var listCmds = this._list;// 命令列表
-    var listCount = listCmds.length;// 这个事件队列中一共多少条命令
-    var cuCmdIndex = this._index;// 当前执行的是第几条命令
-    var cuCmdIndent = this._indent;// 当前代码的缩进级别
-    jsonCmds.forEach(function(e) {// 将参数命令的indent拼接到当前的indent级别下，参数的indent一定要从0开始。
-      e.indent += cuCmdIndent;
-    });
-    this._list = listCmds.slice(0,cuCmdIndex + 1)// 在当前执行的事件后面插入
-      .concat(jsonCmds)
-      .concat(listCmds.slice(cuCmdIndex + 1,listCount));
+    // this._list = (this._list || []);
+    if(!this._list) {
+      this.clear();
+      this.setup(jsonCmds);
+    } else {
+      var listCmds = this._list;// 命令列表
+      var listCount = listCmds.length;// 这个事件队列中一共多少条命令
+      var cuCmdIndex = this._index;// 当前执行的是第几条命令
+      var cuCmdIndent = this._indent;// 当前代码的缩进级别
+      jsonCmds.forEach(function(e) {// 将参数命令的indent拼接到当前的indent级别下，参数的indent一定要从0开始。
+        e.indent += cuCmdIndent;
+      });
+      this._list = listCmds.slice(0,cuCmdIndex + 1)// 在当前执行的事件后面插入
+        .concat(jsonCmds)
+        .concat(listCmds.slice(cuCmdIndex + 1,listCount));
+    }
   };
-
+  Game_Interpreter.prototype.commandScript = function() {
+    if(!this._params||this._params.length==0) {return true};
+    if(typeof this._params[0] === 'function')
+    {
+      this._params[0]();
+    }
+    return true;
+  };
+  Game_Interpreter.prototype.command111 = function() {
+    var result = false;
+    switch (this._params[0]) {
+      case 0:  // Switch
+        result = ($gameSwitches.value(this._params[1]) === (this._params[2] === 0));
+        break;
+      case 1:  // Variable
+        var value1 = $gameVariables.value(this._params[1]);
+        var value2;
+        if (this._params[2] === 0) {
+          value2 = this._params[3];
+        } else {
+          value2 = $gameVariables.value(this._params[3]);
+        }
+        switch (this._params[4]) {
+          case 0:  // Equal to
+            result = (value1 === value2);
+            break;
+          case 1:  // Greater than or Equal to
+            result = (value1 >= value2);
+            break;
+          case 2:  // Less than or Equal to
+            result = (value1 <= value2);
+            break;
+          case 3:  // Greater than
+            result = (value1 > value2);
+            break;
+          case 4:  // Less than
+            result = (value1 < value2);
+            break;
+          case 5:  // Not Equal to
+            result = (value1 !== value2);
+            break;
+        }
+        break;
+      case 2:  // Self Switch
+        if (this._eventId > 0) {
+          var key = [this._mapId, this._eventId, this._params[1]];
+          result = ($gameSelfSwitches.value(key) === (this._params[2] === 0));
+        }
+        break;
+      case 3:  // Timer
+        if ($gameTimer.isWorking()) {
+          if (this._params[2] === 0) {
+            result = ($gameTimer.seconds() >= this._params[1]);
+          } else {
+            result = ($gameTimer.seconds() <= this._params[1]);
+          }
+        }
+        break;
+      case 4:  // Actor
+        var actor = $gameActors.actor(this._params[1]);
+        if (actor) {
+          var n = this._params[3];
+          switch (this._params[2]) {
+            case 0:  // In the Party
+              result = $gameParty.members().contains(actor);
+              break;
+            case 1:  // Name
+              result = (actor.name() === n);
+              break;
+            case 2:  // Class
+              result = actor.isClass($dataClasses[n]);
+              break;
+            case 3:  // Skill
+              result = actor.hasSkill(n);
+              break;
+            case 4:  // Weapon
+              result = actor.hasWeapon($dataWeapons[n]);
+              break;
+            case 5:  // Armor
+              result = actor.hasArmor($dataArmors[n]);
+              break;
+            case 6:  // State
+              result = actor.isStateAffected(n);
+              break;
+          }
+        }
+        break;
+      case 5:  // Enemy
+        var enemy = $gameTroop.members()[this._params[1]];
+        if (enemy) {
+          switch (this._params[2]) {
+            case 0:  // Appeared
+              result = enemy.isAlive();
+              break;
+            case 1:  // State
+              result = enemy.isStateAffected(this._params[3]);
+              break;
+          }
+        }
+        break;
+      case 6:  // Character
+        var character = this.character(this._params[1]);
+        if (character) {
+          result = (character.direction() === this._params[2]);
+        }
+        break;
+      case 7:  // Gold
+        switch (this._params[2]) {
+          case 0:  // Greater than or equal to
+            result = ($gameParty.gold() >= this._params[1]);
+            break;
+          case 1:  // Less than or equal to
+            result = ($gameParty.gold() <= this._params[1]);
+            break;
+          case 2:  // Less than
+            result = ($gameParty.gold() < this._params[1]);
+            break;
+        }
+        break;
+      case 8:  // Item
+        result = $gameParty.hasItem($dataItems[this._params[1]]);
+        break;
+      case 9:  // Weapon
+        result = $gameParty.hasItem($dataWeapons[this._params[1]], this._params[2]);
+        break;
+      case 10:  // Armor
+        result = $gameParty.hasItem($dataArmors[this._params[1]], this._params[2]);
+        break;
+      case 11:  // Button
+        result = Input.isPressed(this._params[1]);
+        break;
+      case 12:  // Script
+        if(typeof this._params[1] === 'function')
+        {
+          result = !!this._params[1]();
+        } else {
+          result = !!eval(this._params[1]);
+        }
+        break;
+      case 13:  // Vehicle
+        result = ($gamePlayer.vehicle() === $gameMap.vehicle(this._params[1]));
+        break;
+    }
+    this._branch[this._indent] = result;
+    if (this._branch[this._indent] === false) {
+      this.skipBranch();
+    }
+    return true;
+  };
+  Game_Interpreter.prototype.command355 = function() {
+    if(typeof this._params[0] === 'function')
+    {
+      this._params[0]();
+      return true;
+    } else {
+      var script = this.currentCommand().parameters[0] + '\n';
+      while (this.nextEventCode() === 655) {
+        this._index++;
+        script += this.currentCommand().parameters[0] + '\n';
+      }
+      eval(script);
+      return true;
+    }
+  };
   ImageManager.loadBase64Bitmap = function(path, data, hue) {
     var key = this._generateCacheKey(path, hue);
     var bitmap = this._imageCache.get(key);

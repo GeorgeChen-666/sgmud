@@ -1,1 +1,1 @@
-PluginManager.loadModuleScript('./Basketball/main.js')
+PluginManager.loadModuleScript('./Basketball/js/main.js')
