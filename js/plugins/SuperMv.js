@@ -1,5 +1,5 @@
 (function () {
-  // 加载JS模块
+  // 加载ES6模块
   PluginManager.loadModuleScript = function(name) {
     var url = this._path + name;
     var script = document.createElement('script');
@@ -15,7 +15,7 @@
    */
   Game_Interpreter.prototype.insertCommands = function(jsonCmds) {
     // this._list = (this._list || []);
-    if(!this._list) {
+    if(!this._list) {// 没有此处判断仅能在地图事件中调用insertCommands插入命令，有此判断后可以随时随地插入命令。
       this.clear();
       this.setup(jsonCmds);
     } else {
@@ -31,14 +31,8 @@
         .concat(listCmds.slice(cuCmdIndex + 1,listCount));
     }
   };
-  Game_Interpreter.prototype.commandScript = function() {
-    if(!this._params||this._params.length==0) {return true};
-    if(typeof this._params[0] === 'function')
-    {
-      this._params[0]();
-    }
-    return true;
-  };
+
+
   Game_Interpreter.prototype.command111 = function() {
     var result = false;
     switch (this._params[0]) {
@@ -222,7 +216,9 @@
    * @param isRefresh 是否刷新缓存
    * @param nameTempl 地图文件名模版（支持通过../读取其它文件夹下的地图数据，base：data/）
    */
-  DataManager.loadMapData = function(mapId, isRefresh=false, nameTempl = 'Map%1.json') {
+  DataManager.loadMapData = function(mapId, isRefresh, nameTempl) {
+    isRefresh = isRefresh || false;
+    nameTempl = nameTempl || 'Map%1.json';
     DataManager._mapCache = (DataManager._mapCache || {});
     if (mapId > 0) {
       var cachedMap = DataManager._mapCache[mapId];
@@ -230,11 +226,26 @@
         $dataMap = cachedMap;
       } else {
         var filename = nameTempl.format(mapId.padZero(3));
-        this._mapLoader = ResourceHandler.createLoader('data/' + filename, this.loadDataFile.bind(this, '$dataMap', filename));
-        this.loadDataFile('$dataMap', filename);
-        setTimeout(function () {
-          DataManager.setMapCache(mapId, $dataMap);
-        },500);
+        var _loadDataFile = function (name, src) {
+          var xhr = new XMLHttpRequest();
+          var url = 'data/' + src;
+          xhr.open('GET', url);
+          xhr.overrideMimeType('application/json');
+          xhr.onload = function() {
+            if (xhr.status < 400) {
+              window[name] = JSON.parse(xhr.responseText);
+              DataManager.onLoad(window[name]);
+              DataManager.setMapCache(mapId, $dataMap);
+            }
+          };
+          xhr.onerror = this._mapLoader || function() {
+            DataManager._errorUrl = DataManager._errorUrl || url;
+          };
+          window[name] = null;
+          xhr.send();
+        };
+        this._mapLoader = ResourceHandler.createLoader('data/' + filename, _loadDataFile.bind(this, '$dataMap', filename));
+        _loadDataFile.call(this, '$dataMap', filename);
       }
     } else {
       this.makeEmptyMap();
