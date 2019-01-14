@@ -4,5 +4,6 @@ var $plugins =
 [
 {"name":"Community_Basic","status":true,"description":"Basic plugin for manipulating important parameters.","parameters":{"cacheLimit":"20","screenWidth":"816","screenHeight":"624","changeWindowWidthTo":"","changeWindowHeightTo":"","renderingMode":"auto","alwaysDash":"off"}},
 {"name":"SuperMv","status":true,"description":"","parameters":{}},
-{"name":"Basketball","status":true,"description":"","parameters":{}}
+{"name":"Basketball","status":true,"description":"","parameters":{}},
+{"name":"CharacterEnemy","status":true,"description":"","parameters":{}}
 ];

@@ -103,6 +103,15 @@ Game_Actor = class extends Game_Actor {
       return this.specialFlag(Game_BattlerBase.FLAG_ID_AUTO_BATTLE);
     }
   }
+  gold() {
+    return parseInt(this.actor().meta.gold, 10) || 100;
+  }
+  exp() {
+    return 0;
+  }
+  makeDropItems() {
+    return [];
+  }
 }
 
 Sprite_Battler.prototype.initialize = function(battler,isMirror = false) {
