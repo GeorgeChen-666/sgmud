@@ -1,6 +1,7 @@
-Game_Troop = class extends Game_Troop {
-  troop() {
-    let tempTroop = $dataTroops[this._troopId];
+(function () {
+  var gt_troop = Game_Troop.prototype.troop;
+  Game_Troop.prototype.troop = function () {
+    var tempTroop = gt_troop.call(this);
     if(this._troopId === 1) {// 如果_troopId为1那么根据name，决定character
       tempTroop.actor_members = tempTroop.name.split(',').map(e => {
         return {
@@ -10,97 +11,63 @@ Game_Troop = class extends Game_Troop {
       });
     }
     return tempTroop;
-  }
-  setup(troopId) {
-    this.clear();
-    this._troopId = troopId;
-    let troop = this.troop();
+  };
 
+  var gt_setup = Game_Troop.prototype.setup;
+  Game_Troop.prototype.setup = function(troopId) {
+    gt_setup.call(this,troopId);
+    var troop = this.troop();
     this._actors =[];
-    troop.actor_members.forEach(act_member => {
+    troop.actor_members.forEach(function(act_member) {
       if($dataActors[act_member.actorId]) {
-        let actorId = act_member.actorId;
-        let actor = new Game_Actor(actorId);
+        var actorId = act_member.actorId;
+        var actor = new Game_Actor(actorId);
         if (act_member.hidden) {
           actor.hide();
         }
         this._actors.push(actor);
       }
-    });
+    }.bind(this));
+  };
 
-    this._enemies = [];
-    troop.members.forEach(member => {
-      if ($dataEnemies[member.enemyId]) {
-        let enemyId = member.enemyId;
-        let x = member.x;
-        let y = member.y;
-        let enemy = new Game_Enemy(enemyId, x, y);
-        if (member.hidden) {
-          enemy.hide();
-        }
-        this._enemies.push(enemy);
-      }
-    });
-    this.makeUniqueNames();
-  }
-  makeUniqueNames() {
-    let table = this.letterTable();
-    let enemys = this.members().filter(e => (e instanceof Game_Enemy))
-    enemys.forEach((enemy) => {
-      if (enemy.isAlive() && enemy.isLetterEmpty()) {
-        let name = enemy.originalName();
-        let n = this._namesCount[name] || 0;
-        enemy.setLetter(table[n % table.length]);
-        this._namesCount[name] = n + 1;
-      }
-    });
-    enemys.forEach((enemy) => {
-      let name = enemy.originalName();
-      if (this._namesCount[name] >= 2) {
-        enemy.setPlural(true);
-      }
-    });
-  }
-  members() {
+  Game_Troop.prototype.members = function () {
     return [...this._actors, ...this._enemies];
-  }
-
-  ac_members() {
+  };
+  Game_Troop.prototype.ac_members = function () {
     return this._actors;
-  }
-  clear () {
-    this._interpreter.clear();
-    this._troopId = 0;
-    this._eventFlags = {};
-    this._enemies = [];
+  };
+
+  var gt_clear = Game_Troop.prototype.clear;
+  Game_Troop.prototype.clear = function () {
+    gt_clear.call(this);
     this._actors =[];
-    this._turnCount = 0;
-    this._namesCount = {};
-  }
-}
-Game_Actor = class extends Game_Actor {
-  initialize(actorId,isEnemy = false) {
-    Game_Battler.prototype.initialize.call(this);
-    this.setup(actorId);
+  };
+
+  var ga_initialize = Game_Actor.prototype.initialize;
+  Game_Actor.prototype.initialize = function (actorId,isEnemy = false) {
+    ga_initialize.call(this, actorId);
     this._isEnemy = isEnemy;
-  }
-  index() {
-    let index = $gameParty.members().indexOf(this);
+  };
+
+  var ga_index = Game_Actor.prototype.index;
+  Game_Actor.prototype.index =function () {
+    var index = ga_index.call(this);
     if(index > -1) {
       return index - ($gameParty.members().length - 1) * 0.5;
     } else {
       index = $gameTroop.ac_members().indexOf(this);
       return index - ($gameTroop.ac_members().length - 1) * 0.5;
     }
-  }
-  originalName() {
+  };
+  Game_Actor.prototype.originalName = function () {
     return this.actor().name;
-  }
-  isAutoBattle() {
+  };
+  var ga_isAutoBattle = Game_Actor.prototype.isAutoBattle;
+  Game_Actor.prototype.isAutoBattle = function () {
     if(this._isEnemy) {
       return true
     } else {
-      return this.specialFlag(Game_BattlerBase.FLAG_ID_AUTO_BATTLE);
+      return ga_isAutoBattle.call(this);
     }
   }
   gold() {
@@ -114,42 +81,41 @@ Game_Actor = class extends Game_Actor {
   }
 }
 
-Sprite_Battler.prototype.initialize = function(battler,isMirror = false) {
-  Sprite_Base.prototype.initialize.call(this);
-  this.initMembers();
-  this.scale.x = isMirror ? -1 : 1;
-  this.setBattler(battler);
-};
+  var sb_initialize = Sprite_Battler.prototype.initialize;
+  Sprite_Battler.prototype.initialize = function(battler,isMirror = false) {
+    sb_initialize.call(this, battler);
+    this.scale.x = isMirror ? -1 : 1;
+  };
 
-Sprite_Actor.prototype.initialize = function(battler, isMirror) {
-  Sprite_Battler.prototype.initialize.call(this, battler, isMirror);
-  if(!isMirror) {
-    this.moveToStartPosition();
-  }
-};
-Sprite_Actor = class extends Sprite_Actor {
-  setActorHome(index) {
+  Sprite_Actor.prototype.initialize = function(battler, isMirror) {
+    Sprite_Battler.prototype.initialize.call(this, battler, isMirror);
+    if(!isMirror) {
+      this.moveToStartPosition();
+    }
+  };
+
+  Sprite_Actor.prototype.setActorHome = function (index) {
     if(this.scale.x > 0) {
       this.setHome(664 + index * 32, 328 + index * 48);
     } else {
       this.setHome(136 - index * 32, 328 + index * 48);
     }
-  }
-}
-Spriteset_Battle = class extends Spriteset_Battle {
-  createEnemies() {
-    let sprites = [];
+  };
+
+  Spriteset_Battle.prototype.createEnemies = function () {
+    var sprites = [];
     $gameTroop.members().forEach(e => {
       if(e instanceof Game_Enemy) {
         sprites.push(new Sprite_Enemy(e))
       } else {
         sprites.push(new Sprite_Actor(e, true))
       }
-    })
+    });
     sprites.sort(this.compareEnemySprite.bind(this));
     sprites.forEach(sprite =>
       this._battleField.addChild(sprite)
-    )
+    );
     this._enemySprites = sprites;
-  }
-}
+  };
+
+})();
