@@ -70,16 +70,16 @@
       return ga_isAutoBattle.call(this);
     }
   }
-  gold() {
+  Game_Actor.prototype.gold = function() {
     return parseInt(this.actor().meta.gold, 10) || 100;
   }
-  exp() {
+  Game_Actor.prototype.exp = function() {
     return 0;
   }
-  makeDropItems() {
+  Game_Actor.prototype.makeDropItems = function() {
     return [];
   }
-}
+
 
   var sb_initialize = Sprite_Battler.prototype.initialize;
   Sprite_Battler.prototype.initialize = function(battler,isMirror = false) {
