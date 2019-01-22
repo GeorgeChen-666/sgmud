@@ -1,0 +1,1 @@
+PluginManager.loadModuleScript('./Sgmud/js/main.js')
