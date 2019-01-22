@@ -1,4 +1,16 @@
 (function () {
+  // Game_Actors
+  {
+    Game_Actors.prototype.actor = function(actorId, isRenew = false) {
+      if ($dataActors[actorId]) {
+        if (isRenew || !this._data[actorId]) {
+          this._data[actorId] = new Game_Actor(actorId);
+        }
+        return this._data[actorId];
+      }
+      return null;
+    };
+  }
   // Game_Troop
   {
     let gt_troop = Game_Troop.prototype.troop;
@@ -23,7 +35,7 @@
       troop.actor_members.forEach(function(act_member) {
         let actorId = act_member.actorId;
         if($dataActors[actorId]) {
-          let actor = $gameActors.actor(actorId);
+          let actor = $gameActors.actor(actorId, true);
           if (!$gameParty.members().contains(actor)) {// 同一个人不能同时出现在两边
             actor.setEnemy();
             if (act_member.hidden) {
