@@ -9,17 +9,6 @@
     script._url = url;
     document.body.appendChild(script);
   };
-  // 加载ES6模块
-  PluginManager.loadModuleScript = function(name) {
-    var url = this._path + name;
-    var script = document.createElement('script');
-    script.type = 'module';
-    script.src = url;
-    script.async = false;
-    script.onerror = this.onError.bind(this);
-    script._url = url;
-    document.body.appendChild(script);
-  };
   /**
    * 扩展解释器，在解析器当前执行的命令后面插入命令
    */
@@ -41,148 +30,21 @@
         .concat(listCmds.slice(cuCmdIndex + 1,listCount));
     }
   };
-
-
+  /**
+   * 条件支持js代码
+   */
+  const _command111 = Game_Interpreter.prototype.command111;
   Game_Interpreter.prototype.command111 = function() {
-    var result = false;
-    switch (this._params[0]) {
-      case 0:  // Switch
-        result = ($gameSwitches.value(this._params[1]) === (this._params[2] === 0));
-        break;
-      case 1:  // Variable
-        var value1 = $gameVariables.value(this._params[1]);
-        var value2;
-        if (this._params[2] === 0) {
-          value2 = this._params[3];
-        } else {
-          value2 = $gameVariables.value(this._params[3]);
-        }
-        switch (this._params[4]) {
-          case 0:  // Equal to
-            result = (value1 === value2);
-            break;
-          case 1:  // Greater than or Equal to
-            result = (value1 >= value2);
-            break;
-          case 2:  // Less than or Equal to
-            result = (value1 <= value2);
-            break;
-          case 3:  // Greater than
-            result = (value1 > value2);
-            break;
-          case 4:  // Less than
-            result = (value1 < value2);
-            break;
-          case 5:  // Not Equal to
-            result = (value1 !== value2);
-            break;
-        }
-        break;
-      case 2:  // Self Switch
-        if (this._eventId > 0) {
-          var key = [this._mapId, this._eventId, this._params[1]];
-          result = ($gameSelfSwitches.value(key) === (this._params[2] === 0));
-        }
-        break;
-      case 3:  // Timer
-        if ($gameTimer.isWorking()) {
-          if (this._params[2] === 0) {
-            result = ($gameTimer.seconds() >= this._params[1]);
-          } else {
-            result = ($gameTimer.seconds() <= this._params[1]);
-          }
-        }
-        break;
-      case 4:  // Actor
-        var actor = $gameActors.actor(this._params[1]);
-        if (actor) {
-          var n = this._params[3];
-          switch (this._params[2]) {
-            case 0:  // In the Party
-              result = $gameParty.members().contains(actor);
-              break;
-            case 1:  // Name
-              result = (actor.name() === n);
-              break;
-            case 2:  // Class
-              result = actor.isClass($dataClasses[n]);
-              break;
-            case 3:  // Skill
-              result = actor.hasSkill(n);
-              break;
-            case 4:  // Weapon
-              result = actor.hasWeapon($dataWeapons[n]);
-              break;
-            case 5:  // Armor
-              result = actor.hasArmor($dataArmors[n]);
-              break;
-            case 6:  // State
-              result = actor.isStateAffected(n);
-              break;
-          }
-        }
-        break;
-      case 5:  // Enemy
-        var enemy = $gameTroop.members()[this._params[1]];
-        if (enemy) {
-          switch (this._params[2]) {
-            case 0:  // Appeared
-              result = enemy.isAlive();
-              break;
-            case 1:  // State
-              result = enemy.isStateAffected(this._params[3]);
-              break;
-          }
-        }
-        break;
-      case 6:  // Character
-        var character = this.character(this._params[1]);
-        if (character) {
-          result = (character.direction() === this._params[2]);
-        }
-        break;
-      case 7:  // Gold
-        switch (this._params[2]) {
-          case 0:  // Greater than or equal to
-            result = ($gameParty.gold() >= this._params[1]);
-            break;
-          case 1:  // Less than or equal to
-            result = ($gameParty.gold() <= this._params[1]);
-            break;
-          case 2:  // Less than
-            result = ($gameParty.gold() < this._params[1]);
-            break;
-        }
-        break;
-      case 8:  // Item
-        result = $gameParty.hasItem($dataItems[this._params[1]]);
-        break;
-      case 9:  // Weapon
-        result = $gameParty.hasItem($dataWeapons[this._params[1]], this._params[2]);
-        break;
-      case 10:  // Armor
-        result = $gameParty.hasItem($dataArmors[this._params[1]], this._params[2]);
-        break;
-      case 11:  // Button
-        result = Input.isPressed(this._params[1]);
-        break;
-      case 12:  // Script
-        if(typeof this._params[1] === 'function')
-        {
-          result = !!this._params[1]();
-        } else {
-          result = !!eval(this._params[1]);
-        }
-        break;
-      case 13:  // Vehicle
-        result = ($gamePlayer.vehicle() === $gameMap.vehicle(this._params[1]));
-        break;
+    if(typeof this._params[0] === 'function') {
+      const result = !!this._params[0]();
+      this._branch[this._indent] = result;
+      if (this._branch[this._indent] === false) {
+          this.skipBranch();
+      }
+      return true;
+    } else {
+      _command111.call(this);
     }
-    this._branch[this._indent] = result;
-    if (this._branch[this._indent] === false) {
-      this.skipBranch();
-    }
-    return true;
   };
   Game_Interpreter.prototype.command355 = function() {
     if(typeof this._params[0] === 'function')
@@ -225,10 +87,9 @@
    * @param mapId 地图ID
    * @param isRefresh 是否刷新缓存
    * @param nameTempl 地图文件名模版（支持通过../读取其它文件夹下的地图数据，base：data/）
+   * @param basepath 路径
    */
-  DataManager.loadMapData = function(mapId, isRefresh, nameTempl) {
-    isRefresh = isRefresh || false;
-    nameTempl = nameTempl || 'Map%1.json';
+  DataManager.loadMapData = function(mapId, isRefresh = false, nameTempl = 'Map%1.json', basepath = 'data/') {
     DataManager._mapCache = (DataManager._mapCache || {});
     if (mapId > 0) {
       var cachedMap = DataManager._mapCache[mapId];
@@ -236,33 +97,38 @@
         $dataMap = cachedMap;
       } else {
         var filename = nameTempl.format(mapId.padZero(3));
-        var _loadDataFile = function (name, src) {
-          var xhr = new XMLHttpRequest();
-          var url = 'data/' + src;
-          xhr.open('GET', url);
-          xhr.overrideMimeType('application/json');
-          xhr.onload = function() {
-            if (xhr.status < 400) {
-              window[name] = JSON.parse(xhr.responseText);
-              DataManager.onLoad(window[name]);
-              DataManager.setMapCache(mapId, $dataMap);
-            }
-          };
-          xhr.onerror = this._mapLoader || function() {
-            DataManager._errorUrl = DataManager._errorUrl || url;
-          };
-          window[name] = null;
-          xhr.send();
-        };
-        this._mapLoader = ResourceHandler.createLoader('data/' + filename, _loadDataFile.bind(this, '$dataMap', filename));
-        _loadDataFile.call(this, '$dataMap', filename);
+        this._mapLoader = ResourceHandler.createLoader(basepath + filename, this.loadDataFile.bind(this, '$dataMap', filename));
+        this.loadDataFile('$dataMap', filename, basepath)
+        .then(()=> {
+          DataManager.setMapCache(mapId, $dataMap);
+        });
       }
     } else {
-      this.makeEmptyMap();
+        this.makeEmptyMap();
     }
+  };
+  DataManager.loadDataFile = function(name, src, basepath = 'data/') {
+    return new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest();
+      var url = basepath + src;
+      xhr.open('GET', url);
+      xhr.overrideMimeType('application/json');
+      xhr.onload = function() {
+        if (xhr.status < 400) {
+          window[name] = JSON.parse(xhr.responseText);
+          DataManager.onLoad(window[name]);
+          resolve(window[name]);
+        }
+      };
+      xhr.onerror = this._mapLoader || function() {
+        DataManager._errorUrl = DataManager._errorUrl || url;
+        reject(DataManager._errorUrl);
+      };
+      window[name] = null;
+      xhr.send();
+    });
   };
   DataManager.setMapCache = function (mapId, data) {
     DataManager._mapCache[mapId] = data;
   };
-
 })();
