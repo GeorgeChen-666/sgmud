@@ -1,0 +1,9827 @@
+;       0     2    4    6    8    A    C   E
+4000 : 2640 2740 6140 F640 9241 9343 B243 4C4A
+4010 : F953 9355 A255 A75B 4B5F A67A C17A 117A
+4020 : 5F7A 2A6D 2B6D
+4026 : 60 RTS
+
+;跨bank3调用正确
+4027 : LDX #$64 			;64->X
+4029 : LDA $403D,X 			;->A
+402C : STA $2D7F,X 			;A->MEM
+402F : DEX 			;X--
+4030 : BNE $4029 			;Z=0则转移,否则继续
+4032 : LDA #$80 			;80->A
+4034 : STA $A6 			;A->MEM
+4036 : LDA #$2D 			;2D->A
+4038 : STA $A7 			;A->MEM
+403A : INT $3033    ;Page1 62D9 按任意键返回地图
+403D : RTS 			;子程序返回
+403E : 看到这段文本,说明跨bank3调用正确!
+
+;月下老人
+4061 : LDX #$22 			;22->X
+4063 : LDA $45F7,X 			;->A
+4066 : STA $2D7F,X 			;A->MEM  45F8茅山一派属方外之士,岂能再动凡心?
+4069 : DEX 			;X--
+406A : BNE $4063 			;Z=0则转移,否则继续
+406C : LDA $2EA9 			;->A  classID
+406F : CMP #$08 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4071 : BEQ $40C6 			;Z=1则转移,否则继续
+4073 : LDX #$28 			;->X
+4075 : LDA $4619,X 			;->A
+4078 : STA $2D7F,X 			;A->MEM  461A这么嫩的小伢仔也要结婚？早恋可不好呦！
+407B : DEX 			;X--
+407C : BNE $4075 			;Z=0则转移,否则继续
+407E : LDA $2EAB 			;->A  age
+4081 : CMP #$14 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4083 : BCC $40C6 			;进位标志C=0则转移,否则继续
+4085 : LDX #$32 			;->X
+4087 : LDA $4641,X 			;->A
+408A : STA $2D7F,X 			;A->MEM  4642房子都没有就想结婚？我可不能眼看你们婚后露宿街头
+408D : DEX 			;X--
+408E : BNE $4087 			;Z=0则转移,否则继续
+4090 : BIT $3178 			;A∧($n2n1)
+4093 : BPL $40C6 			;N=1则转移,否则继续
+4095 : LDX #$4D 			;->X
+4097 : LDA $4673,X 			;->A
+409A : STA $2D7F,X 			;A->MEM  4674请选择下列选项:\n结婚: 1.求婚 2.允婚\n离婚: 3.分道 4.扬镳\n   (请按数字键选择)
+409D : DEX 			;X--
+409E : BNE $4097 			;Z=0则转移,否则继续
+40A0 : JSR $44FF  			;跳转子程序
+40A3 : INT $3043       ;readkey
+40A6 : JSR $435B  			;跳转子程序
+40A9 : BCS $40AF 			;借位标志C=1则转移,否则继续
+40AB : INT $3044			;draw map
+40AE : RTS 			;子程序返回
+;结婚菜单
+40AF : LDA #$D2 			;->A
+40B1 : STA $80 			;A->MEM
+40B3 : LDA #$40 			;->A
+40B5 : STA $81 			;A->MEM 40D2:DA40 E140 E840 EF40
+40B7 : TYA 			;Y->A
+40B8 : ASL 			;算术左移
+40B9 : TAY 			;A->Y
+40BA : LDA ($80),Y 			;->A
+40BC : STA $82 			;A->MEM
+40BE : INY 			;Y++
+40BF : LDA ($80),Y 			;->A
+40C1 : STA $83 			;A->MEM
+40C3 : JMP ($0082) 			;
+
+;显示字符串后按任意键返回地图
+40C6 : LDA #$80 			;->A
+40C8 : STA $A6 			;A->MEM
+40CA : LDA #$2D 			;->A
+40CC : STA $A7 			;A->MEM
+40CE : INT $3033  ;按任意键返回地图
+40D1 : RTS 			;子程序返回
+
+40D2 : DA40 E140 E840 EF40
+;1.求婚
+40DA : JSR $40F6  			;跳转子程序
+40DD : INT $3044			;draw map
+40E0 : RTS 			;子程序返回
+;2.允婚
+40E1 : JSR $4192  			;跳转子程序
+40E4 : INT $3044			;draw map
+40E7 : RTS 			;子程序返回
+;3.分道
+40E8 : JSR $422F  			;跳转子程序
+40EB : INT $3044			;draw map
+40EE : RTS 			;子程序返回
+;4.扬镖
+40EF : JSR $42BC  			;跳转子程序
+40F2 : INT $3044			;draw map
+40F5 : RTS 			;子程序返回
+;求婚
+40F6 : JSR $4545  			;跳转子程序
+40F9 : LDX #$23 			;->X
+40FB : LDA $46C0,X 			;->A
+40FE : STA $2D7F,X 			;A->MEM  46C1 你已有家室还来结婚？重婚是犯罪的!
+4101 : DEX 			;X--
+4102 : BNE $40FB 			;Z=0则转移,否则继续
+4104 : BIT $3181 			;A∧($n2n1)
+4107 : BPL $410C 			;N=1则转移,否则继续
+4109 : JMP $44F5 			;
+410C : LDX #$33 			;->X
+410E : LDA $4709,X 			;->A
+4111 : STA $2D7F,X 			;A->MEM  你决定求婚，
+4114 : DEX 			;X--
+4115 : BNE $410E 			;Z=0则转移,否则继续
+4117 : JSR $44FF  			;跳转子程序
+411A : LDA #$01 			;->A
+411C : JSR $441E  			;跳转子程序
+411F : JSR $4452  			;跳转子程序
+4122 : BCC $4127 			;进位标志C=0则转移,否则继续
+4124 : JMP $44EA 			;
+4127 : JSR $445C  			;跳转子程序
+412A : BCC $412F 			;进位标志C=0则转移,否则继续
+412C : JMP $44EA 			;
+412F : LDA $2000 			;->A
+4132 : CMP #$02 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4134 : BEQ $416E 			;Z=1则转移,否则继续
+4136 : LDX #$0B 			;->X
+4138 : LDA $4902,X 			;->A
+413B : STA $2D7F,X 			;A->MEM  4903非法请求!
+413E : DEX 			;X--
+413F : BNE $4138 			;Z=0则转移,否则继续
+4141 : LDA $2000 			;->A
+4144 : CMP #$07 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4146 : BNE $414B 			;Z=0则转移,否则继续
+4148 : JMP $44F5 			;
+414B : LDX #$1A 			;->X
+414D : LDA $4792,X 			;->A
+4150 : STA $2D7F,X 			;A->MEM  4793别开玩笑,你们性别相同耶!
+4153 : DEX 			;X--
+4154 : BNE $414D 			;Z=0则转移,否则继续
+4156 : LDA $2000 			;->A
+4159 : CMP #$04 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+415B : BNE $4160 			;Z=0则转移,否则继续
+415D : JMP $44F5 			;
+4160 : LDX #$49 			;->X
+4162 : LDA $4749,X 			;->A
+4165 : STA $2D7F,X 			;A->MEM  落花有意流水无情
+4168 : DEX 			;X--
+4169 : BNE $4162 			;Z=0则转移,否则继续
+416B : JMP $44F5 			;
+416E : LDA $3181 			;->A
+4171 : ORA #$80 			;A∨$n→A
+4173 : STA $3181 			;A->MEM
+4176 : LDX #$0D 			;->X
+4178 : LDA $2000,X 			;->A
+417B : STA $3181,X 			;A->MEM
+417E : DEX 			;X--
+417F : BNE $4178 			;Z=0则转移,否则继续
+4181 : JSR $4388  			;跳转子程序
+4184 : LDX #$2A 			;->X
+4186 : LDA $47AC,X 			;->A
+4189 : STA $2D7F,X 			;A->MEM  同意了
+418C : DEX 			;X--
+418D : BNE $4186 			;Z=0则转移,否则继续
+418F : JMP $44F5 			;
+4192 : JSR $4545  			;跳转子程序
+4195 : LDX #$23 			;->X
+4197 : LDA $46C0,X 			;->A
+419A : STA $2D7F,X 			;A->MEM
+419D : DEX 			;X--
+419E : BNE $4197 			;Z=0则转移,否则继续
+41A0 : BIT $3181 			;A∧($n2n1)
+41A3 : BPL $41A8 			;N=1则转移,否则继续
+41A5 : JMP $44F5 			;
+41A8 : JSR $445C  			;跳转子程序
+41AB : BCC $41B0 			;进位标志C=0则转移,否则继续
+41AD : JMP $44EA 			;
+41B0 : LDA $2000 			;->A
+41B3 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+41B5 : BEQ $41C7 			;Z=1则转移,否则继续
+41B7 : LDX #$0B 			;->X
+41B9 : LDA $4902,X 			;->A
+41BC : STA $2D7F,X 			;A->MEM  非法请求!
+41BF : DEX 			;X--
+41C0 : BNE $41B9 			;Z=0则转移,否则继续
+41C2 : LDA #$07 			;->A
+41C4 : JMP $44E2 			;
+41C7 : LDA $2EAA 			;->A
+41CA : CMP $2001 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+41CD : BNE $41DF 			;Z=0则转移,否则继续
+41CF : LDX #$1A 			;->X
+41D1 : LDA $4792,X 			;->A
+41D4 : STA $2D7F,X 			;A->MEM  别开玩笑,你们性别相同耶!
+41D7 : DEX 			;X--
+41D8 : BNE $41D1 			;Z=0则转移,否则继续
+41DA : LDA #$04 			;->A
+41DC : JMP $44E2 			;
+41DF : JSR $4473  			;跳转子程序
+41E2 : LDX #$44 			;->X
+41E4 : LDA $45B3,X 			;->A
+41E7 : STA $2D7F,X 			;A->MEM  有人向你求婚...
+41EA : DEX 			;X--
+41EB : BNE $41E4 			;Z=0则转移,否则继续
+41ED : JSR $44FF  			;跳转子程序
+41F0 : INT $3043       ;readkey      ;readkey
+41F3 : LDA $C7 			;->A
+41F5 : CMP #$79 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+41F7 : BEQ $4209 			;Z=1则转移,否则继续
+41F9 : LDX #$15 			;->X
+41FB : LDA $490D,X 			;->A
+41FE : STA $2D7F,X 			;A->MEM  你拒绝了对方的请求!
+4201 : DEX 			;X--
+4202 : BNE $41FB 			;Z=0则转移,否则继续
+4204 : LDA #$03 			;->A
+4206 : JMP $44E2 			;
+4209 : LDA $3181 			;->A
+420C : ORA #$80 			;A∨$n→A
+420E : STA $3181 			;A->MEM
+4211 : LDX #$0D 			;->X
+4213 : LDA $2000,X 			;->A
+4216 : STA $3181,X 			;A->MEM
+4219 : DEX 			;X--
+421A : BNE $4213 			;Z=0则转移,否则继续
+421C : JSR $4388  			;跳转子程序
+421F : LDX #$14 			;->X
+4221 : LDA $459F,X 			;->A
+4224 : STA $2D7F,X 			;A->MEM  恭喜恭喜,你结婚了!
+4227 : DEX 			;X--
+4228 : BNE $4221 			;Z=0则转移,否则继续
+422A : LDA #$02 			;->A
+422C : JMP $44E2 			;
+422F : JSR $4545  			;跳转子程序
+4232 : LDX #$26 			;->X
+4234 : LDA $46E3,X 			;->A
+4237 : STA $2D7F,X 			;A->MEM  你尚未婚配就来离婚，想拿老夫开涮吗？
+423A : DEX 			;X--
+423B : BNE $4234 			;Z=0则转移,否则继续
+423D : BIT $3181 			;A∧($n2n1)
+4240 : BMI $4245 			;N=0则转移,否则继续
+4242 : JMP $44F5 			;
+4245 : LDX #$32 			;->X
+4247 : LDA $47D6,X 			;->A
+424A : STA $2D7F,X 			;A->MEM
+424D : DEX 			;X--
+424E : BNE $4247 			;Z=0则转移,否则继续
+4250 : JSR $44FF  			;跳转子程序
+4253 : LDA #$05 			;->A
+4255 : JSR $441E  			;跳转子程序
+4258 : JSR $4452  			;跳转子程序
+425B : BCC $4260 			;进位标志C=0则转移,否则继续
+425D : JMP $44EA 			;
+4260 : JSR $445C  			;跳转子程序
+4263 : BCC $4268 			;进位标志C=0则转移,否则继续
+4265 : JMP $44EA 			;
+4268 : LDX #$0B 			;->X
+426A : LDA $4902,X 			;->A
+426D : STA $2D7F,X 			;A->MEM  非法请求!
+4270 : DEX 			;X--
+4271 : BNE $426A 			;Z=0则转移,否则继续
+4273 : LDA $2000 			;->A
+4276 : CMP #$07 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4278 : BNE $427D 			;Z=0则转移,否则继续
+427A : JMP $44F5 			;
+427D : LDX #$49 			;->X
+427F : LDA $4853,X 			;->A
+4282 : STA $2D7F,X 			;A->MEM  一日夫妻百日恩，还是不逞一时意气了吧
+4285 : DEX 			;X--
+4286 : BNE $427F 			;Z=0则转移,否则继续
+4288 : LDA $2000 			;->A
+428B : CMP #$02 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+428D : BEQ $4292 			;Z=1则转移,否则继续
+428F : JMP $44F5 			;
+4292 : LDA $3181 			;->A
+4295 : AND #$7F 			;A∧$n→A
+4297 : STA $3181 			;A->MEM
+429A : LDX #$0D 			;->X
+429C : LDA #$00 			;->A
+429E : STA $3181,X 			;A->MEM
+42A1 : DEX 			;X--
+42A2 : BNE $429C 			;Z=0则转移,否则继续
+42A4 : LDA #$1B 			;->A
+42A6 : STA $31D5 			;A->MEM
+42A9 : LDA #$08 			;->A
+42AB : STA $31D6 			;A->MEM
+42AE : LDX #$4B 			;->X
+42B0 : LDA $4808,X 			;->A
+42B3 : STA $2D7F,X 			;A->MEM
+42B6 : DEX 			;X--
+42B7 : BNE $42B0 			;Z=0则转移,否则继续
+42B9 : JMP $44F5 			;
+42BC : JSR $4545  			;跳转子程序
+42BF : LDX #$26 			;->X
+42C1 : LDA $46E3,X 			;->A
+42C4 : STA $2D7F,X 			;A->MEM  你尚未婚配就来离婚，想拿老夫开涮吗？
+42C7 : DEX 			;X--
+42C8 : BNE $42C1 			;Z=0则转移,否则继续
+42CA : BIT $3181 			;A∧($n2n1)
+42CD : BMI $42D2 			;N=0则转移,否则继续
+42CF : JMP $44F5 			;
+42D2 : JSR $445C  			;跳转子程序
+42D5 : BCC $42DA 			;进位标志C=0则转移,否则继续
+42D7 : JMP $44EA 			;
+42DA : LDA $2000 			;->A
+42DD : CMP #$05 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+42DF : BEQ $42F1 			;Z=1则转移,否则继续
+42E1 : LDX #$0B 			;->X
+42E3 : LDA $4902,X 			;->A
+42E6 : STA $2D7F,X 			;A->MEM
+42E9 : DEX 			;X--
+42EA : BNE $42E3 			;Z=0则转移,否则继续
+42EC : LDA #$07 			;->A
+42EE : JMP $44E2 			;
+42F1 : JSR $4376  			;跳转子程序
+42F4 : BCS $4306 			;借位标志C=1则转移,否则继续
+42F6 : LDX #$32 			;->X
+42F8 : LDA $489C,X 			;->A
+42FB : STA $2D7F,X 			;A->MEM
+42FE : DEX 			;X--
+42FF : BNE $42F8 			;Z=0则转移,否则继续
+
+4301 : LDA #$06 			;->A
+4303 : JMP $44E2 			;
+
+4306 : LDX #$34 			;->X
+4308 : LDA $48CE,X 			;->A  世事艰辛，这日子...还能过到一块儿去吗,\n不过了? y/n
+430B : STA $2D7F,X 			;A->MEM
+430E : DEX 			;X--
+430F : BNE $4308 			;Z=0则转移,否则继续
+4311 : JSR $44FF  			;跳转子程序
+4314 : INT $3043       ;readkey
+4317 : LDA $C7 			;->A
+4319 : CMP #$79 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+431B : BEQ $432D 			;Z=1则转移,否则继续
+431D : LDX #$15 			;->X
+431F : LDA $490D,X 			;->A  你拒绝了对方的请求!
+4322 : STA $2D7F,X 			;A->MEM
+4325 : DEX 			;X--
+4326 : BNE $431F 			;Z=0则转移,否则继续
+4328 : LDA #$03 			;->A
+432A : JMP $44E2 			;
+
+432D : LDA $3181 			;->A
+4330 : AND #$7F 			;A∧$n→A
+4332 : STA $3181 			;A->MEM
+4335 : LDX #$0D 			;->X
+4337 : LDA #$00 			;->A
+4339 : STA $3181,X 			;A->MEM
+433C : DEX 			;X--
+433D : BNE $4337 			;Z=0则转移,否则继续
+433F : LDA #$1B 			;->A
+4341 : STA $31D5 			;A->MEM
+4344 : LDA #$08 			;->A
+4346 : STA $31D6 			;A->MEM
+4349 : LDX #$4B 			;->X
+434B : LDA $4808,X 			;->A  唉，如此你我情断义绝，多自珍重吧。
+434E : STA $2D7F,X 			;A->MEM
+4351 : DEX 			;X--
+4352 : BNE $434B 			;Z=0则转移,否则继续
+4354 : LDA #$02 			;->A
+4356 : JMP $44E2 			;
+
+4359 : RTS 			;子程序返回
+
+435A : RTS 			;子程序返回
+;处理结婚菜单按键
+435B : LDY #$00 			;->Y
+435D : LDA #$72 			;->A
+435F : STA $80 			;A->MEM
+4361 : LDA #$43 			;->A
+4363 : STA $81 			;A->MEM  4372
+4365 : LDA $C7 			;->A
+4367 : CMP ($80),Y 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4369 : BEQ $4371 			;Z=1则转移,否则继续
+436B : INY 			;Y++
+436C : CPY #$04 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+436E : BNE $4367 			;Z=0则转移,否则继续
+4370 : CLC 			;清进位标志
+4371 : RTS 			;子程序返回
+4372 : bnmg(1234)
+
+4376 : LDY #$00 			;->Y
+4378 : LDA $2005,Y 			;->A
+437B : CMP $3186,Y 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+437E : BNE $4386 			;Z=0则转移,否则继续
+4380 : INY 			;Y++
+4381 : CPY #$08 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+4383 : BCC $4378 			;进位标志C=0则转移,否则继续
+4385 : RTS 			;子程序返回
+4386 : CLC 			;清进位标志
+4387 : RTS 			;子程序返回
+
+4388 : LDA #$08 			;->A
+438A : STA $31D5 			;A->MEM
+438D : LDA #$00 			;->A
+438F : STA $31D6 			;A->MEM
+4392 : RTS 			;子程序返回
+;请教(配偶)
+4393 : JSR $4545  			;跳转子程序
+4396 : LDA #$5C 			;->A
+4398 : STA $302F 			;A->MEM
+439B : LDA #$87 			;->A
+439D : STA $A4 			;A->MEM
+439F : LDA #$2F 			;->A
+43A1 : STA $A5 			;A->MEM
+43A3 : JSR $4551  			;跳转子程序
+43A6 : BCC $43AC 			;进位标志C=0则转移,否则继续
+43A8 : JSR $4563  			;跳转子程序
+43AB : SEC 			;置进位标志C=1
+43AC : PHP 			;标志寄存器P进栈
+43AD : JSR $4549  			;跳转子程序
+43B0 : PLP 			;标志寄存器P出栈
+43B1 : RTS 			;子程序返回
+
+;传授(配偶)
+43B2 : JSR $43D4  			;跳转子程序
+43B5 : JSR $4545  			;跳转子程序
+43B8 : LDA #$C8 			;->A
+43BA : STA $302F 			;A->MEM
+43BD : LDA #$00 			;->A
+43BF : STA $A4 			;A->MEM
+43C1 : LDA #$20 			;->A
+43C3 : STA $A5 			;A->MEM
+43C5 : JSR $454D  			;跳转子程序
+43C8 : BCC $43CE 			;进位标志C=0则转移,否则继续
+43CA : JSR $4555  			;跳转子程序
+43CD : SEC 			;置进位标志C=1
+43CE : PHP 			;标志寄存器P进栈
+43CF : JSR $4549  			;跳转子程序
+43D2 : PLP 			;标志寄存器P出栈
+43D3 : RTS 			;子程序返回
+
+43D4 : LDA #$9F 			;->A
+43D6 : STA $80 			;A->MEM
+43D8 : LDA #$2E 			;->A
+43DA : STA $81 			;A->MEM
+43DC : LDY #$00 			;->Y
+43DE : LDX #$00 			;->X
+43E0 : LDA ($80),Y 			;->A
+43E2 : STA $2000,X 			;A->MEM
+43E5 : INX 			;X++
+43E6 : INY 			;Y++
+43E7 : CPY #$28 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+43E9 : BCC $43E0 			;进位标志C=0则转移,否则继续
+43EB : LDA #$00 			;->A
+43ED : LDY #$00 			;->Y
+43EF : STA $2000,X 			;A->MEM
+43F2 : INX 			;X++
+43F3 : INY 			;Y++
+43F4 : CPY #$0B 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+43F6 : BCC $43EF 			;进位标志C=0则转移,否则继续
+43F8 : LDA $2EDA 			;->A
+43FB : STA $2000,X 			;A->MEM
+43FE : INX 			;X++
+43FF : LDY #$00 			;->Y
+4401 : LDA #$DB 			;->A
+4403 : STA $80 			;A->MEM
+4405 : LDA #$2E 			;->A
+4407 : STA $81 			;A->MEM
+4409 : LDA ($80),Y 			;->A
+440B : STA $2000,X 			;A->MEM
+440E : INX 			;X++
+440F : INY 			;Y++
+4410 : LDA ($80),Y 			;->A
+4412 : STA $2000,X 			;A->MEM
+4415 : INX 			;X++
+4416 : INY 			;Y++
+4417 : INY 			;Y++
+4418 : INY 			;Y++
+4419 : CPY #$50 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+441B : BCC $4409 			;进位标志C=0则转移,否则继续
+441D : RTS 			;子程序返回
+
+441E : STA $2000 			;A->MEM
+4421 : LDA $2EAA 			;->A  SexID
+4424 : STA $2001 			;A->MEM
+4427 : LDA $2EAB 			;->A  age
+442A : STA $2002 			;A->MEM
+442D : LDA $2EBA 			;->A  face
+4430 : STA $2003 			;A->MEM
+4433 : LDA $2E9B 			;->A  imageID
+4436 : STA $2004 			;A->MEM
+4439 : LDX #$09 			;->X
+443B : LDA $2E9E,X 			;->A  name
+443E : STA $2004,X 			;A->MEM
+4441 : DEX 			;X--
+4442 : BNE $443B 			;Z=0则转移,否则继续
+4444 : LDA #$00 			;->A
+4446 : STA $A4 			;A->MEM
+4448 : LDA #$20 			;->A
+444A : STA $A5 			;A->MEM
+444C : LDA #$0E 			;->A
+444E : STA $302F 			;A->MEM
+4451 : RTS 			;子程序返回
+
+4452 : JSR $454D  			;跳转子程序
+4455 : BCC $445B 			;进位标志C=0则转移,否则继续
+4457 : JSR $4555  			;跳转子程序
+445A : SEC 			;置进位标志C=1
+445B : RTS 			;子程序返回
+
+445C : LDA #$00 			;->A
+445E : STA $A4 			;A->MEM
+4460 : LDA #$20 			;->A
+4462 : STA $A5 			;A->MEM
+4464 : LDA #$0E 			;->A
+4466 : STA $302F 			;A->MEM
+4469 : JSR $4551  			;跳转子程序
+446C : BCC $4472 			;进位标志C=0则转移,否则继续
+446E : JSR $4563  			;跳转子程序
+4471 : SEC 			;置进位标志C=1
+4472 : RTS 			;子程序返回
+;get face
+4473 : LDA $2001 			;->A
+4476 : ASL 			;算术左移
+4477 : TAX 			;A->X
+4478 : LDA $44DE,X 			;->A
+447B : STA $05FC 			;A->MEM
+447E : LDA $44DF,X 			;->A
+4481 : STA $05FD 			;A->MEM
+4484 : LDX #$09 			;->X
+4486 : LDA $4A42,X 			;->A  一脸稚气 
+4489 : STA $273F,X 			;A->MEM
+448C : DEX 			;X--
+448D : BNE $4486 			;Z=0则转移,否则继续
+448F : LDA $2002 			;->A
+4492 : CMP #$10 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4494 : BCC $44DD 			;进位标志C=0则转移,否则继续
+4496 : LDX #$90 			;->X
+4498 : LDA $4922,X 			;->A  一塌糊涂,不是人样
+449B : STA $273F,X 			;A->MEM
+449E : DEX 			;X--
+449F : BNE $4498 			;Z=0则转移,否则继续
+44A1 : LDA $2001 			;->A
+44A4 : BEQ $44B1 			;Z=1则转移,否则继续
+44A6 : LDX #$90 			;->X
+44A8 : LDA $49B2,X 			;->A  貌赛无盐,惨不忍睹
+44AB : STA $273F,X 			;A->MEM
+44AE : DEX 			;X--
+44AF : BNE $44A8 			;Z=0则转移,否则继续
+44B1 : LDA #$40 			;->A
+44B3 : STA $05FE 			;A->MEM
+44B6 : LDA #$27 			;->A
+44B8 : STA $05FF 			;A->MEM
+44BB : LDA $2003 			;->A
+44BE : CMP #$1F 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+44C0 : BCC $44C4 			;进位标志C=0则转移,否则继续
+44C2 : LDA #$1F 			;->A
+44C4 : SEC 			;置进位标志C=1
+44C5 : SBC #$0A 			;A-MEM-C->A
+44C7 : LDX #$03 			;->X
+44C9 : INT $9E22      ;X,A相除.A为得数，X为余数 
+44CC : LDX #$12 			;->X
+44CE : INT $9E1F      ;A,X相乘，结果放80
+44D1 : CLC 			;清进位标志
+44D2 : ADC $05FE 			;与(A+标志C)相加,结果送A
+44D5 : STA $05FE 			;A->MEM
+44D8 : BCC $44DD 			;进位标志C=0则转移,否则继续
+44DA : INC $05FF 			;MEM++
+44DD : RTS 			;子程序返回
+
+44DE : CPY $D0 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+44E0 : CMP $AE 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+44E2 : JSR $441E  			;跳转子程序
+44E5 : JSR $4452  			;跳转子程序
+44E8 : BCC $44F5 			;进位标志C=0则转移,否则继续
+44EA : LDX #$0D 			;->X
+44EC : LDA $473C,X 			;->A
+44EF : STA $2D7F,X 			;A->MEM
+44F2 : DEX 			;X--
+44F3 : BNE $44EC 			;Z=0则转移,否则继续
+44F5 : JSR $44FF  			;跳转子程序
+44F8 : INT $3210       ;红外shutdown
+44FB : INT $3043       ;readkey
+44FE : RTS 			;子程序返回
+
+44FF : LDA #$06 			;->A
+4501 : STA $043F 			;A->MEM
+4504 : LDA #$03 			;->A
+4506 : STA $0440 			;A->MEM
+4509 : LDA #$96 			;->A
+450B : STA $0441 			;A->MEM
+450E : LDA #$4B 			;->A
+4510 : STA $0442 			;A->MEM
+4513 : LDA #$80 			;->A
+4515 : STA $A6 			;A->MEM
+4517 : LDA #$2D 			;->A
+4519 : STA $A7 			;A->MEM
+451B : INT $302D   ;显示对话
+451E : INT $3032
+4521 : RTS 			;子程序返回
+
+4522 : LDA #$06 			;->A
+4524 : STA $043F 			;A->MEM
+4527 : LDA #$03 			;->A
+4529 : STA $0440 			;A->MEM
+452C : LDA #$96 			;->A
+452E : STA $0441 			;A->MEM
+4531 : LDA #$4B 			;->A
+4533 : STA $0442 			;A->MEM
+4536 : LDA #$80 			;->A
+4538 : STA $A6 			;A->MEM
+453A : LDA #$2D 			;->A
+453C : STA $A7 			;A->MEM
+453E : INT $302D   ;显示对话
+4541 : INT $302F    ;[输入]确认,[跳出]放弃c=1
+4544 : RTS 			;子程序返回
+
+4545 : INT $320F    ;[输入]确认,[跳出]放弃c=1
+4548 : RTS 			;子程序返回
+
+4549 : INT $3210
+454C : RTS 			;子程序返回
+
+454D : INT $320D
+4550 : RTS 			;子程序返回
+
+4551 : INT $320E
+4554 : RTS 			;子程序返回
+;发送错误!
+4555 : LDX #$14 			;->X
+4557 : LDA $4577,X 			;->A
+455A : STA $2D7F,X 			;A->MEM
+455D : DEX 			;X--
+455E : BNE $4557 			;Z=0则转移,否则继续
+4560 : JMP $456E 			;
+;接收错误!
+4563 : LDX #$14 			;->X
+4565 : LDA $458B,X 			;->A
+4568 : STA $2D7F,X 			;A->MEM
+456B : DEX 			;X--
+456C : BNE $4565 			;Z=0则转移,否则继续
+456E : JSR $44FF  			;跳转子程序
+4571 : INT $3043       ;readkey
+4574 : INT $3028
+4577 : RTS 			;子程序返回
+
+4578 :          发送错误!
+458B :          接收错误!
+45A0 : 恭喜恭喜,你结婚了!
+45B4 : 有人向你求婚『 07 0520』是一位 01 0220 岁的 06 Fc05 性
+45E1 : 看上去 08 FE05 
+45EC : 同意吗?y/n
+45F8 : 茅山一派属方外之士,岂能再动凡心?
+461A : 这么嫩的小伢仔也要结婚？早恋可不好呦！
+4642 : 房子都没有就想结婚？我可不能眼看你们婚后露宿街头
+4674 : 请选择下列选项:
+4684 : 结婚: 1.求婚 2.允婚
+4698 : 离婚: 3.分道 4.扬镳
+46AC :    (请按数字键选择)
+46C1 : 你已有家室还来结婚？重婚是犯罪的!
+46E4 : 你尚未婚配就来离婚，想拿老夫开涮吗？
+470A : 你决定求婚，现在正怀着忐忑的心情等待对方的答复...
+473D : 请检查线路!
+474A : 落花有意流水无情
+475B :      此事只好作罢,
+476D : 真情不在朝朝暮暮
+477F :      此事从长计议!
+4793 : 别开玩笑,你们性别相同耶!
+47AD : 07 8631 同意了,此乃天作之合，祝你们白头到老
+47D7 : 你决定与07 8631 断绝夫妻情分，现在正等待对方答复...
+4809 : 唉，如此你我情断义绝，多自珍重吧。
+4854 : 一日夫妻百日恩，还是不逞一时意气了吧。
+487B : 床头吵架床尾和，日子还是要过的。
+489D : 你爱人根本就不是这个人,别人家里的事你凑什么热闹!
+48CF : 世事艰辛，这日子...还能过到一块儿去吗,
+48F6 : 不过了? y/n
+4903 : 非法请求!
+490E : 你拒绝了对方的请求!
+4923 : 一塌糊涂,不是人样
+4935 : 牛眼马嘴,面目狰狞
+4947 : 小鼻小眼,一脸麻子
+4959 : 相貌平平,还过得去
+496B : 五官端正,身材匀称
+497D : 相貌英俊,双目有神
+498F : 气宇轩昂,骨骼清奇
+49A1 : 风流俊雅,仪表堂堂
+49B3 : 貌赛无盐,惨不忍睹
+49C5 : 眼小嘴大,相貌丑陋
+49D7 : 看上去...马马虎虎
+49E9 : 相貌平平,还过得去
+49FB : 身材娇好,尚有资色
+4A0D : 婷婷玉立,美貌如花
+4A1F : 沉鱼落雁,闭月羞花
+4A31 : 美奂绝伦,人间仙子
+4A43 : 一脸稚气
+
+;华岳
+4A4C : LDX #$2A 			;->X
+4A4E : LDA $4ACF,X 			;->A
+4A51 : STA $2D7F,X 			;A->MEM   这位施主,捐点香火钱积点阴德，修些福缘吧.
+4A54 : DEX 			;X--
+4A55 : BNE $4A4E 			;Z=0则转移,否则继续
+4A57 : JSR $4AC1  			;跳转子程序
+4A5A : LDA #$20 			;->A
+4A5C : STA $80 			;A->MEM
+4A5E : LDA #$A1 			;->A
+4A60 : STA $81 			;A->MEM
+4A62 : LDA #$07 			;->A
+4A64 : STA $82 			;A->MEM
+4A66 : LDA #$00 			;->A
+4A68 : STA $83 			;A->MEM
+4A6A : LDA $2ED4 			;->A
+4A6D : CMP $83 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4A6F : BNE $4A84 			;Z=0则转移,否则继续
+4A71 : LDA $2ED3 			;->A
+4A74 : CMP $82 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4A76 : BNE $4A84 			;Z=0则转移,否则继续
+4A78 : LDA $2ED2 			;->A
+4A7B : CMP $81 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4A7D : BNE $4A84 			;Z=0则转移,否则继续
+4A7F : LDA $2ED1 			;->A
+4A82 : CMP $80 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4A84 : BCS $4A87 			;借位标志C=1则转移,否则继续
+4A86 : RTS 			;子程序返回
+4A87 : SEC 			;置进位标志C=1  ;捐福缘
+4A88 : LDA $2ED1 			;->A
+4A8B : SBC $80 			;A-MEM-C->A
+4A8D : STA $2ED1 			;A->MEM
+4A90 : LDA $2ED2 			;->A
+4A93 : SBC $81 			;A-MEM-C->A
+4A95 : STA $2ED2 			;A->MEM
+4A98 : LDA $2ED3 			;->A
+4A9B : SBC $82 			;A-MEM-C->A
+4A9D : STA $2ED3 			;A->MEM
+4AA0 : LDA $2ED4 			;->A
+4AA3 : SBC $83 			;A-MEM-C->A
+4AA5 : STA $2ED4 			;A->MEM
+4AA8 : LDA $2EBB 			;->A  bliss
+4AAB : CMP #$FA 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4AAD : BCS $4AB2 			;借位标志C=1则转移,否则继续
+4AAF : INC $2EBB 			;MEM++  bliss
+4AB2 : LDX #$34 			;->X
+4AB4 : LDA $4AF9,X 			;->A  多谢你的捐赠,神明一定会保佑你的. [你的福缘增加了!]
+4AB7 : STA $2D7F,X 			;A->MEM
+4ABA : DEX 			;X--
+4ABB : BNE $4AB4 			;Z=0则转移,否则继续
+4ABD : JSR $4AC1  			;跳转子程序
+4AC0 : RTS 			;子程序返回
+;显示福缘对话
+4AC1 : LDA #$80 			;->A
+4AC3 : STA $A6 			;A->MEM
+4AC5 : LDA #$2D 			;->A
+4AC7 : STA $A7 			;A->MEM
+4AC9 : INT $302D    ;显示对话
+4ACC : INT $3033    ;按任意键返回地图
+4ACF : RTS 			;子程序返回
+4AD0 : 这位施主,捐点香火钱积点阴德，修些福缘吧.
+4AFA : 多谢你的捐赠,神明一定会保佑你的. [你的福缘增加了!]
+
+4B2E : STX $03E2 			;X->MEM
+4B31 : STY $03E3 			;Y->MEM
+4B34 : LDA $80 			;->A
+4B36 : STA $03EA 			;A->MEM
+4B39 : LDA $81 			;->A
+4B3B : STA $03EB 			;A->MEM
+4B3E : LDA #$00 			;->A
+4B40 : STA $05AE 			;A->MEM
+4B43 : STA $05AD 			;A->MEM
+4B46 : JSR $4B9F  			;跳转子程序
+4B49 : LDA $03E9 			;->A
+4B4C : BEQ $4B70 			;Z=1则转移,否则继续
+4B4E : JSR $4CFE  			;跳转子程序
+4B51 : JSR $4D8B  			;跳转子程序
+4B54 : JSR $516B  			;跳转子程序
+4B57 : INT $3043       ;readkey
+4B5A : CMP #$1B 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4B5C : BEQ $4B70 			;Z=1则转移,否则继续
+4B5E : TAX 			;A->X
+4B5F : LDY #$05 			;->Y
+4B61 : LDA #$4E 			;->A
+4B63 : STA $80 			;A->MEM
+4B65 : LDA #$53 			;->A
+4B67 : STA $81 			;A->MEM  534E 0D 17 16 14 15 addr E451 B052 EB52 8952 C652
+4B69 : TXA 			;X->A
+4B6A : JSR $813F  			;跳转子程序
+4B6D : JMP $4B57 			;
+4B70 : LDA #$FF 			;->A
+4B72 : RTS 			;子程序返回
+
+4B73 : STX $03E2 			;X->MEM
+4B76 : STY $03E3 			;Y->MEM
+4B79 : LDA $80 			;->A
+4B7B : STA $03EA 			;A->MEM
+4B7E : LDA $81 			;->A
+4B80 : STA $03EB 			;A->MEM
+4B83 : LDA #$00 			;->A
+4B85 : STA $05AE 			;A->MEM
+4B88 : STA $05AD 			;A->MEM
+4B8B : JSR $4B9F  			;跳转子程序
+4B8E : LDA $03E9 			;->A
+4B91 : BEQ $4B9E 			;Z=1则转移,否则继续
+4B93 : JSR $4CFE  			;跳转子程序
+4B96 : LDA #$FF 			;->A
+4B98 : STA $05AE 			;A->MEM
+4B9B : JSR $4D8B  			;跳转子程序
+4B9E : RTS 			;子程序返回
+
+4B9F : LDA $03EA 			;->A
+4BA2 : STA $80 			;A->MEM
+4BA4 : LDA $03EB 			;->A
+4BA7 : STA $81 			;A->MEM
+4BA9 : LDY #$00 			;->Y
+4BAB : LDA ($A8),Y 			;->A
+4BAD : STA $05AF 			;A->MEM
+4BB0 : AND #$0F 			;A∧$n→A
+4BB2 : STA $03E4 			;A->MEM
+4BB5 : INY 			;Y++
+4BB6 : LDA ($A8),Y 			;->A
+4BB8 : STA $03E9 			;A->MEM
+4BBB : INY 			;Y++
+4BBC : LDA ($A8),Y 			;->A
+4BBE : STA $03E5 			;A->MEM
+4BC1 : AND #$07 			;A∧$n→A
+4BC3 : STA $05B0 			;A->MEM
+4BC6 : LDA $03E5 			;->A
+4BC9 : LSR 			;A逻辑右移
+4BCA : LSR 			;A逻辑右移
+4BCB : LSR 			;A逻辑右移
+4BCC : LSR 			;A逻辑右移
+4BCD : AND #$07 			;A∧$n→A
+4BCF : STA $03E6 			;A->MEM
+4BD2 : INY 			;Y++
+4BD3 : LDA ($A8),Y 			;->A
+4BD5 : STA $05AC 			;A->MEM
+4BD8 : INY 			;Y++
+4BD9 : LDA $A8 			;->A
+4BDB : STA $03EC 			;A->MEM
+4BDE : LDA $A9 			;->A
+4BE0 : STA $03ED 			;A->MEM
+4BE3 : LDA #$04 			;->A
+4BE5 : CLC 			;清进位标志
+4BE6 : ADC $03EC 			;与(A+标志C)相加,结果送A
+4BE9 : STA $03EC 			;A->MEM
+4BEC : BCC $4BF1 			;进位标志C=0则转移,否则继续
+4BEE : INC $03ED 			;MEM++
+4BF1 : LDA $A8 			;->A
+4BF3 : STA $03EE 			;A->MEM
+4BF6 : LDA $A9 			;->A
+4BF8 : STA $03EF 			;A->MEM
+4BFB : LDX #$01 			;->X
+4BFD : LDA $05AF 			;->A
+4C00 : AND #$10 			;A∧$n→A
+4C02 : BNE $4C11 			;Z=0则转移,否则继续
+4C04 : LDX $03E9 			;->X
+4C07 : BIT $03E9 			;A∧($n2n1)
+4C0A : BPL $4C11 			;N=1则转移,否则继续
+4C0C : LDY #$00 			;->Y
+4C0E : LDA ($80),Y 			;->A
+4C10 : TAX 			;A->X
+4C11 : TXA 			;X->A
+4C12 : ASL 			;算术左移
+4C13 : BIT $05AF 			;A∧($n2n1)
+4C16 : BVC $4C19 			;溢出V=0则转移,否则继续
+4C18 : ASL 			;算术左移
+4C19 : CLC 			;清进位标志
+4C1A : ADC #$04 			;与(A+标志C)相加,结果送A
+4C1C : CLC 			;清进位标志
+4C1D : ADC $03EE 			;与(A+标志C)相加,结果送A
+4C20 : STA $03EE 			;A->MEM
+4C23 : BCC $4C28 			;进位标志C=0则转移,否则继续
+4C25 : INC $03EF 			;MEM++
+4C28 : BIT $03E9 			;A∧($n2n1)
+4C2B : BMI $4C57 			;N=0则转移,否则继续
+4C2D : BIT $05AF 			;A∧($n2n1)
+4C30 : BPL $4C95 			;N=1则转移,否则继续
+4C32 : LDA $03EE 			;->A
+4C35 : STA $CA 			;A->MEM
+4C37 : LDA $03EF 			;->A
+4C3A : STA $CB 			;A->MEM
+4C3C : LDY $03E9 			;->Y
+4C3F : LDA $05AF 			;->A
+4C42 : AND #$20 			;A∧$n→A
+4C44 : BEQ $4C49 			;Z=1则转移,否则继续
+4C46 : TYA 			;Y->A
+4C47 : ASL 			;算术左移
+4C48 : TAY 			;A->Y
+4C49 : LDA ($CA),Y 			;->A
+4C4B : STA $03EE 			;A->MEM
+4C4E : INY 			;Y++
+4C4F : LDA ($CA),Y 			;->A
+4C51 : STA $03EF 			;A->MEM
+4C54 : JMP $4C95 			;
+4C57 : LDY #$00 			;->Y
+4C59 : LDA ($80),Y 			;->A
+4C5B : STA $03E9 			;A->MEM
+4C5E : INC $80 			;MEM++
+4C60 : BNE $4C64 			;Z=0则转移,否则继续
+4C62 : INC $81 			;MEM++
+4C64 : BIT $05AF 			;A∧($n2n1)
+4C67 : BMI $4C76 			;N=0则转移,否则继续
+4C69 : LDA $80 			;->A
+4C6B : STA $03EE 			;A->MEM
+4C6E : LDA $81 			;->A
+4C70 : STA $03EF 			;A->MEM
+4C73 : JMP $4C95 			;
+4C76 : LDA $80 			;->A
+4C78 : STA $CA 			;A->MEM
+4C7A : LDA $81 			;->A
+4C7C : STA $CB 			;A->MEM
+4C7E : LDA $03EE 			;->A
+4C81 : STA $80 			;A->MEM
+4C83 : LDA $03EF 			;->A
+4C86 : STA $81 			;A->MEM
+4C88 : LDY #$00 			;->Y
+4C8A : LDA ($80),Y 			;->A
+4C8C : STA $03EE 			;A->MEM
+4C8F : INY 			;Y++
+4C90 : LDA ($80),Y 			;->A
+4C92 : STA $03EF 			;A->MEM
+4C95 : JSR $4C99  			;跳转子程序
+4C98 : RTS 			;子程序返回
+
+4C99 : LDA $03E9 			;->A
+4C9C : LDX $03E6 			;->X
+4C9F : BEQ $4CC3 			;Z=1则转移,否则继续
+4CA1 : LDX $05B0 			;->X
+4CA4 : BEQ $4CDA 			;Z=1则转移,否则继续
+4CA6 : INT $9E22      ;X,A相除.A为得数，X为余数 
+4CA9 : TAY 			;A->Y
+4CAA : TXA 			;X->A
+4CAB : BEQ $4CAE 			;Z=1则转移,否则继续
+4CAD : INY 			;Y++
+4CAE : CPY $03E6 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+4CB1 : BCS $4CB6 			;借位标志C=1则转移,否则继续
+4CB3 : STY $03E6 			;Y->MEM
+4CB6 : TYA 			;Y->A
+4CB7 : LDX $05B0 			;->X
+4CBA : INT $9E1F      ;A,X相乘，结果放80
+4CBD : STA $03E8 			;A->MEM
+4CC0 : JMP $4CF1 			;
+4CC3 : LDX $05B0 			;->X
+4CC6 : INT $9E22      ;X,A相除.A为得数，X为余数 
+4CC9 : TAY 			;A->Y
+4CCA : TXA 			;X->A
+4CCB : BEQ $4CCE 			;Z=1则转移,否则继续
+4CCD : INY 			;Y++
+4CCE : STY $03E6 			;Y->MEM
+4CD1 : LDA $03E9 			;->A
+4CD4 : STA $03E8 			;A->MEM
+4CD7 : JMP $4CF1 			;
+4CDA : LDX $03E6 			;->X
+4CDD : INT $9E22      ;X,A相除.A为得数，X为余数 
+4CE0 : TAY 			;A->Y
+4CE1 : TXA 			;X->A
+4CE2 : BEQ $4CE5 			;Z=1则转移,否则继续
+4CE4 : INY 			;Y++
+4CE5 : STY $05B0 			;Y->MEM
+4CE8 : LDA $03E9 			;->A
+4CEB : STA $03E8 			;A->MEM
+4CEE : JMP $4CF1 			;
+4CF1 : LDA $03E6 			;->A
+4CF4 : LDX $05B0 			;->X
+4CF7 : INT $9E1F      ;A,X相乘，结果放80
+4CFA : STA $03E7 			;A->MEM
+4CFD : RTS 			;子程序返回
+
+4CFE : LDA $86 			;->A
+4D00 : STA $03F4 			;A->MEM
+4D03 : BMI $4D36 			;N=0则转移,否则继续
+4D05 : CMP $03E9 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4D08 : BCS $4D36 			;借位标志C=1则转移,否则继续
+4D0A : LDA $03E5 			;->A
+4D0D : AND #$08 			;A∧$n→A
+4D0F : BEQ $4D36 			;Z=1则转移,否则继续
+4D11 : LDA #$00 			;->A
+4D13 : STA $05AD 			;A->MEM
+4D16 : LDA $86 			;->A
+4D18 : STA $05AE 			;A->MEM
+4D1B : LDA $05AD 			;->A
+4D1E : CLC 			;清进位标志
+4D1F : ADC $03E7 			;与(A+标志C)相加,结果送A
+4D22 : CMP $05AE 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4D25 : BEQ $4D29 			;Z=1则转移,否则继续
+4D27 : BCS $4D36 			;借位标志C=1则转移,否则继续
+4D29 : CLC 			;清进位标志
+4D2A : LDA $05AD 			;->A
+4D2D : ADC $05B0 			;与(A+标志C)相加,结果送A
+4D30 : STA $05AD 			;A->MEM
+4D33 : JMP $4D1B 			;
+4D36 : RTS 			;子程序返回
+
+4D37 : JSR $4D52  			;跳转子程序
+4D3A : DEC $043F 			;MEM--
+4D3D : DEC $0440 			;MEM--
+4D40 : INC $0441 			;MEM++
+4D43 : INC $0441 			;MEM++
+4D46 : INC $0442 			;MEM++
+4D49 : LDA #$01 			;->A
+4D4B : STA $0445 			;A->MEM
+4D4E : INT $9E2C      ;clear Rect
+4D51 : RTS 			;子程序返回
+4D52 : LDX $03F0 			;->X
+
+4D55 : LDA $44 			;->A
+4D57 : LSR 			;A逻辑右移
+4D58 : INT $9E1F      ;A,X相乘，结果放80
+4D5B : STA $0441 			;A->MEM
+4D5E : JSR $4F95  			;跳转子程序
+4D61 : LDX $03F0 			;->X
+4D64 : LDA $44 			;->A
+4D66 : LSR 			;A逻辑右移
+4D67 : INT $9E1F      ;A,X相乘，结果放80
+4D6A : STA $043F 			;A->MEM
+4D6D : LDA $03E3 			;->A
+4D70 : STA $0440 			;A->MEM
+4D73 : CLC 			;清进位标志
+4D74 : LDA $03F1 			;->A
+4D77 : ADC $44 			;与(A+标志C)相加,结果送A
+4D79 : STA $0442 			;A->MEM
+4D7C : LDA $0403 			;->A
+4D7F : BNE $4D8A 			;Z=0则转移,否则继续
+4D81 : INC $043F 			;MEM++
+4D84 : INC $043F 			;MEM++
+4D87 : DEC $0442 			;MEM--
+4D8A : RTS 			;子程序返回
+
+4D8B : LDA $05AC 			;->A
+4D8E : CMP #$04 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4D90 : BEQ $4DFF 			;Z=1则转移,否则继续
+4D92 : CMP #$05 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4D94 : BEQ $4DFF 			;Z=1则转移,否则继续
+4D96 : CMP #$08 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4D98 : BNE $4D9D 			;Z=0则转移,否则继续
+4D9A : JMP $4E6B 			;
+4D9D : SEC 			;置进位标志C=1
+4D9E : LDA $03E3 			;->A
+4DA1 : SBC $44 			;A-MEM-C->A
+4DA3 : STA $03F1 			;A->MEM
+4DA6 : LDA $05AD 			;->A
+4DA9 : STA $03F2 			;A->MEM
+4DAC : LDA #$00 			;->A
+4DAE : STA $03F3 			;A->MEM
+4DB1 : JSR $4F95  			;跳转子程序
+4DB4 : CLC 			;清进位标志
+4DB5 : LDA $03F1 			;->A
+4DB8 : ADC $44 			;与(A+标志C)相加,结果送A
+4DBA : STA $03F1 			;A->MEM
+4DBD : LDX #$00 			;->X
+4DBF : TXA 			;X->A
+4DC0 : PHA 			;累加器进栈
+4DC1 : LDY $03F2 			;->Y
+4DC4 : JSR $4FA3  			;跳转子程序
+4DC7 : LDY $03F2 			;->Y
+4DCA : JSR $4F3F  			;跳转子程序
+4DCD : JSR $509B  			;跳转子程序
+4DD0 : PLA 			;A出栈
+4DD1 : TAX 			;A->X
+4DD2 : INX 			;X++
+4DD3 : INC $03F2 			;MEM++
+4DD6 : LDA $03F2 			;->A
+4DD9 : CMP $03E9 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4DDC : BCS $4DEE 			;借位标志C=1则转移,否则继续
+4DDE : CPX $05B0 			;与X比较,(X>=MEM,c=1)(X<MEM,C=0,N=1)(X==MEM,Z=0)
+4DE1 : BCC $4DBF 			;进位标志C=0则转移,否则继续
+4DE3 : INC $03F3 			;MEM++
+4DE6 : LDA $03F3 			;->A
+4DE9 : CMP $03E6 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4DEC : BCC $4DB1 			;进位标志C=0则转移,否则继续
+4DEE : LDA $0435 			;->A
+4DF1 : AND #$7F 			;A∧$n→A
+4DF3 : STA $0435 			;A->MEM
+4DF6 : BIT $03E5 			;A∧($n2n1)
+4DF9 : BPL $4DFE 			;N=1则转移,否则继续
+4DFB : JMP $4D37 			;
+4DFE : RTS 			;子程序返回
+
+4DFF : LDA $05AD 			;->A
+4E02 : STA $03F2 			;A->MEM
+4E05 : LDA $03E3 			;->A
+4E08 : STA $03F1 			;A->MEM
+4E0B : LDA $03E2 			;->A
+4E0E : LSR 			;A逻辑右移
+4E0F : LSR 			;A逻辑右移
+4E10 : LSR 			;A逻辑右移
+4E11 : STA $03F0 			;A->MEM
+4E14 : LDY $03F2 			;->Y
+4E17 : JSR $5042  			;跳转子程序
+4E1A : LDY $03F2 			;->Y
+4E1D : JSR $4FD9  			;跳转子程序
+4E20 : INC $03F2 			;MEM++
+4E23 : LDA $03F2 			;->A
+4E26 : CMP $03E9 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4E29 : BCC $4E14 			;进位标志C=0则转移,否则继续
+4E2B : JSR $4E38  			;跳转子程序
+4E2E : LDY $05AE 			;->Y
+4E31 : JSR $4F3F  			;跳转子程序
+4E34 : JSR $509B  			;跳转子程序
+4E37 : RTS 			;子程序返回
+
+4E38 : LDA $05AC 			;->A
+4E3B : CMP #$04 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4E3D : BEQ $4E44 			;Z=1则转移,否则继续
+4E3F : CMP #$05 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4E41 : BEQ $4E51 			;Z=1则转移,否则继续
+4E43 : RTS 			;子程序返回
+
+4E44 : JSR $4F95  			;跳转子程序
+4E47 : CLC 			;清进位标志
+4E48 : LDA $03F1 			;->A
+4E4B : ADC #$0C 			;与(A+标志C)相加,结果送A
+4E4D : STA $03F1 			;A->MEM
+4E50 : RTS 			;子程序返回
+
+4E51 : JSR $4F95  			;跳转子程序
+4E54 : LDA $03E4 			;->A
+4E57 : BNE $4E5B 			;Z=0则转移,否则继续
+4E59 : LDA #$08 			;->A
+4E5B : STA $80 			;A->MEM
+4E5D : INC $80 			;MEM++
+4E5F : INC $80 			;MEM++
+4E61 : SEC 			;置进位标志C=1
+4E62 : LDA $03F0 			;->A
+4E65 : SBC $80 			;A-MEM-C->A
+4E67 : STA $03F0 			;A->MEM
+4E6A : RTS 			;子程序返回
+
+4E6B : LDA $03E3 			;->A
+4E6E : STA $03F1 			;A->MEM
+4E71 : LDA $05AD 			;->A
+4E74 : STA $03F2 			;A->MEM
+4E77 : LDA #$00 			;->A
+4E79 : STA $03F3 			;A->MEM
+4E7C : LDA $03E2 			;->A
+4E7F : STA $03F0 			;A->MEM
+4E82 : LDX #$00 			;->X
+4E84 : TXA 			;X->A
+4E85 : PHA 			;累加器进栈
+4E86 : LDY $03F2 			;->Y
+4E89 : JSR $4EC3  			;跳转子程序
+4E8C : PLA 			;A出栈
+4E8D : TAX 			;A->X
+4E8E : INX 			;X++
+4E8F : INC $03F2 			;MEM++
+4E92 : LDA $03F2 			;->A
+4E95 : CMP $03E9 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4E98 : BCS $4EBD 			;借位标志C=1则转移,否则继续
+4E9A : CPX $05B0 			;与X比较,(X>=MEM,c=1)(X<MEM,C=0,N=1)(X==MEM,Z=0)
+4E9D : BCC $4E84 			;进位标志C=0则转移,否则继续
+4E9F : CLC 			;清进位标志
+4EA0 : LDA $03F1 			;->A
+4EA3 : ADC $03E4 			;与(A+标志C)相加,结果送A
+4EA6 : STA $03F1 			;A->MEM
+4EA9 : CLC 			;清进位标志
+4EAA : LDA $03F1 			;->A
+4EAD : ADC #$08 			;与(A+标志C)相加,结果送A
+4EAF : STA $03F1 			;A->MEM
+4EB2 : INC $03F3 			;MEM++
+4EB5 : LDA $03F3 			;->A
+4EB8 : CMP $03E6 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+4EBB : BCC $4E7C 			;进位标志C=0则转移,否则继续
+4EBD : LDA #$00 			;->A
+4EBF : STA $0445 			;A->MEM
+4EC2 : RTS 			;子程序返回
+
+4EC3 : LDA #$01 			;->A
+4EC5 : CPY $05AE 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+4EC8 : BNE $4ECC 			;Z=0则转移,否则继续
+4ECA : LDA #$06 			;->A
+4ECC : STA $0445 			;A->MEM
+4ECF : TYA 			;Y->A
+4ED0 : ASL 			;算术左移
+4ED1 : TAY 			;A->Y
+4ED2 : LDA $03EE 			;->A
+4ED5 : STA $CC 			;A->MEM
+4ED7 : LDA $03EF 			;->A
+4EDA : STA $CD 			;A->MEM
+4EDC : LDA ($CC),Y 			;->A
+4EDE : STA $92 			;A->MEM
+4EE0 : INY 			;Y++
+4EE1 : LDA ($CC),Y 			;->A
+4EE3 : STA $93 			;A->MEM
+4EE5 : JSR $4F12  			;跳转子程序
+4EE8 : LDA $92 			;->A
+4EEA : PHA 			;累加器进栈
+4EEB : LDA $93 			;->A
+4EED : PHA 			;累加器进栈
+4EEE : LDX $03F0 			;->X
+4EF1 : LDY $03F1 			;->Y
+4EF4 : INT $9E30      ;Draw pic
+4EF7 : PLA 			;A出栈
+4EF8 : STA $93 			;A->MEM
+4EFA : PLA 			;A出栈
+4EFB : STA $92 			;A->MEM
+4EFD : LDY #$00 			;->Y
+4EFF : LDA ($92),Y 			;->A
+4F01 : CLC 			;清进位标志
+4F02 : ADC #$04 			;与(A+标志C)相加,结果送A
+4F04 : CLC 			;清进位标志
+4F05 : ADC $03F0 			;与(A+标志C)相加,结果送A
+4F08 : STA $03F0 			;A->MEM
+4F0B : INY 			;Y++
+4F0C : LDA ($92),Y 			;->A
+4F0E : STA $03E4 			;A->MEM
+4F11 : RTS 			;子程序返回
+
+4F12 : LDY #$00 			;->Y
+4F14 : LDA ($92),Y 			;->A
+4F16 : LSR 			;A逻辑右移
+4F17 : LSR 			;A逻辑右移
+4F18 : LSR 			;A逻辑右移
+4F19 : TAX 			;A->X
+4F1A : LDA ($92),Y 			;->A
+4F1C : AND #$07 			;A∧$n→A
+4F1E : BEQ $4F21 			;Z=1则转移,否则继续
+4F20 : INX 			;X++
+4F21 : INY 			;Y++
+4F22 : LDA ($92),Y 			;->A
+4F24 : INT $9E1F      ;A,X相乘，结果放80
+4F27 : CLC 			;清进位标志
+4F28 : ADC #$02 			;与(A+标志C)相加,结果送A
+4F2A : TAX 			;A->X
+4F2B : LDY #$00 			;->Y
+4F2D : LDA ($92),Y 			;->A
+4F2F : STA $2740,Y 			;A->MEM
+4F32 : INY 			;Y++
+4F33 : DEX 			;X--
+4F34 : BNE $4F2D 			;Z=0则转移,否则继续
+4F36 : LDA #$40 			;->A
+4F38 : STA $92 			;A->MEM
+4F3A : LDA #$27 			;->A
+4F3C : STA $93 			;A->MEM
+4F3E : RTS 			;子程序返回
+
+4F3F : BIT $05AF 			;A∧($n2n1)
+
+4F42 : BPL $4F6D 			;N=1则转移,否则继续
+
+4F44 : LDA $05AF 			;->A
+
+4F47 : AND #$20 			;A∧$n→A
+
+4F49 : BEQ $4F4E 			;Z=1则转移,否则继续
+
+4F4B : TYA 			;Y->A
+
+4F4C : ASL 			;算术左移
+
+4F4D : TAY 			;A->Y
+
+4F4E : LDA ($CA),Y 			;->A
+
+4F50 : AND #$7F 			;A∧$n→A
+
+4F52 : TAY 			;A->Y
+
+4F53 : CMP #$4D 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+4F55 : BNE $4F60 			;Z=0则转移,否则继续
+
+4F57 : LDA #$99 			;->A
+
+4F59 : STA $CC 			;A->MEM
+
+4F5B : LDA #$31 			;->A
+
+4F5D : STA $CD 			;A->MEM
+
+4F5F : RTS 			;子程序返回
+
+4F60 : CMP #$4E 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+4F62 : BNE $4F6D 			;Z=0则转移,否则继续
+
+4F64 : LDA #$A2 			;->A
+
+4F66 : STA $CC 			;A->MEM
+
+4F68 : LDA #$31 			;->A
+
+4F6A : STA $CD 			;A->MEM
+
+4F6C : RTS 			;子程序返回
+
+4F6D : LDA $03EE 			;->A
+
+4F70 : STA $CC 			;A->MEM
+
+4F72 : LDA $03EF 			;->A
+
+4F75 : STA $CD 			;A->MEM
+
+4F77 : TYA 			;Y->A
+
+4F78 : TAX 			;A->X
+
+4F79 : BEQ $4F94 			;Z=1则转移,否则继续
+
+4F7B : LDY #$FF 			;->Y
+
+4F7D : INY 			;Y++
+
+4F7E : LDA ($CC),Y 			;->A
+
+4F80 : BEQ $4F86 			;Z=1则转移,否则继续
+
+4F82 : CMP #$FF 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+4F84 : BNE $4F7D 			;Z=0则转移,否则继续
+
+4F86 : INY 			;Y++
+
+4F87 : TYA 			;Y->A
+
+4F88 : CLC 			;清进位标志
+
+4F89 : ADC $CC 			;与(A+标志C)相加,结果送A
+
+4F8B : STA $CC 			;A->MEM
+
+4F8D : BCC $4F91 			;进位标志C=0则转移,否则继续
+
+4F8F : INC $CD 			;MEM++
+
+4F91 : DEX 			;X--
+
+4F92 : BNE $4F7B 			;Z=0则转移,否则继续
+
+4F94 : RTS 			;子程序返回
+
+4F95 : LDA $44 			;->A
+
+4F97 : LSR 			;A逻辑右移
+
+4F98 : TAX 			;A->X
+
+4F99 : LDA $03E2 			;->A
+
+4F9C : INT $9E22      ;X,A相除.A为得数，X为余数 
+
+4F9F : STA $03F0 			;A->MEM
+
+4FA2 : RTS 			;子程序返回
+
+4FA3 : JSR $5042  			;跳转子程序
+
+4FA6 : LDA $0403 			;->A
+
+4FA9 : BNE $4FD9 			;Z=0则转移,否则继续
+
+4FAB : JSR $501A  			;跳转子程序
+
+4FAE : LDA $44 			;->A
+
+4FB0 : LSR 			;A逻辑右移
+
+4FB1 : LDX $03F0 			;->X
+
+4FB4 : INT $9E1F      ;A,X相乘，结果放80
+
+4FB7 : CLC 			;清进位标志
+
+4FB8 : ADC #$02 			;与(A+标志C)相加,结果送A
+
+4FBA : STA $043F 			;A->MEM
+
+4FBD : CLC 			;清进位标志
+
+4FBE : ADC #$0B 			;与(A+标志C)相加,结果送A
+
+4FC0 : STA $0441 			;A->MEM
+
+4FC3 : LDA $03F1 			;->A
+
+4FC6 : STA $0440 			;A->MEM
+
+4FC9 : CLC 			;清进位标志
+
+4FCA : ADC #$0B 			;与(A+标志C)相加,结果送A
+
+4FCC : STA $0442 			;A->MEM
+
+4FCF : INT $9E2F
+
+4FD2 : INC $03F0 			;MEM++
+
+4FD5 : INC $03F0 			;MEM++
+
+4FD8 : RTS 			;子程序返回
+
+4FD9 : LDA $03F1 			;->A
+
+4FDC : LDX #$14 			;->X
+
+4FDE : INT $9E1F      ;A,X相乘，结果放80
+
+4FE1 : CLC 			;清进位标志
+
+4FE2 : LDA $80 			;->A
+
+4FE4 : ADC #$C0 			;与(A+标志C)相加,结果送A
+
+4FE6 : STA $94 			;A->MEM
+
+4FE8 : LDA $81 			;->A
+
+4FEA : ADC #$09 			;与(A+标志C)相加,结果送A
+
+4FEC : STA $95 			;A->MEM
+
+4FEE : LDA $03F0 			;->A
+
+4FF1 : CLC 			;清进位标志
+
+4FF2 : ADC $94 			;与(A+标志C)相加,结果送A
+
+4FF4 : STA $94 			;A->MEM
+
+4FF6 : BCC $4FFA 			;进位标志C=0则转移,否则继续
+
+4FF8 : INC $95 			;MEM++
+
+4FFA : LDX #$0C 			;->X
+
+4FFC : LDY #$00 			;->Y
+
+4FFE : LDA ($92),Y 			;->A
+
+5000 : STA ($94),Y 			;A->MEM
+
+5002 : INC $92 			;MEM++
+
+5004 : BNE $5008 			;Z=0则转移,否则继续
+
+5006 : INC $93 			;MEM++
+
+5008 : LDA #$14 			;->A
+
+500A : CLC 			;清进位标志
+
+500B : ADC $94 			;与(A+标志C)相加,结果送A
+
+500D : STA $94 			;A->MEM
+
+500F : BCC $5013 			;进位标志C=0则转移,否则继续
+
+5011 : INC $95 			;MEM++
+
+5013 : DEX 			;X--
+
+5014 : BNE $4FFE 			;Z=0则转移,否则继续
+
+5016 : INC $03F0 			;MEM++
+
+5019 : RTS 			;子程序返回
+
+501A : LDY #$00 			;->Y
+
+501C : LDX #$00 			;->X
+
+501E : LDA #$00 			;->A
+
+5020 : STA $82 			;A->MEM
+
+5022 : LDA ($92),Y 			;->A
+
+5024 : LSR 			;A逻辑右移
+
+5025 : ROR $82 			;循环右移
+
+5027 : LSR 			;A逻辑右移
+
+5028 : ROR $82 			;循环右移
+
+502A : STA $2740,X 			;A->MEM
+
+502D : INX 			;X++
+
+502E : LDA $82 			;->A
+
+5030 : STA $2740,X 			;A->MEM
+
+5033 : INX 			;X++
+
+5034 : INY 			;Y++
+
+5035 : CPY #$0C 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+5037 : BCC $501E 			;进位标志C=0则转移,否则继续
+
+5039 : LDA #$40 			;->A
+
+503B : STA $92 			;A->MEM
+
+503D : LDA #$27 			;->A
+
+503F : STA $93 			;A->MEM
+
+5041 : RTS 			;子程序返回
+
+5042 : LDA $05AC 			;->A
+
+5045 : BEQ $506C 			;Z=1则转移,否则继续
+
+5047 : CMP #$06 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+5049 : BEQ $5084 			;Z=1则转移,否则继续
+
+504B : CMP #$07 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+504D : BEQ $5091 			;Z=1则转移,否则继续
+
+504F : ASL 			;算术左移
+
+5050 : TAX 			;A->X
+
+5051 : CPY $05AE 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+5054 : BEQ $5061 			;Z=1则转移,否则继续
+
+5056 : LDA $536F,X 			;->A
+
+5059 : STA $92 			;A->MEM
+
+505B : LDA $5370,X 			;->A
+
+505E : STA $93 			;A->MEM
+
+5060 : RTS 			;子程序返回
+
+5061 : LDA $535D,X 			;->A
+
+5064 : STA $92 			;A->MEM
+
+5066 : LDA $535E,X 			;->A
+
+5069 : STA $93 			;A->MEM
+
+506B : RTS 			;子程序返回
+
+506C : LDA $0435 			;->A
+
+506F : AND #$7F 			;A∧$n→A
+
+5071 : STA $0435 			;A->MEM
+
+5074 : CPY $05AE 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+5077 : BNE $5081 			;Z=0则转移,否则继续
+
+5079 : LDA $0435 			;->A
+
+507C : ORA #$80 			;A∨$n→A
+
+507E : STA $0435 			;A->MEM
+
+5081 : PLA 			;A出栈
+
+5082 : PLA 			;A出栈
+
+5083 : RTS 			;子程序返回
+
+5084 : LDA $05AC 			;->A
+
+5087 : CPY $03F4 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+508A : BEQ $504F 			;Z=1则转移,否则继续
+
+508C : LDA #$02 			;->A
+
+508E : JMP $504F 			;
+
+5091 : LDA ($CA),Y 			;->A
+
+5093 : BPL $508C 			;N=1则转移,否则继续
+
+5095 : LDA $05AC 			;->A
+
+5098 : JMP $504F 			;
+
+509B : LDY #$FF 			;->Y
+
+509D : INY 			;Y++
+
+509E : LDA ($CC),Y 			;->A
+
+50A0 : STA $92 			;A->MEM
+
+50A2 : BEQ $50CB 			;Z=1则转移,否则继续
+
+50A4 : CMP #$FF 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+50A6 : BEQ $50CB 			;Z=1则转移,否则继续
+
+50A8 : BIT $92  			;A∧($n)(结果=0,Z=1)(结果!=0,Z=0)
+
+50AA : BPL $50B1 			;N=1则转移,否则继续
+
+50AC : INY 			;Y++
+
+50AD : LDA ($CC),Y 			;->A
+
+50AF : STA $93 			;A->MEM
+
+50B1 : TYA 			;Y->A
+
+50B2 : PHA 			;累加器进栈
+
+50B3 : LDX $03F0 			;->X
+
+50B6 : LDY $03F1 			;->Y
+
+50B9 : INT $302B
+
+50BC : INC $03F0 			;MEM++
+
+50BF : BIT $92  			;A∧($n)(结果=0,Z=1)(结果!=0,Z=0)
+
+50C1 : BPL $50C6 			;N=1则转移,否则继续
+
+50C3 : INC $03F0 			;MEM++
+
+50C6 : PLA 			;A出栈
+
+50C7 : TAY 			;A->Y
+
+50C8 : JMP $509D 			;
+
+50CB : INY 			;Y++
+
+50CC : TYA 			;Y->A
+
+50CD : CLC 			;清进位标志
+
+50CE : ADC $CC 			;与(A+标志C)相加,结果送A
+
+50D0 : STA $CC 			;A->MEM
+
+50D2 : BCC $50D6 			;进位标志C=0则转移,否则继续
+
+50D4 : INC $CD 			;MEM++
+
+50D6 : DEY 			;Y--
+
+50D7 : JSR $50DB  			;跳转子程序
+
+50DA : RTS 			;子程序返回
+
+50DB : LDA $05AF 			;->A
+
+50DE : BPL $5133 			;N=1则转移,否则继续
+
+50E0 : AND #$20 			;A∧$n→A
+
+50E2 : BEQ $5133 			;Z=1则转移,否则继续
+
+50E4 : TYA 			;Y->A
+
+50E5 : PHA 			;累加器进栈
+
+50E6 : LDA $03F0 			;->A
+
+50E9 : PHA 			;累加器进栈
+
+50EA : LDA #$78 			;->A
+
+50EC : STA $92 			;A->MEM
+
+50EE : LDX $03F0 			;->X
+
+50F1 : LDY $03F1 			;->Y
+
+50F4 : INT $302B
+
+50F7 : INC $03F0 			;MEM++
+
+50FA : LDA $03F2 			;->A
+
+50FD : ASL 			;算术左移
+
+50FE : TAY 			;A->Y
+
+50FF : INY 			;Y++
+
+5100 : LDA #$00 			;->A
+
+5102 : PHA 			;累加器进栈
+
+5103 : LDA ($CA),Y 			;->A
+
+5105 : JSR $5156  			;跳转子程序
+
+5108 : PHA 			;累加器进栈
+
+5109 : TXA 			;X->A
+
+510A : PHA 			;累加器进栈
+
+510B : TYA 			;Y->A
+
+510C : PHA 			;累加器进栈
+
+510D : PLA 			;A出栈
+
+510E : CMP #$30 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+5110 : BEQ $510D 			;Z=1则转移,否则继续
+
+5112 : STA $92 			;A->MEM
+
+5114 : LDX $03F0 			;->X
+
+5117 : LDY $03F1 			;->Y
+
+511A : INT $302B
+
+511D : INC $03F0 			;MEM++
+
+5120 : PLA 			;A出栈
+
+5121 : BNE $5112 			;Z=0则转移,否则继续
+
+5123 : PLA 			;A出栈
+
+5124 : STA $80 			;A->MEM
+
+5126 : SEC 			;置进位标志C=1
+
+5127 : LDA $03F0 			;->A
+
+512A : SBC $80 			;A-MEM-C->A
+
+512C : STA $80 			;A->MEM
+
+512E : PLA 			;A出栈
+
+512F : CLC 			;清进位标志
+
+5130 : ADC $80 			;与(A+标志C)相加,结果送A
+
+5132 : TAY 			;A->Y
+
+5133 : LDA $03E4 			;->A
+
+5136 : BEQ $5155 			;Z=1则转移,否则继续
+
+5138 : LDA #$00 			;->A
+
+513A : STA $92 			;A->MEM
+
+513C : CPY $03E4 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+513F : BCS $5155 			;借位标志C=1则转移,否则继续
+
+5141 : TYA 			;Y->A
+
+5142 : PHA 			;累加器进栈
+
+5143 : LDX $03F0 			;->X
+
+5146 : LDY $03F1 			;->Y
+
+5149 : INT $302B
+
+514C : PLA 			;A出栈
+
+514D : TAY 			;A->Y
+
+514E : INC $03F0 			;MEM++
+
+5151 : INY 			;Y++
+
+5152 : JMP $513C 			;
+
+5155 : RTS 			;子程序返回
+
+5156 : LDY #$2F 			;->Y
+
+5158 : SEC 			;置进位标志C=1
+
+5159 : INY 			;Y++
+
+515A : SBC #$64 			;A-MEM-C->A
+
+515C : BCS $5159 			;借位标志C=1则转移,否则继续
+
+515E : ADC #$64 			;与(A+标志C)相加,结果送A
+
+5160 : LDX #$2F 			;->X
+
+5162 : SEC 			;置进位标志C=1
+
+5163 : INX 			;X++
+
+5164 : SBC #$0A 			;A-MEM-C->A
+
+5166 : BCS $5163 			;借位标志C=1则转移,否则继续
+5168 : ADC #$3A 			;与(A+标志C)相加,结果送A
+516A : RTS 			;子程序返回
+
+516B : BIT $05AF 			;A∧($n2n1)
+516E : BVS $5171 			;溢出标志V=1则转移,否则继续
+5170 : RTS 			;子程序返回
+
+5171 : LDA $05AE 			;->A
+
+5174 : PHA 			;累加器进栈
+
+5175 : LDA $05AD 			;->A
+
+5178 : PHA 			;累加器进栈
+
+5179 : LDA $03E2 			;->A
+
+517C : PHA 			;累加器进栈
+
+517D : LDA $03E3 			;->A
+
+5180 : PHA 			;累加器进栈
+
+5181 : LDA $A8 			;->A
+
+5183 : PHA 			;累加器进栈
+
+5184 : LDA $A9 			;->A
+
+5186 : PHA 			;累加器进栈
+
+5187 : LDA $03EA 			;->A
+
+518A : PHA 			;累加器进栈
+
+518B : LDA $03EB 			;->A
+
+518E : PHA 			;累加器进栈
+
+518F : LDA $03EC 			;->A
+
+5192 : STA $80 			;A->MEM
+
+5194 : LDA $03ED 			;->A
+
+5197 : STA $81 			;A->MEM
+
+5199 : LDY #$00 			;->Y
+
+519B : LDA $05AF 			;->A
+
+519E : AND #$10 			;A∧$n→A
+
+51A0 : BNE $51A8 			;Z=0则转移,否则继续
+
+51A2 : LDA $05AE 			;->A
+
+51A5 : ASL 			;算术左移
+
+51A6 : ASL 			;算术左移
+
+51A7 : TAY 			;A->Y
+
+51A8 : INY 			;Y++
+
+51A9 : INY 			;Y++
+
+51AA : LDA ($80),Y 			;->A
+
+51AC : TAX 			;A->X
+
+51AD : INY 			;Y++
+
+51AE : LDA ($80),Y 			;->A
+
+51B0 : STA $81 			;A->MEM
+
+51B2 : STX $80 			;X->MEM
+
+51B4 : LDA $05AE 			;->A
+
+51B7 : STA $86 			;A->MEM
+
+51B9 : LDA $80 			;->A
+
+51BB : ORA $81 			;A∨$81→A
+
+51BD : BEQ $51C2 			;Z=1则转移,否则继续
+
+51BF : JSR $5286  			;跳转子程序
+
+51C2 : PLA 			;A出栈
+
+51C3 : STA $03EB 			;A->MEM
+
+51C6 : PLA 			;A出栈
+
+51C7 : STA $03EA 			;A->MEM
+
+51CA : PLA 			;A出栈
+
+51CB : STA $A9 			;A->MEM
+
+51CD : PLA 			;A出栈
+
+51CE : STA $A8 			;A->MEM
+
+51D0 : PLA 			;A出栈
+
+51D1 : STA $03E3 			;A->MEM
+
+51D4 : PLA 			;A出栈
+
+51D5 : STA $03E2 			;A->MEM
+
+51D8 : PLA 			;A出栈
+
+51D9 : STA $05AD 			;A->MEM
+
+51DC : PLA 			;A出栈
+
+51DD : STA $05AE 			;A->MEM
+
+51E0 : JSR $4B9F  			;跳转子程序
+
+51E3 : RTS 			;子程序返回
+
+51E4 : LDA $05AE 			;->A
+
+51E7 : PHA 			;累加器进栈
+
+51E8 : LDA $05AD 			;->A
+
+51EB : PHA 			;累加器进栈
+
+51EC : LDA $03E2 			;->A
+
+51EF : PHA 			;累加器进栈
+
+51F0 : LDA $03E3 			;->A
+
+51F3 : PHA 			;累加器进栈
+
+51F4 : LDA $A8 			;->A
+
+51F6 : PHA 			;累加器进栈
+
+51F7 : LDA $A9 			;->A
+
+51F9 : PHA 			;累加器进栈
+
+51FA : LDA $03EA 			;->A
+
+51FD : PHA 			;累加器进栈
+
+51FE : LDA $03EB 			;->A
+
+5201 : PHA 			;累加器进栈
+
+5202 : LDA $03EC 			;->A
+
+5205 : STA $80 			;A->MEM
+
+5207 : LDA $03ED 			;->A
+
+520A : STA $81 			;A->MEM
+
+520C : LDY #$00 			;->Y
+
+520E : LDA $05AF 			;->A
+
+5211 : AND #$10 			;A∧$n→A
+
+5213 : BNE $5220 			;Z=0则转移,否则继续
+
+5215 : LDA $05AE 			;->A
+
+5218 : ASL 			;算术左移
+
+5219 : BIT $05AF 			;A∧($n2n1)
+
+521C : BVC $521F 			;溢出V=0则转移,否则继续
+
+521E : ASL 			;算术左移
+
+521F : TAY 			;A->Y
+
+5220 : LDA ($80),Y 			;->A
+
+5222 : TAX 			;A->X
+
+5223 : INY 			;Y++
+
+5224 : LDA ($80),Y 			;->A
+
+5226 : STA $81 			;A->MEM
+
+5228 : STX $80 			;X->MEM
+
+522A : LDA $05AE 			;->A
+
+522D : STA $86 			;A->MEM
+
+522F : LDA $80 			;->A
+
+5231 : ORA $81 			;A∨$81→A
+
+5233 : BEQ $5261 			;Z=1则转移,否则继续
+
+5235 : JSR $5286  			;跳转子程序
+
+5238 : PLA 			;A出栈
+
+5239 : STA $03EB 			;A->MEM
+
+523C : PLA 			;A出栈
+
+523D : STA $03EA 			;A->MEM
+
+5240 : PLA 			;A出栈
+
+5241 : STA $A9 			;A->MEM
+
+5243 : PLA 			;A出栈
+
+5244 : STA $A8 			;A->MEM
+
+5246 : PLA 			;A出栈
+
+5247 : STA $03E3 			;A->MEM
+
+524A : PLA 			;A出栈
+
+524B : STA $03E2 			;A->MEM
+
+524E : PLA 			;A出栈
+
+524F : STA $05AD 			;A->MEM
+
+5252 : PLA 			;A出栈
+
+5253 : STA $05AE 			;A->MEM
+
+5256 : JSR $4B9F  			;跳转子程序
+
+5259 : LDA $03E9 			;->A
+
+525C : BEQ $527F 			;Z=1则转移,否则继续
+
+525E : JMP $5347 			;
+
+5261 : PLA 			;A出栈
+
+5262 : STA $03EB 			;A->MEM
+
+5265 : PLA 			;A出栈
+
+5266 : STA $03EA 			;A->MEM
+
+5269 : PLA 			;A出栈
+
+526A : STA $A9 			;A->MEM
+
+526C : PLA 			;A出栈
+
+526D : STA $A8 			;A->MEM
+
+526F : PLA 			;A出栈
+
+5270 : STA $03E3 			;A->MEM
+
+5273 : PLA 			;A出栈
+
+5274 : STA $03E2 			;A->MEM
+
+5277 : PLA 			;A出栈
+
+5278 : STA $05AD 			;A->MEM
+
+527B : PLA 			;A出栈
+
+527C : STA $05AE 			;A->MEM
+
+527F : PLA 			;A出栈
+
+5280 : PLA 			;A出栈
+
+5281 : PLA 			;A出栈
+
+5282 : PLA 			;A出栈
+
+5283 : LDA $86 			;->A
+
+5285 : RTS 			;子程序返回
+
+5286 : JMP ($0080) 			;
+
+5289 : LDA $03E6 			;->A
+
+528C : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+528E : BEQ $5304 			;Z=1则转移,否则继续
+
+5290 : SEC 			;置进位标志C=1
+
+5291 : LDA $05AE 			;->A
+
+5294 : SBC $05B0 			;A-MEM-C->A
+
+5297 : STA $05AE 			;A->MEM
+
+529A : BCS $531A 			;借位标志C=1则转移,否则继续
+
+529C : ADC $03E8 			;与(A+标志C)相加,结果送A
+
+529F : STA $05AE 			;A->MEM
+
+52A2 : CMP $03E9 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+52A5 : BCC $530D 			;进位标志C=0则转移,否则继续
+
+52A7 : LDX $05AE 			;->X
+
+52AA : DEX 			;X--
+
+52AB : STX $05AE 			;X->MEM
+
+52AE : BCS $530D 			;借位标志C=1则转移,否则继续
+
+52B0 : LDA $05B0 			;->A
+
+52B3 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+52B5 : BEQ $5304 			;Z=1则转移,否则继续
+
+52B7 : DEC $05AE 			;MEM--
+
+52BA : BPL $531A 			;N=1则转移,否则继续
+
+52BC : LDX $03E9 			;->X
+
+52BF : DEX 			;X--
+
+52C0 : STX $05AE 			;X->MEM
+
+52C3 : JMP $530D 			;
+
+52C6 : LDA $03E6 			;->A
+
+52C9 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+52CB : BEQ $5304 			;Z=1则转移,否则继续
+
+52CD : CLC 			;清进位标志
+
+52CE : LDA $05AE 			;->A
+
+52D1 : ADC $05B0 			;与(A+标志C)相加,结果送A
+
+52D4 : STA $05AE 			;A->MEM
+
+52D7 : CMP $03E9 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+52DA : BCC $532F 			;进位标志C=0则转移,否则继续
+
+52DC : SBC $03E8 			;A-MEM-C->A
+
+52DF : STA $05AE 			;A->MEM
+
+52E2 : BCS $5305 			;借位标志C=1则转移,否则继续
+
+52E4 : LDA #$00 			;->A
+
+52E6 : STA $05AE 			;A->MEM
+
+52E9 : BCC $5305 			;进位标志C=0则转移,否则继续
+
+52EB : LDA $05B0 			;->A
+
+52EE : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+52F0 : BEQ $5304 			;Z=1则转移,否则继续
+
+52F2 : INC $05AE 			;MEM++
+
+52F5 : LDA $05AE 			;->A
+
+52F8 : CMP $03E9 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+52FB : BCC $532F 			;进位标志C=0则转移,否则继续
+
+52FD : LDA #$00 			;->A
+
+52FF : STA $05AE 			;A->MEM
+
+5302 : BCS $5305 			;借位标志C=1则转移,否则继续
+
+5304 : RTS 			;子程序返回
+
+5305 : LDA #$00 			;->A
+
+5307 : STA $05AD 			;A->MEM
+
+530A : JMP $5347 			;
+
+530D : SEC 			;置进位标志C=1
+
+530E : LDA $03E8 			;->A
+
+5311 : SBC $03E7 			;A-MEM-C->A
+
+5314 : STA $05AD 			;A->MEM
+
+5317 : JMP $5347 			;
+
+531A : LDA $05AE 			;->A
+
+531D : CMP $05AD 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+5320 : BCS $5347 			;借位标志C=1则转移,否则继续
+
+5322 : SEC 			;置进位标志C=1
+
+5323 : LDA $05AD 			;->A
+
+5326 : SBC $05B0 			;A-MEM-C->A
+
+5329 : STA $05AD 			;A->MEM
+
+532C : JMP $5347 			;
+
+532F : LDA $05AD 			;->A
+
+5332 : CLC 			;清进位标志
+
+5333 : ADC $03E7 			;与(A+标志C)相加,结果送A
+
+5336 : CMP $05AE 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+5339 : BEQ $533D 			;Z=1则转移,否则继续
+
+533B : BCS $5347 			;借位标志C=1则转移,否则继续
+
+533D : CLC 			;清进位标志
+
+533E : LDA $05AD 			;->A
+
+5341 : ADC $05B0 			;与(A+标志C)相加,结果送A
+
+5344 : STA $05AD 			;A->MEM
+
+5347 : JSR $4D8B  			;跳转子程序
+
+534A : JSR $516B  			;跳转子程序
+
+534D : RTS 			;子程序返回
+
+534E : ORA $1617 			;A∨($n2n1)→A
+
+5351 : 14  ;???
+
+5352 : ORA $E4,X 			;A∨($n+X)→A
+
+5354 : EOR ($B0),Y 			;与A异或,结果送A
+
+5356 : 52  ;???
+
+5357 : EB  ;???
+
+5358 : 52  ;???
+
+5359 : 89  ;???
+
+535A : 52  ;???
+
+535B : DEC $52 			;MEM--
+
+535D : SBC $8153 			;A-MEM-C->A
+
+5360 : 53  ;???
+
+5361 : STA $A553 			;A->MEM
+
+5364 : 53  ;???
+
+5365 : LDA $BD53,X 			;->A
+
+5368 : 53  ;???
+
+5369 : CMP $53,X 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+536B : CMP $53,X 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+536D : INT $ED00
+
+5370 : 53  ;???
+
+5371 : SBC $9953 			;A-MEM-C->A
+
+5374 : 53  ;???
+
+5375 : LDA ($53),Y 			;->A
+
+5377 : CMP #$53 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+5379 : CMP #$53 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+537B : SBC ($53,X) 			;A-MEM-C->A
+
+537D : SBC ($53,X) 			;A-MEM-C->A
+
+537F : INT $0000
+
+5382 : INT $E0C0
+
+5385 : BEQ $537F 			;Z=1则转移,否则继续
+
+5387 : FC  ;???
+
+5388 : SED 			;置十进制运算标志D
+
+5389 : BEQ $536B 			;Z=1则转移,否则继续
+
+538B : CPY #$00 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+538D : INT $0000
+
+5390 : INT $FC00
+
+5393 : FC  ;???
+
+5394 : FC  ;???
+
+5395 : FC  ;???
+
+5396 : FC  ;???
+
+5397 : FC  ;???
+
+5398 : INT $0000
+
+539B : INT $0000
+
+539E : FC  ;???
+
+539F : STY $84 			;Y->MEM
+
+53A1 : STY $84 			;Y->MEM
+
+53A3 : FC  ;???
+
+53A4 : INT $0000
+
+53A7 : INT $423C
+
+53AA : STA $BDBD,Y 			;A->MEM
+
+53AD : STA $3C42,Y 			;A->MEM
+
+53B0 : INT $0000
+
+53B3 : INT $423C
+
+53B6 : STA ($81,X)  			;A->MEM
+
+53B8 : STA ($81,X)  			;A->MEM
+
+53BA : 42  ;???
+
+53BB : 3C  ;???
+
+53BC : INT $0000
+
+53BF : FC  ;???
+
+53C0 : FC  ;???
+
+53C1 : FC  ;???
+
+53C2 : FC  ;???
+
+53C3 : FC  ;???
+
+53C4 : FC  ;???
+
+53C5 : INT $0000
+
+53C8 : INT $0000
+
+53CB : FC  ;???
+
+53CC : STY $84 			;Y->MEM
+
+53CE : STY $84 			;Y->MEM
+
+53D0 : FC  ;???
+
+53D1 : INT $0000
+
+53D4 : INT $0000
+
+53D7 : INT $0000
+
+53DA : SBC $FCFE,X 			;A-MEM-C->A
+
+53DD : FC  ;???
+
+53DE : FC  ;???
+
+53DF : FC  ;???
+
+53E0 : INT $0000
+
+53E3 : INT $0000
+
+53E6 : SBC $C486,X 			;A-MEM-C->A
+
+53E9 : LDY $FC94 			;->Y
+
+53EC : INT $0000
+
+53EF : INT $0000
+
+53F2 : INT $0000
+
+53F5 : INT $0000
+;NPC talk
+53F9 : BIT $3445 			;A∧($n2n1)
+53FC : BPL $5402 			;N=1则转移,否则继续
+53FE : INT $3112      ;
+5401 : RTS 			;子程序返回
+
+;find NPC dialog
+5402 : LDA $50 			;->A
+5404 : TAX 			;A->X
+5405 : LDY #$0D 			;->Y
+5407 : LDA #$14 			;->A
+5409 : STA $80 			;A->MEM
+540B : LDA #$54 			;->A
+540D : STA $81 			;A->MEM  5414 0D
+540F : TXA 			;X->A
+5410 : JSR $813F  			;跳转子程序 find addr by id
+5413 : RTS 			;子程序返回
+;NPC id
+5414 : 06 0A 1A 03 1F 19 93 AB AA 0E 0F 6F 8A
+;NPC addr
+5421 : 3B54 4354 4854 5954 D55D B65F 6754 7654 8A54 8E54 9254 9654 9A54
+
+;村长
+543B : INT $311F      ;坛start
+543E : LDA #$00 			;->A
+5440 : JMP $544A 			;
+;中年妇人
+5443 : LDA #$01 			;->A
+5445 : JMP $544A 			;
+;平一指
+5448 : LDA #$02 			;->A
+544A : STA $302D 			;A->MEM
+544D : JSR $549E  			;跳转子程序
+5450 : BCS $5458 			;借位标志C=1则转移,否则继续
+5452 : JSR $54DC  			;跳转子程序
+5455 : JSR $5501  			;跳转子程序  ;你完成了任务
+5458 : RTS 			;子程序返回
+;捕快
+5459 : LDA #$03 			;->A
+545B : STA $302D 			;A->MEM
+545E : JSR $589D  			;跳转子程序
+5461 : BCS $5466 			;借位标志C=1则转移,否则继续
+5463 : JSR $5A07  			;跳转子程序
+5466 : RTS 			;子程序返回
+;干匠
+5467 : INT $3104      ;干匠
+546A : BIT $3176 			;A∧($n2n1)
+546D : BMI $5470 			;N=0则转移,否则继续
+546F : RTS 			;子程序返回
+5470 : INT $3057
+5473 : JMP $5FAC 			;
+;老管家
+5476 : INT $3050    ;老管家
+5479 : LDA $48 			;->A
+547B : STA $51 			;A->MEM
+547D : LDA $47 			;->A
+547F : STA $50 			;A->MEM
+5481 : INT $304F     ;
+5484 : INT $304E      ;
+5487 : JMP $5FAC 			;
+;月下老人
+548A : INT $3202   ;4061 月下老人
+548D : RTS 			;子程序返回
+;石料管事
+548E : INT $3120    ;石料管事
+5491 : RTS 			;子程序返回
+;工地管事
+5492 : INT $3121    ;工地管事
+5495 : RTS 			;子程序返回
+;白瑞德-王蛇胆
+5496 : INT $3123    ;白瑞德-王蛇胆
+5499 : RTS 			;子程序返回
+;华岳
+549A : INT $3207  ;4A4C 华岳
+549D : RTS 			;子程序返回
+
+;302D == 00 村长 01中年 02平一指 03捕快
+549E : LDA #$00 			;->A
+54A0 : STA $2010 			;A->MEM
+54A3 : LDA $2010 			;->A
+54A6 : LDX #$0C 			;->X
+54A8 : INT $9E1F      ;A,X相乘，结果放80
+54AB : CLC 			;清进位标志
+54AC : ADC #$05 			;与(A+标志C)相加,结果送A
+54AE : TAY 			;A->Y
+54AF : LDA $3035,Y 			;->A
+54B2 : CMP #$FE 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+54B4 : BEQ $54C4 			;Z=1则转移,否则继续   红光满面领赏
+54B6 : INC $2010 			;MEM++
+54B9 : LDA $2010 			;->A
+54BC : CMP #$02 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+54BE : BCC $54A3 			;进位标志C=0则转移,否则继续
+54C0 : BEQ $54A3 			;Z=1则转移,否则继续
+54C2 : CLC 			;清进位标志
+54C3 : RTS 			;子程序返回
+;红光满面领赏
+54C4 : LDX #$FA 			;->X
+54C6 : LDA $61A3,X 			;->A
+54C9 : STA $2D7F,X 			;A->MEM  61A4看你红光满面,还是先去顾炎武处领赏吧!
+54CC : DEX 			;X--
+54CD : BNE $54C6 			;Z=0则转移,否则继续
+54CF : LDA #$80 			;->A
+54D1 : STA $A6 			;A->MEM
+54D3 : LDA #$2D 			;->A
+54D5 : STA $A7 			;A->MEM
+54D7 : INT $3033  ;按任意键返回地图
+54DA : SEC 			;置进位标志C=1
+54DB : RTS 			;子程序返回
+
+;set 完成任务
+54DC : LDA $302D 			;->A
+54DF : JSR $55A2  			;跳转子程序
+54E2 : STY $2010 			;Y->MEM
+54E5 : STA $302E 			;A->MEM
+54E8 : BEQ $5500 			;Z=1则转移,否则继续
+54EA : LDA $302D 			;->A
+54ED : CMP #$00 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+54EF : BEQ $5500 			;Z=1则转移,否则继续
+54F1 : CMP #$02 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+54F3 : BEQ $5500 			;Z=1则转移,否则继续
+54F5 : LDA $302E 			;->A
+54F8 : INT $3037      ;item exist&get item package id->X
+54FB : BCC $5500 			;进位标志C=0则转移,否则继续
+54FD : JSR $55AF  			;跳转子程序  中年妇女-使用$q完成任务吗
+5500 : RTS 			;子程序返回
+;你完成了任务
+5501 : LDX #$FA 			;->X
+5503 : LDA $6183,X 			;->A  你完成了任务,去顾炎武处领赏吧!
+5506 : STA $2D7F,X 			;A->MEM
+5509 : DEX 			;X--
+550A : BNE $5503 			;Z=0则转移,否则继续
+550C : LDA #$80 			;->A
+550E : STA $A6 			;A->MEM
+5510 : LDA #$2D 			;->A
+5512 : STA $A7 			;A->MEM
+5514 : LDA $302E 			;->A
+5517 : BEQ $554B 			;Z=1则转移,否则继续
+5519 : CMP #$FF 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+551B : BEQ $5524 			;Z=1则转移,否则继续
+551D : JSR $5864  			;跳转子程序
+5520 : INT $3033  ;按任意键返回地图
+5523 : RTS 			;子程序返回
+;clear task
+5524 : LDA $302D 			;->A
+5527 : JSR $55A2  			;跳转子程序
+552A : LDA #$FE 			;->A
+552C : STA $3035,Y 			;A->MEM
+552F : LDA $2E91 			;->A
+5532 : STA $3036,Y 			;A->MEM
+5535 : LDA $2E92 			;->A
+5538 : STA $3037,Y 			;A->MEM
+553B : LDA $2E93 			;->A
+553E : STA $3038,Y 			;A->MEM
+5541 : LDA $2E94 			;->A
+5544 : STA $3039,Y 			;A->MEM
+5547 : INT $3033  ;按任意键返回地图
+554A : RTS 			;子程序返回
+
+554B : LDA $302D 			;->A
+554E : ASL 			;算术左移
+554F : TAY 			;A->Y
+5550 : LDA $607E,Y 			;->A
+5553 : STA $80 			;A->MEM
+5555 : INY 			;Y++
+5556 : LDA $607E,Y 			;->A
+5559 : STA $81 			;A->MEM
+555B : JSR $5590  			;跳转子程序
+555E : LDA $80 			;->A
+5560 : STA $90 			;A->MEM
+5562 : LDA $81 			;->A
+5564 : STA $91 			;A->MEM
+5566 : JSR $55F3  			;跳转子程序
+5569 : LDA $2001 			;->A
+556C : STA $04CB 			;A->MEM
+556F : LDA #$00 			;->A
+5571 : STA $04CC 			;A->MEM
+5574 : INT $9E27      ;Random number
+5577 : STA $2001 			;A->MEM
+557A : JSR $564B  			;跳转子程序
+557D : JSR $564A  			;跳转子程序
+5580 : JSR $56E4  			;跳转子程序
+5583 : JSR $5686  			;跳转子程序
+5586 : LDA $302D 			;->A
+5589 : JSR $586F  			;跳转子程序
+558C : INT $3033  ;按任意键返回地图
+558F : RTS 			;子程序返回
+5590 : JMP ($0080) 			;
+;task finished
+5593 : LDX #$0C 			;->X
+5595 : INT $9E1F      ;A,X相乘，结果放80
+5598 : CLC 			;清进位标志
+5599 : ADC #$05 			;与(A+标志C)相加,结果送A
+559B : TAY 			;A->Y
+559C : LDA #$FF 			;->A
+559E : STA $3035,Y 			;A->MEM
+55A1 : RTS 			;子程序返回
+;get task id
+55A2 : LDX #$0C 			;->X
+55A4 : INT $9E1F      ;A,X相乘，结果放80
+55A7 : CLC 			;清进位标志
+55A8 : ADC #$05 			;与(A+标志C)相加,结果送A
+55AA : TAY 			;A->Y
+55AB : LDA $3035,Y 			;->A
+55AE : RTS 			;子程序返回
+;中年妇女-使用$q完成任务吗
+55AF : LDX #$FA 			;->X
+55B1 : LDA $61C9,X 			;->A
+55B4 : STA $2D7F,X 			;A->MEM  61C9 使用$q完成任务吗?
+55B7 : DEX 			;X--
+55B8 : BNE $55B1 			;Z=0则转移,否则继续
+55BA : LDA #$80 			;->A
+55BC : STA $A6 			;A->MEM
+55BE : LDA #$2D 			;->A
+55C0 : STA $A7 			;A->MEM  61C9使用$q完成任务吗?
+55C2 : INT $302D   ;显示对话
+55C5 : LDA #$06 			;->A
+55C7 : STA $043F 			;A->MEM
+55CA : LDA #$00 			;->A
+55CC : STA $0440 			;A->MEM
+55CF : LDA #$96 			;->A
+55D1 : STA $0441 			;A->MEM
+55D4 : LDA #$1A 			;->A
+55D6 : STA $0442 			;A->MEM
+55D9 : INT $302F      ;[输入]确认,[跳出]放弃C=1
+55DC : BCS $55F2 			;借位标志C=1则转移,否则继续
+55DE : LDA $302E 			;->A
+55E1 : INT $3037      ;item exist&get item package id->X
+55E4 : DEC $2F5E,X 			;MEM--
+55E7 : LDY $2010 			;->Y
+55EA : LDA #$FF 			;->A
+55EC : STA $3035,Y 			;A->MEM
+55EF : STA $302E 			;A->MEM
+55F2 : RTS 			;子程序返回
+
+55F3 : LDA #$00 			;->A
+55F5 : STA $2001 			;A->MEM
+55F8 : LDY #$00 			;->Y
+55FA : LDA ($80),Y 			;->A
+55FC : STA $2000 			;A->MEM
+55FF : INY 			;Y++
+5600 : INC $2001 			;MEM++
+5603 : LDA $2001 			;->A
+5606 : CMP $2000 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5609 : BEQ $5646 			;Z=1则转移,否则继续
+560B : LDA ($80),Y 			;->A
+560D : STA $2010 			;A->MEM
+5610 : INY 			;Y++
+5611 : LDA ($80),Y 			;->A
+5613 : STA $2011 			;A->MEM
+5616 : INY 			;Y++
+5617 : LDA ($80),Y 			;->A
+5619 : STA $2012 			;A->MEM
+561C : INY 			;Y++
+561D : LDA ($80),Y 			;->A
+561F : STA $2013 			;A->MEM
+5622 : INY 			;Y++
+5623 : INY 			;Y++
+5624 : LDA $2EB3 			;->A
+5627 : CMP $2013 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+562A : BNE $5642 			;Z=0则转移,否则继续
+562C : LDA $2EB2 			;->A
+562F : CMP $2012 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5632 : BNE $5642 			;Z=0则转移,否则继续
+5634 : LDA $2EB1 			;->A
+5637 : CMP $2011 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+563A : BNE $5642 			;Z=0则转移,否则继续
+563C : LDA $2EB0 			;->A
+563F : CMP $2010 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5642 : BCS $5600 			;借位标志C=1则转移,否则继续
+5644 : BEQ $5649 			;Z=1则转移,否则继续
+5646 : DEC $2001 			;MEM--
+5649 : RTS 			;子程序返回
+564A : RTS 			;子程序返回
+
+564B : INC $90 			;MEM++
+564D : BNE $5651 			;Z=0则转移,否则继续
+564F : INC $91 			;MEM++
+5651 : LDA $2001 			;->A
+5654 : LDX #$05 			;->X
+5656 : INT $9E1F      ;A,X相乘，结果放80
+5659 : CLC 			;清进位标志
+565A : LDA $90 			;->A
+565C : ADC $80 			;与(A+标志C)相加,结果送A
+565E : STA $90 			;A->MEM
+5660 : LDA $91 			;->A
+5662 : ADC $81 			;与(A+标志C)相加,结果送A
+5664 : STA $91 			;A->MEM
+5666 : LDY #$00 			;->Y
+5668 : LDA ($90),Y 			;->A
+566A : STA $2002 			;A->MEM
+566D : INY 			;Y++
+566E : LDA ($90),Y 			;->A
+5670 : STA $2003 			;A->MEM
+5673 : INY 			;Y++
+5674 : LDA ($90),Y 			;->A
+5676 : STA $2004 			;A->MEM
+5679 : INY 			;Y++
+567A : LDA ($90),Y 			;->A
+567C : STA $2005 			;A->MEM
+567F : INY 			;Y++
+5680 : LDA ($90),Y 			;->A
+5682 : STA $302E 			;A->MEM
+5685 : RTS 			;子程序返回
+
+5686 : LDA $302D 			;->A
+5689 : LDX #$0C 			;->X
+568B : INT $9E1F      ;A,X相乘，结果放80
+568E : TAY 			;A->Y
+568F : LDA $2001 			;->A
+5692 : STA $3035,Y 			;A->MEM
+5695 : INY 			;Y++
+5696 : LDA $2002 			;->A
+5699 : STA $3035,Y 			;A->MEM
+569C : INY 			;Y++
+569D : LDA $2003 			;->A
+56A0 : STA $3035,Y 			;A->MEM
+56A3 : INY 			;Y++
+56A4 : LDA $2004 			;->A
+56A7 : STA $3035,Y 			;A->MEM
+56AA : INY 			;Y++
+56AB : LDA $2005 			;->A
+56AE : STA $3035,Y 			;A->MEM
+56B1 : INY 			;Y++
+56B2 : LDA $302E 			;->A
+56B5 : STA $3035,Y 			;A->MEM
+56B8 : INY 			;Y++
+56B9 : LDA $2006 			;->A
+56BC : STA $3035,Y 			;A->MEM
+56BF : INY 			;Y++
+56C0 : LDA $2007 			;->A
+56C3 : STA $3035,Y 			;A->MEM
+56C6 : INY 			;Y++
+56C7 : LDA $2008 			;->A
+56CA : STA $3035,Y 			;A->MEM
+56CD : INY 			;Y++
+56CE : LDA $2009 			;->A
+56D1 : STA $3035,Y 			;A->MEM
+56D4 : INY 			;Y++
+56D5 : LDA $200A 			;->A
+56D8 : STA $3035,Y 			;A->MEM
+56DB : INY 			;Y++
+56DC : LDA $200B 			;->A
+56DF : STA $3035,Y 			;A->MEM
+56E2 : INY 			;Y++
+56E3 : RTS 			;子程序返回
+
+56E4 : LDX $2001 			;->X
+56E7 : INX 			;X++
+56E8 : LDA #$C8 			;->A
+56EA : INT $9E1F      ;A,X相乘，结果放80
+56ED : LDA $2000 			;->A
+56F0 : STA $82 			;A->MEM
+56F2 : LDA $2001 			;->A
+56F5 : STA $83 			;A->MEM
+56F7 : INT $9E23      ;80-81除82-83 商80
+56FA : LDA $80 			;->A
+56FC : STA $200A 			;A->MEM
+56FF : LDA $81 			;->A
+5701 : STA $200B 			;A->MEM
+5704 : LDA $2EB0 			;->A
+5707 : STA $80 			;A->MEM
+5709 : LDA $2EB1 			;->A
+570C : STA $81 			;A->MEM
+570E : LDA $2EB2 			;->A
+5711 : STA $82 			;A->MEM
+5713 : LDA $2EB3 			;->A
+5716 : STA $83 			;A->MEM
+5718 : LDA #$10 			;->A
+571A : STA $84 			;A->MEM
+571C : LDA #$27 			;->A
+571E : STA $85 			;A->MEM
+5720 : INT $9E24      ;80--83除84-85 商->80
+5723 : LDA $80 			;->A
+5725 : JSR $5856  			;跳转子程序
+5728 : INY 			;Y++
+5729 : STY $80 			;Y->MEM
+572B : LDA #$00 			;->A
+572D : STA $81 			;A->MEM
+572F : LDA $200A 			;->A
+5732 : STA $82 			;A->MEM
+5734 : LDA $200B 			;->A
+5737 : STA $83 			;A->MEM
+5739 : INT $9E20      ;80-81*82-83 结果放80--83
+573C : LDA $80 			;->A
+573E : STA $200A 			;A->MEM
+5741 : LDA $81 			;->A
+5743 : STA $200B 			;A->MEM
+5746 : LDA $2EB0 			;->A
+5749 : CLC 			;清进位标志
+574A : ADC $2002 			;与(A+标志C)相加,结果送A
+574D : STA $2010 			;A->MEM
+5750 : LDA $2EB1 			;->A
+5753 : ADC $2003 			;与(A+标志C)相加,结果送A
+5756 : STA $2011 			;A->MEM
+5759 : LDA $2EB2 			;->A
+575C : ADC $2004 			;与(A+标志C)相加,结果送A
+575F : STA $2012 			;A->MEM
+5762 : LDA $2EB3 			;->A
+5765 : ADC $2005 			;与(A+标志C)相加,结果送A
+5768 : STA $2013 			;A->MEM
+576B : LDA $2EB0 			;->A
+576E : STA $80 			;A->MEM
+5770 : LDA $2EB1 			;->A
+5773 : STA $81 			;A->MEM
+5775 : LDA $2EB2 			;->A
+5778 : STA $82 			;A->MEM
+577A : LDA $2EB3 			;->A
+577D : STA $83 			;A->MEM
+577F : LDA $200A 			;->A
+5782 : STA $84 			;A->MEM
+5784 : LDA $200B 			;->A
+5787 : STA $85 			;A->MEM
+5789 : LDA #$00 			;->A
+578B : STA $86 			;A->MEM
+578D : LDA #$00 			;->A
+578F : STA $87 			;A->MEM
+5791 : INT $9E21      ;80--83*84-87 ->80--87
+5794 : LDA $2010 			;->A
+5797 : STA $84 			;A->MEM
+5799 : LDA $2011 			;->A
+579C : STA $85 			;A->MEM
+579E : LDA $2012 			;->A
+57A1 : STA $86 			;A->MEM
+57A3 : LDA $2013 			;->A
+57A6 : STA $87 			;A->MEM
+57A8 : INT $9E25      ;80--83除84-87 商->80
+57AB : LDA $80 			;->A
+57AD : STA $200A 			;A->MEM
+57B0 : LDA $81 			;->A
+57B2 : STA $200B 			;A->MEM
+57B5 : LDA $2002 			;->A
+57B8 : STA $80 			;A->MEM
+57BA : LDA $2003 			;->A
+57BD : STA $81 			;A->MEM
+57BF : LDA $2004 			;->A
+57C2 : STA $82 			;A->MEM
+57C4 : LDA $2005 			;->A
+57C7 : STA $83 			;A->MEM
+57C9 : LDA $200A 			;->A
+57CC : STA $84 			;A->MEM
+57CE : LDA $200B 			;->A
+57D1 : STA $85 			;A->MEM
+57D3 : LDA #$00 			;->A
+57D5 : STA $86 			;A->MEM
+57D7 : LDA #$00 			;->A
+57D9 : STA $87 			;A->MEM
+57DB : INT $9E21      ;80--83*84-87 ->80--87
+57DE : LDA $2010 			;->A
+57E1 : STA $84 			;A->MEM
+57E3 : LDA $2011 			;->A
+57E6 : STA $85 			;A->MEM
+57E8 : LDA $2012 			;->A
+57EB : STA $86 			;A->MEM
+57ED : LDA $2013 			;->A
+57F0 : STA $87 			;A->MEM
+57F2 : INT $9E25      ;80--83除84-87 商->80
+57F5 : LDA $80 			;->A
+57F7 : STA $200A 			;A->MEM
+57FA : LDA $81 			;->A
+57FC : STA $200B 			;A->MEM
+57FF : LDA $2EBB 			;->A    bliss
+5802 : STA $04CB 			;A->MEM
+5805 : LDA #$00 			;->A
+5807 : STA $04CC 			;A->MEM
+580A : INT $9E27      ;Random number
+580D : STA $2010 			;A->MEM
+5810 : LDA $2EB8 			;->A
+5813 : STA $04CB 			;A->MEM
+5816 : LDA #$00 			;->A
+5818 : STA $04CC 			;A->MEM
+581B : INT $9E27      ;Random number
+581E : CLC 			;清进位标志
+581F : ADC $2010 			;与(A+标志C)相加,结果送A
+5822 : CLC 			;清进位标志
+5823 : ADC $200A 			;与(A+标志C)相加,结果送A
+5826 : STA $200A 			;A->MEM
+5829 : BCC $582E 			;进位标志C=0则转移,否则继续
+582B : INC $200B 			;MEM++
+582E : LDA $200B 			;->A
+5831 : CMP #$00 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5833 : BNE $583A 			;Z=0则转移,否则继续
+5835 : LDA $200A 			;->A
+5838 : CMP #$C8 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+583A : BCC $5855 			;进位标志C=0则转移,否则继续
+583C : LDA #$C8 			;->A
+583E : STA $200A 			;A->MEM
+5841 : LDA #$00 			;->A
+5843 : STA $200B 			;A->MEM
+5846 : LDA $2010 			;->A
+5849 : CLC 			;清进位标志
+584A : ADC $200A 			;与(A+标志C)相加,结果送A
+584D : STA $200A 			;A->MEM
+5850 : BCC $5855 			;进位标志C=0则转移,否则继续
+5852 : INC $200B 			;MEM++
+5855 : RTS 			;子程序返回
+
+5856 : LDY #$00 			;->Y
+5858 : LDX #$0A 			;->X
+585A : INT $9E22      ;X,A相除.A为得数，X为余数 
+585D : BEQ $5863 			;Z=1则转移,否则继续
+585F : INY 			;Y++
+5860 : JMP $5858 			;
+5863 : RTS 			;子程序返回
+
+;村长dialog
+5864 : LDA #$72 			;->A
+5866 : STA $80 			;A->MEM
+5868 : LDA #$60 			;->A
+586A : STA $81 			;A->MEM  6072  3D61 5861 6D61
+586C : JMP $5877 			;
+;中年dialog
+586F : LDA #$78 			;->A
+5871 : STA $80 			;A->MEM
+5873 : LDA #$60 			;->A
+5875 : STA $81 			;A->MEM  6078  E260 F160 1761
+5877 : LDA $302D 			;->A
+587A : ASL 			;算术左移
+587B : TAY 			;A->Y
+587C : LDA ($80),Y 			;->A
+587E : STA $A6 			;A->MEM
+5880 : INY 			;Y++
+5881 : LDA ($80),Y 			;->A
+5883 : STA $A7 			;A->MEM
+5885 : LDY #$00 			;->Y
+5887 : LDA ($A6),Y 			;->A
+5889 : STA $2D80,Y 			;A->MEM
+588C : INY 			;Y++
+588D : CPY #$FA 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+588F : BCC $5887 			;进位标志C=0则转移,否则继续
+5891 : LDA #$80 			;->A
+5893 : STA $A6 			;A->MEM
+5895 : LDA #$2D 			;->A
+5897 : STA $A7 			;A->MEM
+5899 : INT $302D   ;显示对话
+589C : RTS 			;子程序返回
+
+589D : LDA #$03 			;->A
+589F : JSR $55A2  			;跳转子程序
+58A2 : BNE $58AE 			;Z=0则转移,否则继续
+58A4 : LDA #$01 			;->A
+58A6 : STA $200C 			;A->MEM
+58A9 : JSR $5B12  			;跳转子程序
+58AC : CLC 			;清进位标志
+58AD : RTS 			;子程序返回
+
+58AE : LDA $3036,Y 			;->A
+58B1 : STA $2012 			;A->MEM
+58B4 : LDA $3037,Y 			;->A
+58B7 : STA $2013 			;A->MEM
+58BA : LDA $3038,Y 			;->A
+58BD : STA $2014 			;A->MEM
+58C0 : LDA $3039,Y 			;->A
+58C3 : STA $2015 			;A->MEM
+58C6 : LDA $3035,Y 			;->A
+58C9 : CMP #$FF 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+58CB : BNE $58D0 			;Z=0则转移,否则继续
+58CD : JMP $5972 			;
+
+58D0 : LDA #$B0 			;->A
+58D2 : STA $80 			;A->MEM
+58D4 : LDA #$04 			;->A
+58D6 : STA $81 			;A->MEM
+58D8 : CLC 			;清进位标志
+58D9 : LDA $2012 			;->A
+58DC : ADC $80 			;与(A+标志C)相加,结果送A
+58DE : STA $2012 			;A->MEM
+58E1 : LDA $2013 			;->A
+58E4 : ADC $81 			;与(A+标志C)相加,结果送A
+58E6 : STA $2013 			;A->MEM
+58E9 : BCC $58F3 			;进位标志C=0则转移,否则继续
+58EB : INC $2014 			;MEM++
+58EE : BNE $58F3 			;Z=0则转移,否则继续
+58F0 : INC $2015 			;MEM++
+58F3 : LDA $2E94 			;->A
+58F6 : CMP $2015 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+58F9 : BNE $5911 			;Z=0则转移,否则继续
+58FB : LDA $2E93 			;->A
+58FE : CMP $2014 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5901 : BNE $5911 			;Z=0则转移,否则继续
+5903 : LDA $2E92 			;->A
+5906 : CMP $2013 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5909 : BNE $5911 			;Z=0则转移,否则继续
+590B : LDA $2E91 			;->A
+590E : CMP $2012 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5911 : BCS $5950 			;借位标志C=1则转移,否则继续
+5913 : LDA $3031,Y 			;->A
+5916 : STA $2010 			;A->MEM
+5919 : LDA $3032,Y 			;->A
+591C : STA $2011 			;A->MEM
+591F : LDA $3033,Y 			;->A
+5922 : STA $2012 			;A->MEM
+5925 : LDA $3034,Y 			;->A
+5928 : STA $2013 			;A->MEM
+592B : LDA #$00 			;->A
+592D : STA $2014 			;A->MEM
+5930 : LDA #$00 			;->A
+5932 : STA $2015 			;A->MEM
+5935 : LDX #$FA 			;->X
+5937 : LDA $61EE,X 			;->A
+593A : STA $2D7F,X 			;A->MEM  61EE 在下不是请你去收服07 1020 0A00 吗?
+593D : DEX 			;X--
+593E : BNE $5937 			;Z=0则转移,否则继续
+5940 : LDA #$80 			;->A
+5942 : STA $A6 			;A->MEM
+5944 : LDA #$2D 			;->A
+5946 : STA $A7 			;A->MEM
+5948 : INT $302D  ;显示对话
+594B : INT $3033  ;按任意键返回地图
+594E : SEC 			;置进位标志C=1
+594F : RTS 			;子程序返回
+
+5950 : LDX #$05 			;->X
+5952 : LDA $3070,X 			;->A
+5955 : STA $71,X 			;A->MEM
+5957 : DEX 			;X--
+5958 : BNE $5952 			;Z=0则转移,否则继续
+595A : INT $304D
+595D : LDA $3030,Y 			;->A
+5960 : CMP #$02 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5962 : BCS $5968 			;借位标志C=1则转移,否则继续
+5964 : LDA #$01 			;->A
+5966 : BNE $596A 			;Z=0则转移,否则继续
+5968 : SBC #$01 			;A-MEM-C->A
+596A : STA $200C 			;A->MEM
+596D : JSR $5B12  			;跳转子程序
+5970 : CLC 			;清进位标志
+5971 : RTS 			;子程序返回
+5972 : LDA $2015 			;->A
+5975 : CMP $2E94 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5978 : BNE $5990 			;Z=0则转移,否则继续
+597A : LDA $2014 			;->A
+597D : CMP $2E93 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5980 : BNE $5990 			;Z=0则转移,否则继续
+5982 : LDA $2013 			;->A
+5985 : CMP $2E92 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5988 : BNE $5990 			;Z=0则转移,否则继续
+598A : LDA $2012 			;->A
+598D : CMP $2E91 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5990 : BEQ $5994 			;Z=1则转移,否则继续
+5992 : BCS $59F1 			;借位标志C=1则转移,否则继续
+5994 : LDA #$2C 			;->A
+5996 : STA $80 			;A->MEM
+5998 : LDA #$01 			;->A
+599A : STA $81 			;A->MEM
+599C : CLC 			;清进位标志
+599D : LDA $2012 			;->A
+59A0 : ADC $80 			;与(A+标志C)相加,结果送A
+59A2 : STA $2012 			;A->MEM
+59A5 : LDA $2013 			;->A
+59A8 : ADC $81 			;与(A+标志C)相加,结果送A
+59AA : STA $2013 			;A->MEM
+59AD : BCC $59B7 			;进位标志C=0则转移,否则继续
+59AF : INC $2014 			;MEM++
+59B2 : BNE $59B7 			;Z=0则转移,否则继续
+59B4 : INC $2015 			;MEM++
+59B7 : LDA $2E94 			;->A
+59BA : CMP $2015 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+59BD : BNE $59D5 			;Z=0则转移,否则继续
+59BF : LDA $2E93 			;->A
+59C2 : CMP $2014 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+59C5 : BNE $59D5 			;Z=0则转移,否则继续
+59C7 : LDA $2E92 			;->A
+59CA : CMP $2013 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+59CD : BNE $59D5 			;Z=0则转移,否则继续
+59CF : LDA $2E91 			;->A
+59D2 : CMP $2012 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+59D5 : BEQ $59D9 			;Z=1则转移,否则继续
+59D7 : BCS $59F1 			;借位标志C=1则转移,否则继续
+59D9 : LDX #$FA 			;->X
+59DB : LDA $62B9,X 			;->A
+59DE : STA $2D7F,X 			;A->MEM  62B9 多谢,奸邪暂时已经除尽了,先歇息一下吧!
+59E1 : DEX 			;X--
+59E2 : BNE $59DB 			;Z=0则转移,否则继续
+59E4 : LDA #$80 			;->A
+59E6 : STA $A6 			;A->MEM
+59E8 : LDA #$2D 			;->A
+59EA : STA $A7 			;A->MEM
+59EC : INT $3033  ;按任意键返回地图
+59EF : SEC 			;置进位标志C=1
+59F0 : RTS 			;子程序返回
+
+59F1 : LDA $3030,Y 			;->A
+59F4 : CMP #$0A 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+59F6 : BCS $59FD 			;借位标志C=1则转移,否则继续
+59F8 : CLC 			;清进位标志
+59F9 : ADC #$01 			;与(A+标志C)相加,结果送A
+59FB : BNE $59FF 			;Z=0则转移,否则继续
+59FD : LDA #$02 			;->A
+59FF : STA $200C 			;A->MEM
+5A02 : JSR $5B12  			;跳转子程序
+
+5A05 : CLC 			;清进位标志
+5A06 : RTS 			;子程序返回
+
+5A07 : LDA #$0E 			;->A
+5A09 : STA $04CB 			;A->MEM
+5A0C : LDA #$00 			;->A
+5A0E : STA $04CC 			;A->MEM
+5A11 : INT $9E27      ;Random number
+5A14 : STA $200D 			;A->MEM
+5A17 : CMP #$09 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5A19 : BCS $5A2A 			;借位标志C=1则转移,否则继续
+5A1B : ASL 			;算术左移
+5A1C : TAY 			;A->Y
+5A1D : LDA $6375,Y 			;->A
+5A20 : STA $90 			;A->MEM
+5A22 : LDA $6376,Y 			;->A
+5A25 : STA $91 			;A->MEM
+5A27 : JMP $5A39 			;
+5A2A : SEC 			;置进位标志C=1
+5A2B : SBC #$09 			;A-MEM-C->A
+5A2D : ASL 			;算术左移
+5A2E : TAY 			;A->Y
+5A2F : LDA $639F,Y 			;->A
+5A32 : STA $90 			;A->MEM
+5A34 : LDA $63A0,Y 			;->A
+5A37 : STA $91 			;A->MEM
+5A39 : JSR $5AC7  			;跳转子程序
+5A3C : STY $05FC 			;Y->MEM
+5A3F : LSR $05FC 			;逻辑右移
+5A42 : LDY $200D 			;->Y
+5A45 : LDA $6084,Y 			;->A
+5A48 : INT $3054
+5A4B : LDA $80 			;->A
+5A4D : STA $90 			;A->MEM
+5A4F : LDA $81 			;->A
+5A51 : STA $91 			;A->MEM
+5A53 : LDA #$00 			;->A
+5A55 : STA $2006 			;A->MEM
+5A58 : LDA #$00 			;->A
+5A5A : STA $2007 			;A->MEM
+5A5D : LDX #$FA 			;->X
+5A5F : LDA $620A,X 			;->A
+5A62 : STA $2D7F,X 			;A->MEM  620A 近有恶人『07 0202 0A00』在08 0900 0A00为非作歹,请速去为民除害!
+5A65 : DEX 			;X--
+5A66 : BNE $5A5F 			;Z=0则转移,否则继续
+5A68 : LDA #$80 			;->A
+5A6A : STA $A6 			;A->MEM
+5A6C : LDA #$2D 			;->A
+5A6E : STA $A7 			;A->MEM
+5A70 : INT $302D  ;显示对话
+5A73 : INT $3033  ;按任意键返回地图
+5A76 : LDA #$0A 			;->A
+5A78 : STA $72 			;A->MEM
+5A7A : STA $3071 			;A->MEM
+5A7D : LDA #$7D 			;->A
+5A7F : STA $73 			;A->MEM
+5A81 : STA $3072 			;A->MEM
+5A84 : LDA #$06 			;->A
+5A86 : STA $74 			;A->MEM
+5A88 : STA $3073 			;A->MEM
+5A8B : LDA $200E 			;->A
+5A8E : STA $75 			;A->MEM
+5A90 : STA $3074 			;A->MEM
+5A93 : LDA $200F 			;->A
+5A96 : STA $76 			;A->MEM
+5A98 : STA $3075 			;A->MEM
+5A9B : INT $304C
+5A9E : LDA $302E 			;->A
+5AA1 : STA $50 			;A->MEM
+5AA3 : LDA #$06 			;->A
+5AA5 : STA $51 			;A->MEM
+5AA7 : INT $3052
+5AAA : RTS 			;子程序返回
+5AAB : street,type,room: 00 03 0D20 0F20 FC05 0000
+
+5AC7 : LDY #$02 			;->Y
+5AC9 : LDX #$00 			;->X
+5ACB : LDA ($90),Y 			;->A
+5ACD : CMP #$03 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5ACF : BEQ $5AD9 			;Z=1则转移,否则继续
+5AD1 : CMP #$04 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5AD3 : BEQ $5AD9 			;Z=1则转移,否则继续
+5AD5 : CMP #$05 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5AD7 : BNE $5ADC 			;Z=0则转移,否则继续
+5AD9 : JSR $5B05  			;跳转子程序
+5ADC : INY 			;Y++
+5ADD : LDA ($90),Y 			;->A
+5ADF : CMP #$FF 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5AE1 : BEQ $5AE8 			;Z=1则转移,否则继续
+5AE3 : INY 			;Y++
+5AE4 : INY 			;Y++
+5AE5 : JMP $5ACB 			;
+5AE8 : STX $04CB 			;X->MEM
+5AEB : LSR $04CB 			;逻辑右移
+5AEE : LDA #$00 			;->A
+5AF0 : STA $04CC 			;A->MEM
+5AF3 : INT $9E27      ;Random number
+5AF6 : ASL 			;算术左移
+5AF7 : TAY 			;A->Y
+5AF8 : LDA $2016,Y 			;->A
+5AFB : STA $200F 			;A->MEM
+5AFE : LDA $2017,Y 			;->A
+5B01 : STA $200E 			;A->MEM
+5B04 : RTS 			;子程序返回
+
+5B05 : STA $2016,X 			;A->MEM
+5B08 : INX 			;X++
+5B09 : DEY 			;Y--
+5B0A : LDA ($90),Y 			;->A
+5B0C : STA $2016,X 			;A->MEM
+5B0F : INX 			;X++
+5B10 : INY 			;Y++
+5B11 : RTS 			;子程序返回
+
+5B12 : LDA $200C 			;->A
+5B15 : STA $2001 			;A->MEM
+5B18 : LDA #$7D 			;->A
+5B1A : STA $302E 			;A->MEM
+5B1D : LDA #$08 			;->A
+5B1F : STA $04CB 			;A->MEM
+5B22 : LDA #$00 			;->A
+5B24 : STA $04CC 			;A->MEM
+5B27 : INT $9E27      ;Random number
+5B2A : ASL 			;算术左移
+5B2B : TAY 			;A->Y
+5B2C : LDA $62E1,Y 			;->A  恶人姓
+5B2F : STA $2002 			;A->MEM
+5B32 : LDA $62E2,Y 			;->A  恶人姓
+5B35 : STA $2003 			;A->MEM
+5B38 : LDA #$08 			;->A
+5B3A : STA $04CB 			;A->MEM
+5B3D : LDA #$00 			;->A
+5B3F : STA $04CC 			;A->MEM
+5B42 : INT $9E27      ;Random number
+5B45 : ASL 			;算术左移
+5B46 : TAY 			;A->Y
+5B47 : LDA $62F1,Y 			;->A  恶人名
+5B4A : STA $2004 			;A->MEM
+5B4D : LDA $62F2,Y 			;->A  恶人名
+5B50 : STA $2005 			;A->MEM
+5B53 : LDA #$50 			;->A
+5B55 : STA $04CB 			;A->MEM
+5B58 : LDA #$00 			;->A
+5B5A : STA $04CC 			;A->MEM
+5B5D : INT $9E27      ;Random number
+5B60 : LDA #$50 			;->A
+5B62 : STA $82 			;A->MEM
+5B64 : LDA #$00 			;->A
+5B66 : STA $83 			;A->MEM
+5B68 : CLC 			;清进位标志
+5B69 : LDA $80 			;->A
+5B6B : ADC $82 			;与(A+标志C)相加,结果送A
+5B6D : STA $80 			;A->MEM
+5B6F : LDA $81 			;->A
+5B71 : ADC $83 			;与(A+标志C)相加,结果送A
+5B73 : STA $81 			;A->MEM
+5B75 : LDA $200C 			;->A
+5B78 : STA $82 			;A->MEM
+5B7A : LDA #$00 			;->A
+5B7C : STA $83 			;A->MEM
+5B7E : INT $9E20      ;80-81*82-83 结果放80--83
+5B81 : LDA $80 			;->A
+5B83 : STA $200A 			;A->MEM
+5B86 : LDA $81 			;->A
+5B88 : STA $200B 			;A->MEM
+5B8B : LDA $2E91 			;->A
+5B8E : STA $2006 			;A->MEM
+5B91 : LDA $2E92 			;->A
+5B94 : STA $2007 			;A->MEM
+5B97 : LDA $2E93 			;->A
+5B9A : STA $2008 			;A->MEM
+5B9D : LDA $2E94 			;->A
+5BA0 : STA $2009 			;A->MEM
+5BA3 : JSR $5686  			;跳转子程序
+5BA6 : RTS 			;子程序返回
+
+;NPC Event
+5BA7 : LDA $50 			;->A  NPC id
+5BA9 : BEQ $5BB4 			;Z=1则转移,否则继续
+5BAB : LDA #$03 			;->A
+5BAD : JSR $55A2  			;跳转子程序  3035 + 3*12+5 捕快id
+5BB0 : CMP $50 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5BB2 : BEQ $5BB6 			;Z=1则转移,否则继续
+5BB4 : CLC 			;清进位标志
+5BB5 : RTS 			;子程序返回
+5BB6 : JSR $5BBB  			;跳转子程序
+5BB9 : SEC 			;置进位标志C=1
+5BBA : RTS 			;子程序返回
+;生成badman
+5BBB : LDX #$1A 			;->X
+5BBD : LDA $2EAB,X 			;->A
+5BC0 : STA $2086,X 			;A->MEM
+5BC3 : DEX 			;X--
+5BC4 : BNE $5BBD 			;Z=0则转移,否则继续
+5BC6 : LDX #$06 			;->X
+5BC8 : LDA $2E94,X 			;->A
+5BCB : STA $2090,X 			;A->MEM
+5BCE : DEX 			;X--
+5BCF : BNE $5BC8 			;Z=0则转移,否则继续
+5BD1 : LDA #$03 			;->A
+5BD3 : JSR $55A2  			;跳转子程序
+5BD6 : STY $2010 			;Y->MEM
+5BD9 : LDA $3030,Y 			;->A
+5BDC : TAY 			;A->Y
+5BDD : DEY 			;Y--
+5BDE : LDA $6096,Y 			;->A
+5BE1 : STA $200C 			;A->MEM
+5BE4 : LDY $2010 			;->Y
+5BE7 : LDA $3031,Y 			;->A
+5BEA : STA $207A 			;A->MEM
+5BED : LDA $3032,Y 			;->A
+5BF0 : STA $207B 			;A->MEM
+5BF3 : LDA $3033,Y 			;->A
+5BF6 : STA $207C 			;A->MEM
+5BF9 : LDA $3034,Y 			;->A
+5BFC : STA $207D 			;A->MEM
+5BFF : LDA #$00 			;->A
+5C01 : STA $207E 			;A->MEM
+5C04 : LDA #$00 			;->A
+5C06 : STA $207F 			;A->MEM
+5C09 : LDA #$08 			;->A
+5C0B : STA $04CB 			;A->MEM
+5C0E : LDA #$00 			;->A
+5C10 : STA $04CC 			;A->MEM
+5C13 : INT $9E27      ;Random number
+5C16 : STA $2084 			;A->MEM
+5C19 : INC $2084 			;MEM++
+5C1C : LDA #$22 			;->A
+5C1E : STA $2086 			;A->MEM
+5C21 : LDA $2EB0 			;->A
+5C24 : STA $80 			;A->MEM
+5C26 : LDA $2EB1 			;->A
+5C29 : STA $81 			;A->MEM
+5C2B : LDA $2EB2 			;->A
+5C2E : STA $82 			;A->MEM
+5C30 : LDA $2EB3 			;->A
+5C33 : STA $83 			;A->MEM
+5C35 : LDA $200C 			;->A
+5C38 : STA $84 			;A->MEM
+5C3A : LDA #$00 			;->A
+5C3C : STA $85 			;A->MEM
+5C3E : LDA #$00 			;->A
+5C40 : STA $86 			;A->MEM
+5C42 : LDA #$00 			;->A
+5C44 : STA $87 			;A->MEM
+5C46 : INT $9E21      ;80--83*84-87 ->80--87
+5C49 : LDA #$64 			;->A
+5C4B : STA $84 			;A->MEM
+5C4D : LDA #$00 			;->A
+5C4F : STA $85 			;A->MEM
+5C51 : INT $9E24      ;80--83除84-85 商->80
+5C54 : LDA $80 			;->A
+5C56 : STA $208B 			;A->MEM
+5C59 : LDA $81 			;->A
+5C5B : STA $208C 			;A->MEM
+5C5E : LDA $82 			;->A
+5C60 : STA $208D 			;A->MEM
+5C63 : LDA $83 			;->A
+5C65 : STA $208E 			;A->MEM
+5C68 : LDA $2EBE 			;->A
+5C6B : STA $80 			;A->MEM
+5C6D : LDA $2EBF 			;->A
+5C70 : STA $81 			;A->MEM
+5C72 : LDA $200C 			;->A
+5C75 : STA $82 			;A->MEM
+5C77 : LDA #$00 			;->A
+5C79 : STA $83 			;A->MEM
+5C7B : INT $9E20      ;80-81*82-83 结果放80--83
+5C7E : LDA #$64 			;->A
+5C80 : STA $84 			;A->MEM
+5C82 : LDA #$00 			;->A
+5C84 : STA $85 			;A->MEM
+5C86 : INT $9E24      ;80--83除84-85 商->80
+5C89 : LDA $80 			;->A
+5C8B : STA $2099 			;A->MEM
+5C8E : LDA $81 			;->A
+5C90 : STA $209A 			;A->MEM
+5C93 : LDA $80 			;->A
+5C95 : STA $209F 			;A->MEM
+5C98 : LDA $81 			;->A
+5C9A : STA $20A0 			;A->MEM
+5C9D : LDA $80 			;->A
+5C9F : STA $2097 			;A->MEM
+5CA2 : LDA $81 			;->A
+5CA4 : STA $2098 			;A->MEM
+5CA7 : LDA $2EC2 			;->A
+5CAA : STA $80 			;A->MEM
+5CAC : LDA $2EC3 			;->A
+5CAF : STA $81 			;A->MEM
+5CB1 : LDA $200C 			;->A
+5CB4 : STA $82 			;A->MEM
+5CB6 : LDA #$00 			;->A
+5CB8 : STA $83 			;A->MEM
+5CBA : INT $9E20      ;80-81*82-83 结果放80--83
+5CBD : LDA #$64 			;->A
+5CBF : STA $84 			;A->MEM
+5CC1 : LDA #$00 			;->A
+5CC3 : STA $85 			;A->MEM
+5CC5 : INT $9E24      ;80--83除84-85 商->80
+5CC8 : LDA $80 			;->A
+5CCA : STA $209D 			;A->MEM
+5CCD : LDA $81 			;->A
+5CCF : STA $209E 			;A->MEM
+5CD2 : LDA $80 			;->A
+5CD4 : STA $209B 			;A->MEM
+5CD7 : LDA $81 			;->A
+5CD9 : STA $209C 			;A->MEM
+5CDC : LDA #$00 			;->A
+5CDE : STA $2010 			;A->MEM
+5CE1 : LDA #$DB 			;->A
+5CE3 : STA $80 			;A->MEM
+5CE5 : LDA #$2E 			;->A
+5CE7 : STA $81 			;A->MEM
+5CE9 : LDY #$01 			;->Y
+5CEB : LDX #$00 			;->X
+5CED : CPX $2EDA 			;与X比较,(X>=MEM,c=1)(X<MEM,C=0,N=1)(X==MEM,Z=0)
+5CF0 : BCS $5D03 			;借位标志C=1则转移,否则继续
+5CF2 : LDA ($80),Y 			;->A
+5CF4 : CMP $2010 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5CF7 : BCC $5CFC 			;进位标志C=0则转移,否则继续
+5CF9 : STA $2010 			;A->MEM
+5CFC : INY 			;Y++
+5CFD : INY 			;Y++
+5CFE : INY 			;Y++
+5CFF : INY 			;Y++
+5D00 : INX 			;X++
+5D01 : BNE $5CED 			;Z=0则转移,否则继续
+5D03 : LDA $200C 			;->A
+5D06 : LDX $2010 			;->X
+5D09 : INT $9E1F      ;A,X相乘，结果放80
+5D0C : LDA #$64 			;->A
+5D0E : STA $82 			;A->MEM
+5D10 : LDA #$00 			;->A
+5D12 : STA $83 			;A->MEM
+5D14 : INT $9E23      ;80-81除82-83 商80
+5D17 : LDA $80 			;->A
+5D19 : STA $200C 			;A->MEM
+5D1C : JSR $5D80  			;跳转子程序
+5D1F : LDX #$34 			;->X
+5D21 : LDA $2079,X 			;->A
+5D24 : STA $2F86,X 			;A->MEM
+5D27 : DEX 			;X--
+5D28 : BNE $5D21 			;Z=0则转移,否则继续
+5D2A : LDX #$05 			;->X
+5D2C : LDA $20A7,X 			;->A
+5D2F : STA $2FB4,X 			;A->MEM
+5D32 : DEX 			;X--
+5D33 : BNE $5D2C 			;Z=0则转移,否则继续
+5D35 : LDX #$29 			;->X
+5D37 : LDA $20AC,X 			;->A
+5D3A : STA $2FB9,X 			;A->MEM
+5D3D : DEX 			;X--
+5D3E : BNE $5D37 			;Z=0则转移,否则继续
+5D40 : LDA #$2A 			;->A
+5D42 : ORA #$80 			;A∨$n→A
+5D44 : STA $2FAF 			;A->MEM
+5D47 : LDX #$03 			;->X
+5D49 : LDA #$00 			;->A
+5D4B : STA $2FAF,X 			;A->MEM
+5D4E : DEX 			;X--
+5D4F : BNE $5D49 			;Z=0则转移,否则继续
+5D51 : LDA #$0A 			;->A
+5D53 : STA $2FB3 			;A->MEM
+5D56 : LDA #$00 			;->A
+5D58 : STA $2FB4 			;A->MEM
+5D5B : LDA #$00 			;->A
+5D5D : STA $30AA 			;A->MEM
+5D60 : LDA $2FAA 			;->A
+5D63 : STA $80 			;A->MEM
+5D65 : LDA $2FAB 			;->A
+5D68 : STA $81 			;A->MEM
+5D6A : LDA #$28 			;->A
+5D6C : STA $82 			;A->MEM
+5D6E : LDA #$00 			;->A
+5D70 : STA $83 			;A->MEM
+5D72 : INT $9E23      ;80-81除82-83 商80
+5D75 : LDA $80 			;->A
+5D77 : STA $2F9C 			;A->MEM
+5D7A : LDA $81 			;->A
+5D7C : STA $2F9D 			;A->MEM
+5D7F : RTS 			;子程序返回
+
+5D80 : LDA $2084 			;->A
+
+5D83 : ASL 			;算术左移
+
+5D84 : TAY 			;A->Y
+
+5D85 : LDA $60A0,Y 			;->A
+
+5D88 : STA $90 			;A->MEM
+
+5D8A : LDA $60A1,Y 			;->A
+
+5D8D : STA $91 			;A->MEM
+
+5D8F : LDY #$00 			;->Y
+
+5D91 : LDA ($90),Y 			;->A
+
+5D93 : ORA #$80 			;A∨$n→A
+
+5D95 : STA $20A8,Y 			;A->MEM
+
+5D98 : INY 			;Y++
+
+5D99 : CPY #$05 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+5D9B : BCC $5D91 			;进位标志C=0则转移,否则继续
+
+5D9D : LDA ($90),Y 			;->A
+
+5D9F : BEQ $5DA6 			;Z=1则转移,否则继续
+
+5DA1 : ORA #$80 			;A∨$n→A
+
+5DA3 : STA $20A1 			;A->MEM
+
+5DA6 : LDX #$00 			;->X
+
+5DA8 : LDY #$00 			;->Y
+
+5DAA : TYA 			;Y->A
+
+5DAB : STA $20AE,X 			;A->MEM
+
+5DAE : INX 			;X++
+
+5DAF : LDA $200C 			;->A
+
+5DB2 : STA $20AE,X 			;A->MEM
+
+5DB5 : INX 			;X++
+
+5DB6 : INY 			;Y++
+
+5DB7 : CPY #$09 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+5DB9 : BCC $5DAA 			;进位标志C=0则转移,否则继续
+
+5DBB : LDY #$00 			;->Y
+
+5DBD : LDA ($90),Y 			;->A
+
+5DBF : STA $20AE,X 			;A->MEM
+
+5DC2 : INX 			;X++
+
+5DC3 : LDA $200C 			;->A
+
+5DC6 : STA $20AE,X 			;A->MEM
+
+5DC9 : INX 			;X++
+
+5DCA : INY 			;Y++
+
+5DCB : CPY #$04 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+5DCD : BCC $5DBD 			;进位标志C=0则转移,否则继续
+
+5DCF : LDA #$0D 			;->A
+
+5DD1 : STA $20AD 			;A->MEM
+
+5DD4 : RTS 			;子程序返回
+;顾炎武
+5DD5 : LDA #$00 			;->A
+5DD7 : STA $200A 			;A->MEM
+5DDA : LDA #$00 			;->A
+5DDC : STA $200B 			;A->MEM
+5DDF : LDA #$00 			;->A
+5DE1 : STA $2010 			;A->MEM
+5DE4 : LDA #$00 			;->A
+5DE6 : STA $2011 			;A->MEM
+5DE9 : LDA $2010 			;->A
+5DEC : JSR $55A2  			;跳转子程序
+5DEF : CMP #$FE 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5DF1 : BNE $5DFD 			;Z=0则转移,否则继续
+5DF3 : LDA #$FF 			;->A
+5DF5 : STA $2011 			;A->MEM
+5DF8 : LDA #$00 			;->A
+5DFA : STA $3035,Y 			;A->MEM
+5DFD : LDA $3036,Y 			;->A
+5E00 : STA $2012 			;A->MEM
+5E03 : LDA $3037,Y 			;->A
+5E06 : STA $2013 			;A->MEM
+5E09 : LDA $3038,Y 			;->A
+5E0C : STA $2014 			;A->MEM
+5E0F : LDA $3039,Y 			;->A
+5E12 : STA $2015 			;A->MEM
+5E15 : LDA #$B0 			;->A
+5E17 : STA $80 			;A->MEM
+5E19 : LDA #$04 			;->A
+5E1B : STA $81 			;A->MEM
+5E1D : CLC 			;清进位标志
+5E1E : LDA $2012 			;->A
+5E21 : ADC $80 			;与(A+标志C)相加,结果送A
+5E23 : STA $2012 			;A->MEM
+5E26 : LDA $2013 			;->A
+5E29 : ADC $81 			;与(A+标志C)相加,结果送A
+5E2B : STA $2013 			;A->MEM
+5E2E : BCC $5E38 			;进位标志C=0则转移,否则继续
+5E30 : INC $2014 			;MEM++
+5E33 : BNE $5E38 			;Z=0则转移,否则继续
+5E35 : INC $2015 			;MEM++
+5E38 : LDA $2E94 			;->A
+5E3B : CMP $2015 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5E3E : BNE $5E56 			;Z=0则转移,否则继续
+5E40 : LDA $2E93 			;->A
+5E43 : CMP $2014 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5E46 : BNE $5E56 			;Z=0则转移,否则继续
+5E48 : LDA $2E92 			;->A
+5E4B : CMP $2013 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5E4E : BNE $5E56 			;Z=0则转移,否则继续
+5E50 : LDA $2E91 			;->A
+5E53 : CMP $2012 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5E56 : BEQ $5E5A 			;Z=1则转移,否则继续
+5E58 : BCS $5E75 			;借位标志C=1则转移,否则继续
+5E5A : LDA $303A,Y 			;->A
+5E5D : STA $82 			;A->MEM
+5E5F : LDA $303B,Y 			;->A
+5E62 : STA $83 			;A->MEM
+5E64 : CLC 			;清进位标志
+5E65 : LDA $200A 			;->A
+5E68 : ADC $82 			;与(A+标志C)相加,结果送A
+5E6A : STA $200A 			;A->MEM
+5E6D : LDA $200B 			;->A
+5E70 : ADC $83 			;与(A+标志C)相加,结果送A
+5E72 : STA $200B 			;A->MEM
+5E75 : INC $2010 			;MEM++
+5E78 : LDA $2010 			;->A
+5E7B : CMP #$03 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5E7D : BCS $5E82 			;借位标志C=1则转移,否则继续
+5E7F : JMP $5DE9 			;
+
+;努力吧,干活去吧
+5E82 : LDA $2011 			;->A
+5E85 : BMI $5E9D 			;N=0则转移,否则继续
+5E87 : LDX #$FA 			;->X
+5E89 : LDA $61DC,X 			;->A
+5E8C : STA $2D7F,X 			;A->MEM  61DD 努力吧,干活去吧!
+5E8F : DEX 			;X--
+5E90 : BNE $5E89 			;Z=0则转移,否则继续
+5E92 : LDA #$80 			;->A
+5E94 : STA $A6 			;A->MEM
+5E96 : LDA #$2D 			;->A
+5E98 : STA $A7 			;A->MEM
+5E9A : JMP $5F44 			;
+;奖励潜能
+5E9D : LDA $200A 			;->A
+5EA0 : STA $80 			;A->MEM
+5EA2 : LDA $200B 			;->A
+5EA5 : STA $81 			;A->MEM
+5EA7 : LDA #$03 			;->A
+5EA9 : STA $82 			;A->MEM
+5EAB : LDA #$00 			;->A
+5EAD : STA $83 			;A->MEM
+5EAF : INT $9E20      ;80-81*82-83 结果放80--83
+5EB2 : LDA $80 			;->A
+5EB4 : STA $200A 			;A->MEM
+5EB7 : LDA $81 			;->A
+5EB9 : STA $200B 			;A->MEM
+5EBC : LDA #$64 			;->A
+5EBE : STA $04CB 			;A->MEM
+5EC1 : LDA #$00 			;->A
+5EC3 : STA $04CC 			;A->MEM
+5EC6 : INT $9E27      ;Random number
+5EC9 : CMP #$46 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5ECB : BCC $5F08 			;进位标志C=0则转移,否则继续
+5ECD : LSR $200B 			;逻辑右移
+5ED0 : ROR $200A 			;循环右移
+5ED3 : LDA $200A 			;->A
+5ED6 : STA $3031 			;A->MEM
+5ED9 : LDA $200B 			;->A
+5EDC : STA $3032 			;A->MEM
+5EDF : CLC 			;清进位标志
+5EE0 : LDA $2ECF 			;->A
+5EE3 : ADC $3031 			;与(A+标志C)相加,结果送A
+5EE6 : STA $2ECF 			;A->MEM
+5EE9 : LDA $2ED0 			;->A
+5EEC : ADC $3032 			;与(A+标志C)相加,结果送A
+5EEF : STA $2ED0 			;A->MEM
+5EF2 : LDX #$FA 			;->X
+5EF4 : LDA $6269,X 			;->A
+5EF7 : STA $2D7F,X 			;A->MEM  6269你被奖励了：\n02 3130 0A00_点潜能
+5EFA : DEX 			;X--
+5EFB : BNE $5EF4 			;Z=0则转移,否则继续
+5EFD : LDA #$80 			;->A
+5EFF : STA $A6 			;A->MEM
+5F01 : LDA #$2D 			;->A
+5F03 : STA $A7 			;A->MEM
+5F05 : JMP $5F44 			;
+
+;奖励实战经验
+5F08 : LDA $200A 			;->A
+5F0B : STA $302F 			;A->MEM
+5F0E : LDA $200B 			;->A
+5F11 : STA $3030 			;A->MEM
+5F14 : CLC 			;清进位标志
+5F15 : LDA $2EB0 			;->A
+5F18 : ADC $302F 			;与(A+标志C)相加,结果送A
+5F1B : STA $2EB0 			;A->MEM
+5F1E : LDA $2EB1 			;->A
+5F21 : ADC $3030 			;与(A+标志C)相加,结果送A
+5F24 : STA $2EB1 			;A->MEM
+5F27 : BCC $5F31 			;进位标志C=0则转移,否则继续
+5F29 : INC $2EB2 			;MEM++
+5F2C : BNE $5F31 			;Z=0则转移,否则继续
+5F2E : INC $2EB3 			;MEM++
+5F31 : LDX #$FA 			;->X
+5F33 : LDA $629A,X 			;->A
+5F36 : STA $2D7F,X 			;A->MEM  629A 你被奖励了：\n 02 2F30 0A00 _点实战经验
+5F39 : DEX 			;X--
+5F3A : BNE $5F33 			;Z=0则转移,否则继续
+5F3C : LDA #$80 			;->A
+5F3E : STA $A6 			;A->MEM
+5F40 : LDA #$2D 			;->A
+5F42 : STA $A7 			;A->MEM
+5F44 : INT $302D  ;显示对话
+5F47 : INT $3033  ;按任意键返回地图
+5F4A : RTS 			;子程序返回
+;奖励
+5F4B : CLC 			;清进位标志
+5F4C : LDA $2EB0 			;->A
+5F4F : ADC $302F 			;与(A+标志C)相加,结果送A
+5F52 : STA $2EB0 			;A->MEM
+5F55 : LDA $2EB1 			;->A
+5F58 : ADC $3030 			;与(A+标志C)相加,结果送A
+5F5B : STA $2EB1 			;A->MEM
+5F5E : BCC $5F68 			;进位标志C=0则转移,否则继续
+5F60 : INC $2EB2 			;MEM++
+5F63 : BNE $5F68 			;Z=0则转移,否则继续
+5F65 : INC $2EB3 			;MEM++
+5F68 : CLC 			;清进位标志
+5F69 : LDA $2ECF 			;->A
+5F6C : ADC $3031 			;与(A+标志C)相加,结果送A
+5F6F : STA $2ECF 			;A->MEM
+5F72 : LDA $2ED0 			;->A
+5F75 : ADC $3032 			;与(A+标志C)相加,结果送A
+5F78 : STA $2ED0 			;A->MEM
+5F7B : LDX #$FA 			;->X
+5F7D : LDA $623D,X 			;->A
+5F80 : STA $2D7F,X 			;A->MEM  623E 你被奖励了：\n02 2F30 0A00_点实战经验\n0231300A00_点潜能
+5F83 : DEX 			;X--
+5F84 : BNE $5F7D 			;Z=0则转移,否则继续
+5F86 : LDA #$80 			;->A
+5F88 : STA $A6 			;A->MEM
+5F8A : LDA #$2D 			;->A
+5F8C : STA $A7 			;A->MEM
+5F8E : INT $302D   ;显示对话
+5F91 : LDA #$0C 			;->A
+5F93 : STA $043F 			;A->MEM
+5F96 : LDA #$0A 			;->A
+5F98 : STA $0440 			;A->MEM
+5F9B : LDA #$8C 			;->A
+5F9D : STA $0441 			;A->MEM
+5FA0 : LDA #$3C 			;->A
+5FA2 : STA $0442 			;A->MEM
+5FA5 : INT $302E
+5FA8 : INT $3028
+5FAB : RTS 			;子程序返回
+
+5FAC : INT $3055
+5FAF : INT $3056
+5FB2 : INT $3028
+5FB5 : RTS 			;子程序返回
+;oldwoman task
+5FB6 : LDA $2EB2 			;->A
+5FB9 : ORA $2EB3 			;A∨($n2n1)→A
+5FBC : BEQ $5FC1 			;Z=1则转移,否则继续
+5FBE : JMP $602B 			;小有名气
+5FC1 : LDA $2EB1 			;->A
+5FC4 : CMP #$13 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5FC6 : BNE $5FCD 			;Z=0则转移,否则继续
+5FC8 : LDA $2EB0 			;->A
+5FCB : CMP #$88 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+5FCD : BCC $5FD2 			;进位标志C=0则转移,否则继续
+5FCF : JMP $602B 			;小有名气
+5FD2 : LDA $307D 			;->A
+5FD5 : BNE $6041 			;Z=0则转移,否则继续  未完成
+5FD7 : LDA #$03 			;->A
+5FD9 : STA $04CB 			;A->MEM
+5FDC : LDA #$00 			;->A
+5FDE : STA $04CC 			;A->MEM
+5FE1 : INT $9E27      ;Random number
+5FE4 : AND #$03 			;A∧$n→A
+5FE6 : STA $307D 			;A->MEM
+5FE9 : INC $307D 			;MEM++
+5FEC : ASL 			;算术左移
+5FED : ASL 			;算术左移
+5FEE : TAY 			;A->Y
+5FEF : LDA $632A,Y 			;->A  632A扫地632E挑水6332劈柴
+5FF2 : STA $2010 			;A->MEM
+5FF5 : LDA $632B,Y 			;->A
+5FF8 : STA $2011 			;A->MEM
+5FFB : LDA $632C,Y 			;->A
+5FFE : STA $2012 			;A->MEM
+6001 : LDA $632D,Y 			;->A
+6004 : STA $2013 			;A->MEM
+6007 : LDA #$00 			;->A
+6009 : STA $2014 			;A->MEM
+600C : LDA #$00 			;->A
+600E : STA $2015 			;A->MEM
+6011 : LDX #$FA 			;->X
+6013 : LDA $6300,X 			;->A
+6016 : STA $2D7F,X 			;A->MEM 6301老身年事已高,有好心人帮帮我『07 1020 0A00』吗?
+6019 : DEX 			;X--
+601A : BNE $6013 			;Z=0则转移,否则继续
+601C : LDA #$80 			;->A
+601E : STA $A6 			;A->MEM
+6020 : LDA #$2D 			;->A
+6022 : STA $A7 			;A->MEM
+6024 : INT $302D  ;显示对话
+6027 : INT $3033  ;按任意键返回地图
+602A : RTS 			;子程序返回
+602B : LDX #$FA 			;->X
+602D : LDA $6335,X 			;->A
+6030 : STA $2D7F,X 			;A->MEM  6335唉! 你也小有名气了,老身使唤不动你了!
+6033 : DEX 			;X--
+6034 : BNE $602D 			;Z=0则转移,否则继续
+6036 : LDA #$80 			;->A
+6038 : STA $A6 			;A->MEM
+603A : LDA #$2D 			;->A
+603C : STA $A7 			;A->MEM
+603E : JMP $6024 			;
+6041 : LDX #$FA 			;->X
+6043 : LDA $635B,X 			;->A
+6046 : STA $2D7F,X 			;A->MEM 635C老身吩咐你的事做完了么?
+6049 : DEX 			;X--
+604A : BNE $6043 			;Z=0则转移,否则继续
+604C : LDA #$80 			;->A
+604E : STA $A6 			;A->MEM
+6050 : LDA #$2D 			;->A
+6052 : STA $A7 			;A->MEM
+6054 : JMP $6024 			;
+
+;load npc data
+6057 : LDA #$7E 			;->A 126
+6059 : INT $A004      		;load NPC data
+605C : INT $311E      		;load NPC data(NewAdd)
+605F : LDX #$05 			;->X
+6061 : LDY #$04 			;->Y
+6063 : INT $9E29			;
+6066 : RTS 			;子程序返回
+
+6067 : INT $3051			;
+606A : LDX #$05 			;->X
+606C : LDY #$04 			;->Y
+606E : INT $9E29			;
+6071 : RTS 			;子程序返回
+
+6072 : AND $5861,X 			;A∧($n2n1+X)→A
+6075 : ADC ($6D,X) 			;与(A+标志C)相加,结果送A
+6077 : ADC ($E2,X) 			;与(A+标志C)相加,结果送A
+6079 : RTS 			;子程序返回
+
+607A : SBC ($60),Y 			;A-MEM-C->A
+
+607C : 17  ;???
+
+607D : ADC ($57,X) 			;与(A+标志C)相加,结果送A
+
+607F : RTS 			;子程序返回
+
+6080 : 67  ;???
+
+6081 : RTS 			;子程序返回
+
+6082 : 57  ;???
+
+6083 : RTS 			;子程序返回
+
+6084 : INT $0201
+
+6087 :  3  ;???
+
+6088 :  4  ;???
+
+6089 : ORA $06 			;A∨$06→A
+
+608B :  7  ;???
+
+608C : PHP 			;标志寄存器P进栈
+
+608D : INT $0100
+
+6090 :  2  ;???
+
+6091 :  4  ;???
+
+6092 : ORA $06 			;A∨$06→A
+
+6094 :  7  ;???
+
+6095 : PHP 			;标志寄存器P进栈
+
+6096 : BVC $60ED 			;溢出V=0则转移,否则继续
+
+6098 : 5A  ;???
+
+6099 : 5F  ;???
+
+609A : 64  ;???
+
+609B : ADC #$6E 			;与(A+标志C)相加,结果送A
+
+609D : 73  ;???
+
+609E : SEI 			;Set中断禁止
+
+609F : ADC $60B2,X 			;与(A+标志C)相加,结果送A
+
+60A2 : B2  ;???
+
+60A3 : RTS 			;子程序返回
+
+60A4 : CLV 			;清溢出标志
+
+60A5 : RTS 			;子程序返回
+
+60A6 : LDX $C460,Y 			;->X
+
+60A9 : RTS 			;子程序返回
+
+60AA : DEX 			;X--
+
+60AB : RTS 			;子程序返回
+
+60AC : BNE $610E 			;Z=0则转移,否则继续
+
+60AE : DEC $60,X 			;MEM--
+
+60B0 : DC  ;???
+
+60B1 : RTS 			;子程序返回
+
+60B2 : 0C0B0F0E0B0B1311101411161817151917151B1D1C1A1D0B1F1E21201E232726232426232C29282D290B2F002E302F
+
+60E2 : 请速去拜见$q!
+60F1 : 今天妾身正准备请人去找$q,能否帮个忙?
+6117 : 老夫夜观天象,$q阳寿已尽,你去解决他!
+613D : 老夫不是说过请去拜见$q吗!
+6158 : 妾身还盼着您的$q呢!
+616D : 老夫不是让你解决$q吗?
+6184 : 你完成了任务,去顾炎武处领赏吧!
+61A4 : 看你红光满面,还是先去顾炎武处领赏吧!
+61Ca : 使用$q完成任务吗?
+61DD : 努力吧,干活去吧!
+61EF : 在下不是请你去收服 07 1020 吗?
+620B : 近有恶人『07 0220』在08 9000为非作歹,请速去为民除害!
+623E : 你被奖励了： 02 2f30 点实战经验02 3130 点潜能
+626a : 你被奖励了：02 3130 点潜能
+6285 : 你被奖励了金钱：02 3330
+629b : 你被奖励了：02 2f30 点实战经验
+62BA : 多谢,奸邪暂时已经除尽了,先歇息一下吧!
+62E1 : 赵钱孙李周吴郑王一二三四五六七八
+6301 : 老身年事已高,有好心人帮帮我『 07 1020 』吗?
+632a : 扫地挑水劈柴
+6336 : 唉! 你也小有名气了,老身使唤不动你了!
+635c : 老身吩咐你的事做完了么?
+
+6373 : INT $3900
+
+6376 : 64  ;???
+
+6377 : DEC $64 			;MEM--
+
+6379 : 2B  ;???
+
+637A : ADC $9C 			;与(A+标志C)相加,结果送A
+
+637C : ADC $DF 			;与(A+标志C)相加,结果送A
+
+637E : ADC $38 			;与(A+标志C)相加,结果送A
+
+6380 : ROR $9D 			;循环右移
+
+6382 : ROR $0A 			;循环右移
+
+6384 : ADC #$50 			;与(A+标志C)相加,结果送A
+
+6386 : ADC #$3C 			;与(A+标志C)相加,结果送A
+
+6388 : 67  ;???
+
+6389 : 7C  ;???
+
+638A : 67  ;???
+
+638B : D7  ;???
+
+638C : 67  ;???
+
+638D :  B  ;???
+
+638E : PLA 			;A出栈
+
+638F : EOR ($68),Y 			;与A异或,结果送A
+
+6391 : 82  ;???
+
+6392 : PLA 			;A出栈
+
+6393 : LDA ($68,X) 			;->A
+
+6395 : C3  ;???
+
+6396 : PLA 			;A出栈
+
+6397 : CPY $68 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+6399 : CPX $F668 			;与X比较,(X>=MEM,c=1)(X<MEM,C=0,N=1)(X==MEM,Z=0)
+
+639C : PLA 			;A出栈
+
+639D :  3  ;???
+
+639E : ADC #$70 			;与(A+标志C)相加,结果送A
+
+63A0 : 64  ;???
+
+63A1 : B3  ;???
+
+63A2 : 64  ;???
+
+63A3 : ORA $65,X 			;A∨($n+X)→A
+
+63A5 : 77  ;???
+
+63A6 : ADC $28 			;与(A+标志C)相加,结果送A
+
+63A8 : ROR $75 			;循环右移
+
+63AA : ROR $0A 			;循环右移
+
+63AC : 67  ;???
+
+63AD : 1A  ;???
+
+63AE : 67  ;???
+
+63AF : STY $536A 			;Y->MEM
+
+63B2 : 6B  ;???
+
+63B3 : 9C  ;???
+
+63B4 : ROR 			;循环右移
+
+63B5 : C3  ;???
+
+63B6 : ROR 			;循环右移
+
+63B7 : AF  ;???
+
+63B8 : ROR 			;循环右移
+
+63B9 : C2  ;???
+
+63BA : ROR 			;循环右移
+
+63BB : SBC $036A,Y 			;A-MEM-C->A
+
+63BE : 6B  ;???
+
+63BF : 1A  ;???
+
+63C0 : 6B  ;???
+
+63C1 : ORA $066B 			;A∨($n2n1)→A
+
+63C4 : JMP ($6C19) 			;
+
+63C7 : 9F  ;???
+
+63C8 : ADC #$B2 			;与(A+标志C)相加,结果送A
+
+63CA : ADC #$C5 			;与(A+标志C)相加,结果送A
+
+63CC : ADC #$DB 			;与(A+标志C)相加,结果送A
+
+63CE : ADC #$E5 			;与(A+标志C)相加,结果送A
+
+63D0 : ADC $EF 			;与(A+标志C)相加,结果送A
+
+63D2 : ADC $73 			;与(A+标志C)相加,结果送A
+
+63D4 : ROR 			;循环右移
+
+63D5 : ASL $2B6B,X 			;算术左移
+
+63D8 : 6B  ;???
+
+63D9 : 5A  ;???
+
+63DA : 6B  ;???
+
+63DB : ROR $386B 			;循环右移
+
+63DE : 6B  ;???
+
+63DF : 64  ;???
+
+63E0 : 6B  ;???
+
+63E1 : 3C  ;???
+
+63E2 : 6B  ;???
+
+63E3 : EOR #$6B 			;A异或($n)→A
+
+63E5 : ORA #$6A 			;A∨$n→A
+
+63E7 : 13  ;???
+
+63E8 : ROR 			;循环右移
+
+63E9 : 1A  ;???
+
+63EA : ROR 			;循环右移
+
+63EB : AND ($6A,X)  			;A∧(ADDRES)→A
+
+63ED : PLP 			;标志寄存器P出栈
+
+63EE : ROR 			;循环右移
+
+63EF : 42  ;???
+
+63F0 : ROR 			;循环右移
+
+63F1 : 52  ;???
+
+63F2 : ROR 			;循环右移
+
+63F3 : EOR $696A,Y 			;与A异或,结果送A
+
+63F6 : ROR 			;循环右移
+
+63F7 : 1A  ;???
+
+63F8 : JMP ($6C30) 			;
+
+63FB : EOR #$6C 			;A异或($n)→A
+
+63FD : LSR $6C,X 			;逻辑右移
+
+63FF : 7C  ;???
+
+6400 : JMP ($6C8F) 			;
+
+6403 : LDX #$6C 			;->X
+
+6405 : AF  ;???
+
+6406 : JMP ($6CBF) 			;
+
+6409 : D2  ;???
+
+640A : JMP ($6CE5) 			;
+
+640D : SBC #$6C 			;A-MEM-C->A
+
+640F : CMP $EC6A,Y 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+6412 : ROR 			;循环右移
+
+6413 : INC $6B 			;MEM++
+
+6415 : NOP 			;NULL
+
+6416 : 6B  ;???
+
+6417 : SBC ($6B),Y 			;A-MEM-C->A
+
+6419 : SED 			;置十进制运算标志D
+
+641A : 6B  ;???
+
+641B : FF  ;???
+
+641C : 6B  ;???
+
+641D : BEQ $6488 			;Z=1则转移,否则继续
+
+641F : 32  ;???
+
+6420 : ROR 			;循环右移
+
+6421 : ADC #$6C 			;与(A+标志C)相加,结果送A
+
+6423 : 6F  ;???
+
+6424 : 6B  ;???
+
+6425 : ADC $8F6B,Y 			;与(A+标志C)相加,结果送A
+
+6428 : 6B  ;???
+
+6429 : STX $6B,Y 			;X->MEM
+
+642B : TXS 			;X->堆栈
+
+642C : 6B  ;???
+
+642D : TAX 			;A->X
+
+642E : 6B  ;???
+
+642F : LDY $6B,X 			;->Y
+
+6431 : BB  ;???
+
+6432 : 6B  ;???
+
+6433 : LDY $C06B,X 			;->Y
+
+6436 : 6B  ;???
+
+6437 : DEC $6B,X 			;MEM--
+
+6439 : ORA ($09,X) 			;A∨($09)→A
+
+643B :  B  ;???
+
+643C : ORA $00 			;A∨$00→A
+
+643E : ORA #$0A 			;A∨$n→A
+
+6440 :  F  ;???
+
+6441 :  7  ;???
+
+6442 : ORA $0F 			;A∨$0F→A
+
+6444 :  3  ;???
+
+6445 :  2  ;???
+
+6446 : INT $0002
+
+6449 : INT $0202
+
+644C : AND #$08 			;A∧$n→A
+
+644E : ASL 			;算术左移
+
+644F :  C  ;???
+
+6450 :  3  ;???
+
+6451 : ORA $0D 			;A∨$0D→A
+
+6453 :  3  ;???
+
+6454 : ORA $0E 			;A∨$0E→A
+
+6456 :  3  ;???
+
+6457 : ORA #$18 			;A∨$n→A
+
+6459 : PHP 			;标志寄存器P进栈
+
+645A :  2  ;???
+
+645B : CLC 			;清进位标志
+
+645C : PHP 			;标志寄存器P进栈
+
+645D : ORA #$01 			;A∨$n→A
+
+645F :  2  ;???
+
+6460 : ASL 			;算术左移
+
+6461 : ASL $04 			;算术左移
+
+6463 : ORA $21 			;A∨$21→A
+
+6465 : ASL $0A 			;算术左移
+
+6467 : BPL $646C 			;N=1则转移,否则继续
+
+6469 :  2  ;???
+
+646A : CLC 			;清进位标志
+
+646B : PHP 			;标志寄存器P进栈
+
+646C : ASL 			;算术左移
+
+646D : ASL 			;算术左移
+
+646E : ASL 			;算术左移
+
+646F : FF  ;???
+
+6470 : ORA ($00,X) 			;A∨($00)→A
+
+6472 :  C  ;???
+
+6473 :  2  ;???
+
+6474 : ROL 			;A循环左移
+
+6475 : PHP 			;标志寄存器P进栈
+
+6476 : INT $082A
+
+6479 : INT $082A
+
+647C : ORA $09 			;A∨$09→A
+
+647E : ASL $05 			;算术左移
+
+6480 : 1B  ;???
+
+6481 : ASL $01 			;算术左移
+
+6483 : 1B  ;???
+
+6484 :  3  ;???
+
+6485 : ASL 			;算术左移
+
+6486 : 1C  ;???
+
+6487 :  3  ;???
+
+6488 :  2  ;???
+
+6489 : ROL 			;A循环左移
+
+648A : PHP 			;标志寄存器P进栈
+
+648B : INT $082A
+
+648E : INT $082A
+
+6491 : ORA $0D 			;A∨$0D→A
+
+6493 : ASL $05 			;算术左移
+
+6495 : ORA ($06),Y 			;A∨(ADDRES)→A
+
+6497 :  2  ;???
+
+6498 : ROL 			;A循环左移
+
+6499 : PHP 			;标志寄存器P进栈
+
+649A : INT $082A
+
+649D : ASL 			;算术左移
+
+649E : ORA $0A03,X 			;A∨($n2n1+X)→A
+
+64A1 : ORA $0A08,Y 			;A∨($n2n1+Y)→A
+
+64A4 : ASL $0A03,X 			;算术左移
+
+64A7 : 1F  ;???
+
+64A8 :  3  ;???
+
+64A9 : ORA ($2A,X) 			;A∨($2A)→A
+
+64AB : PHP 			;标志寄存器P进栈
+
+64AC : INT $082A
+
+64AF : INT $082A
+
+64B2 : FF  ;???
+
+64B3 : ORA ($00,X) 			;A∨($00)→A
+
+64B5 :  C  ;???
+
+64B6 : 14  ;???
+
+64B7 : 23  ;???
+
+64B8 : PHP 			;标志寄存器P进栈
+
+64B9 : ORA $12 			;A∨$12→A
+
+64BB :  7  ;???
+
+64BC : ASL 			;算术左移
+
+64BD :  7  ;???
+
+64BE :  4  ;???
+
+64BF : 14  ;???
+
+64C0 : 23  ;???
+
+64C1 : PHP 			;标志寄存器P进栈
+
+64C2 : ORA $04 			;A∨$04→A
+
+64C4 : ASL $FF 			;算术左移
+
+64C6 : ORA ($0E,X) 			;A∨($0E)→A
+
+64C8 :  B  ;???
+
+64C9 : ORA $01 			;A∨$01→A
+
+64CB : ORA #$0A 			;A∨$n→A
+
+64CD : AND $0108 			;A∧($n2n1)→A
+
+64D0 : AND $0108 			;A∧($n2n1)→A
+
+64D3 : AND $0108 			;A∧($n2n1)→A
+
+64D6 : AND $0108 			;A∧($n2n1)→A
+
+64D9 : AND $0508 			;A∧($n2n1)→A
+
+64DC : 2F  ;???
+
+64DD : PHP 			;标志寄存器P进栈
+
+64DE : ORA $20 			;A∨$20→A
+
+64E0 :  3  ;???
+
+64E1 : ASL 			;算术左移
+
+64E2 : ROL 			;A循环左移
+
+64E3 : PHP 			;标志寄存器P进栈
+
+64E4 : INT $082A
+
+64E7 : INT $082A
+
+64EA : ORA $34 			;A∨$34→A
+
+64EC : ASL $00 			;算术左移
+
+64EE : ROL 			;A循环左移
+
+64EF : PHP 			;标志寄存器P进栈
+
+64F0 : INT $082A
+
+64F3 : ASL 			;算术左移
+
+64F4 : AND ($03,X)  			;A∧(ADDRES)→A
+
+64F6 : ASL 			;算术左移
+
+64F7 : ROL $0508 			;循环左移
+
+64FA : ROL $0A08 			;循环左移
+
+64FD : 22  ;???
+
+64FE :  3  ;???
+
+64FF : PHP 			;标志寄存器P进栈
+
+6500 :  2  ;???
+
+6501 :  2  ;???
+
+6502 : PHP 			;标志寄存器P进栈
+
+6503 : 23  ;???
+
+6504 :  3  ;???
+
+6505 :  4  ;???
+
+6506 : ROL 			;A循环左移
+
+6507 : PHP 			;标志寄存器P进栈
+
+6508 : INT $082A
+
+650B : ORA $2A 			;A∨$2A→A
+
+650D : ASL $1E 			;算术左移
+
+650F :  C  ;???
+
+6510 : ORA #$05 			;A∨$n→A
+
+6512 : LDX #$06 			;->X
+
+6514 : FF  ;???
+
+6515 : ORA ($00,X) 			;A∨($00)→A
+
+6517 :  C  ;???
+
+6518 :  2  ;???
+
+6519 : ROL $0208 			;循环左移
+
+651C : ROL $0208 			;循环左移
+
+651F : ROL $0A08 			;循环左移
+
+6522 : 12  ;???
+
+6523 :  3  ;???
+
+6524 :  C  ;???
+
+6525 : ROL $0208 			;循环左移
+
+6528 : ROL $FF08 			;循环左移
+
+652B : ORA ($0F,X) 			;A∨($0F)→A
+
+652D : ASL 			;算术左移
+
+652E : ORA $02 			;A∨$02→A
+
+6530 : ORA #$0A 			;A∨$n→A
+
+6532 : INT $0A03
+
+6535 : AND $08 			;A∧($n)→A
+
+6537 : INT $0825
+
+653A : INT $0825
+
+653D : INT $0203
+
+6540 : INT $0203
+
+6543 : INT $0825
+
+6546 : INT $0825
+
+6549 : ASL 			;算术左移
+
+654A : ASL $0A08,X 			;算术左移
+
+654D : ASL $0508,X 			;算术左移
+
+6550 :  2  ;???
+
+6551 :  3  ;???
+
+6552 : 14  ;???
+
+6553 : 1F  ;???
+
+6554 : PHP 			;标志寄存器P进栈
+
+6555 :  2  ;???
+
+6556 : 1F  ;???
+
+6557 : PHP 			;标志寄存器P进栈
+
+6558 :  2  ;???
+
+6559 : 1F  ;???
+
+655A : PHP 			;标志寄存器P进栈
+
+655B : ASL 			;算术左移
+
+655C :  4  ;???
+
+655D :  3  ;???
+
+655E :  2  ;???
+
+655F : 1F  ;???
+
+6560 : PHP 			;标志寄存器P进栈
+
+6561 : ORA $41 			;A∨$41→A
+
+6563 : ASL $1E 			;算术左移
+
+6565 : 13  ;???
+
+6566 : ORA #$05 			;A∨$n→A
+
+6568 : LDX $0506,Y 			;->X
+
+656B : BF  ;???
+
+656C : ASL $05 			;算术左移
+
+656E : CPY #$06 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+6570 : ORA $C1 			;A∨$C1→A
+
+6572 : ASL $1E 			;算术左移
+
+6574 : A3  ;???
+
+6575 : ASL $FF 			;算术左移
+
+6577 : ORA ($00,X) 			;A∨($00)→A
+
+6579 :  C  ;???
+
+657A : ASL 			;算术左移
+
+657B : AND $08 			;A∧($n)→A
+
+657D : INT $0825
+
+6580 : INT $0825
+
+6583 : INT $0825
+
+6586 : INT $0825
+
+6589 : INT $0825
+
+658C : INT $0825
+
+658F : INT $0825
+
+6592 : ASL 			;算术左移
+
+6593 :  3  ;???
+
+6594 :  3  ;???
+
+6595 :  2  ;???
+
+6596 : 1F  ;???
+
+6597 : PHP 			;标志寄存器P进栈
+
+6598 :  2  ;???
+
+6599 : 1F  ;???
+
+659A : PHP 			;标志寄存器P进栈
+
+659B : FF  ;???
+
+659C : ORA ($0B,X) 			;A∨($0B)→A
+
+659E : ASL 			;算术左移
+
+659F : ORA $03 			;A∨$03→A
+
+65A1 : ORA #$0A 			;A∨$n→A
+
+65A3 : ORA #$07 			;A∨$n→A
+
+65A5 : ASL 			;算术左移
+
+65A6 :  4  ;???
+
+65A7 :  4  ;???
+
+65A8 : ORA $47 			;A∨$47→A
+
+65AA : ASL $05 			;算术左移
+
+65AC : JMP $0A06 			;
+
+65AF : EOR ($08,X) 			;A异或()→A
+
+65B1 : ORA ($41,X) 			;A∨($41)→A
+
+65B3 : PHP 			;标志寄存器P进栈
+
+65B4 : ORA ($41,X) 			;A∨($41)→A
+
+65B6 : PHP 			;标志寄存器P进栈
+
+65B7 : ORA ($41,X) 			;A∨($41)→A
+
+65B9 : PHP 			;标志寄存器P进栈
+
+65BA : ORA ($41,X) 			;A∨($41)→A
+
+65BC : PHP 			;标志寄存器P进栈
+
+65BD : ORA $4D 			;A∨$4D→A
+
+65BF : ASL $04 			;算术左移
+
+65C1 : AND $0408,X 			;A∧($n2n1+X)→A
+
+65C4 : ORA $04 			;A∨$04→A
+
+65C6 : ORA ($3E,X) 			;A∨($3E)→A
+
+65C8 : PHP 			;标志寄存器P进栈
+
+65C9 : ORA ($3E,X) 			;A∨($3E)→A
+
+65CB : PHP 			;标志寄存器P进栈
+
+65CC : ASL 			;算术左移
+
+65CD : ASL 			;算术左移
+
+65CE :  3  ;???
+
+65CF : ORA $4E 			;A∨$4E→A
+
+65D1 : ASL $1E 			;算术左移
+
+65D3 : ASL $0509 			;算术左移
+
+65D6 : LDA $0506 			;->A
+
+65D9 : LDX $1E06 			;->X
+
+65DC : LDY $06 			;->Y
+
+65DE : FF  ;???
+
+65DF : ORA ($0C,X) 			;A∨($0C)→A
+
+65E1 :  B  ;???
+
+65E2 : ORA $04 			;A∨$04→A
+
+65E4 : ORA #$0A 			;A∨$n→A
+
+65E6 : INT $0A04
+
+65E9 : 43  ;???
+
+65EA : PHP 			;标志寄存器P进栈
+
+65EB : ORA $55 			;A∨$55→A
+
+65ED : ASL $01 			;算术左移
+
+65EF : 43  ;???
+
+65F0 : PHP 			;标志寄存器P进栈
+
+65F1 : ORA ($06,X) 			;A∨($06)→A
+
+65F3 :  3  ;???
+
+65F4 : ASL 			;算术左移
+
+65F5 :  7  ;???
+
+65F6 :  3  ;???
+
+65F7 : ORA $56 			;A∨$56→A
+
+65F9 : ASL $0A 			;算术左移
+
+65FB : EOR ($08,X) 			;A异或()→A
+
+65FD : ORA ($41,X) 			;A∨($41)→A
+
+65FF : PHP 			;标志寄存器P进栈
+
+6600 : ASL 			;算术左移
+
+6601 : 2B  ;???
+
+6602 : PHP 			;标志寄存器P进栈
+
+6603 : INT $0204
+
+6606 : INT $082B
+
+6609 : ASL 			;算术左移
+
+660A : ORA #$03 			;A∨$n→A
+
+660C : ASL 			;算术左移
+
+660D : 42  ;???
+
+660E : PHP 			;标志寄存器P进栈
+
+660F : ORA ($42,X) 			;A∨($42)→A
+
+6611 : PHP 			;标志寄存器P进栈
+
+6612 : ORA $5D 			;A∨$5D→A
+
+6614 : ASL $1E 			;算术左移
+
+6616 : BPL $6621 			;N=1则转移,否则继续
+
+6618 : ORA $B2 			;A∨$B2→A
+
+661A : ASL $05 			;算术左移
+
+661C : B3  ;???
+
+661D : ASL $05 			;算术左移
+
+661F : LDY $06,X 			;->Y
+
+6621 : ORA $B5 			;A∨$B5→A
+
+6623 : ASL $1E 			;算术左移
+
+6625 : LDA $06 			;->A
+
+6627 : FF  ;???
+
+6628 : ORA ($00,X) 			;A∨($00)→A
+
+662A :  C  ;???
+
+662B : ORA $5C 			;A∨$5C→A
+
+662D : ASL $0A 			;算术左移
+
+662F : 42  ;???
+
+6630 : PHP 			;标志寄存器P进栈
+
+6631 : ORA ($42,X) 			;A∨($42)→A
+
+6633 : PHP 			;标志寄存器P进栈
+
+6634 : ASL 			;算术左移
+
+6635 : PHP 			;标志寄存器P进栈
+
+6636 :  3  ;???
+
+6637 : FF  ;???
+
+6638 : ORA ($0B,X) 			;A∨($0B)→A
+
+663A : ASL 			;算术左移
+
+663B : ORA $05 			;A∨$05→A
+
+663D : ORA #$0A 			;A∨$n→A
+
+663F :  7  ;???
+
+6640 :  7  ;???
+
+6641 : ASL 			;算术左移
+
+6642 : 13  ;???
+
+6643 :  3  ;???
+
+6644 : ASL 			;算术左移
+
+6645 : 14  ;???
+
+6646 :  3  ;???
+
+6647 : ASL 			;算术左移
+
+6648 : INT $0008
+
+664B : INT $0008
+
+664E : INT $0408
+
+6651 : ORA $02 			;A∨$02→A
+
+6653 : INT $0205
+
+6656 : INT $0205
+
+6659 :  4  ;???
+
+665A : 17  ;???
+
+665B :  3  ;???
+
+665C : ASL 			;算术左移
+
+665D : ORA $0503,Y 			;A∨($n2n1+Y)→A
+
+6660 : ADC $06 			;与(A+标志C)相加,结果送A
+
+6662 : ASL $0912,X 			;算术左移
+
+6665 : ORA $BA 			;A∨$BA→A
+
+6667 : ASL $05 			;算术左移
+
+6669 : BB  ;???
+
+666A : ASL $05 			;算术左移
+
+666C : LDY $0506,X 			;->Y
+
+666F : LDA $1E06,X 			;->A
+
+6672 : LDX $06 			;->X
+
+6674 : FF  ;???
+
+6675 : ORA ($00,X) 			;A∨($00)→A
+
+6677 :  C  ;???
+
+6678 : ASL 			;算术左移
+
+6679 : INT $0008
+
+667C : INT $0A08
+
+667F : ORA ($03,X) 			;A∨($03)→A
+
+6681 : ORA $60 			;A∨$60→A
+
+6683 : ASL $01 			;算术左移
+
+6685 : AND $0108 			;A∧($n2n1)→A
+
+6688 : AND $0108 			;A∧($n2n1)→A
+
+668B : AND $0108 			;A∧($n2n1)→A
+
+668E : AND $0108 			;A∧($n2n1)→A
+
+6691 : AND $0A08 			;A∧($n2n1)→A
+
+6694 : 1A  ;???
+
+6695 :  3  ;???
+
+6696 : INT $0800
+
+6699 : INT $0800
+
+669C : FF  ;???
+
+669D : ORA ($11,X) 			;A∨($11)→A
+
+669F : ASL 			;算术左移
+
+66A0 : ORA $06 			;A∨$06→A
+
+66A2 : ORA #$0A 			;A∨$n→A
+
+66A4 : ORA #$07 			;A∨$n→A
+
+66A6 : ORA $7C 			;A∨$7C→A
+
+66A8 : ASL $0A 			;算术左移
+
+66AA : ORA $03,X 			;A∨($n+X)→A
+
+66AC : ASL 			;算术左移
+
+66AD : INT $0008
+
+66B0 : INT $0A08
+
+66B3 : BMI $66BD 			;N=0则转移,否则继续
+
+66B5 : ORA $71 			;A∨$71→A
+
+66B7 : ASL $05 			;算术左移
+
+66B9 : 72  ;???
+
+66BA : ASL $0A 			;算术左移
+
+66BC : BMI $66C6 			;N=0则转移,否则继续
+
+66BE : ORA $73 			;A∨$73→A
+
+66C0 : ASL $05 			;算术左移
+
+66C2 : 74  ;???
+
+66C3 : ASL $05 			;算术左移
+
+66C5 : 4B  ;???
+
+66C6 : PHP 			;标志寄存器P进栈
+
+66C7 : INT $084B
+
+66CA : INT $084B
+
+66CD : INT $084B
+
+66D0 : ORA $76 			;A∨$76→A
+
+66D2 : ASL $05 			;算术左移
+
+66D4 : SEI 			;Set中断禁止
+
+66D5 : ASL $0A 			;算术左移
+
+66D7 : BMI $66E1 			;N=0则转移,否则继续
+
+66D9 : ORA $79 			;A∨$79→A
+
+66DB : ASL $05 			;算术左移
+
+66DD : 7A  ;???
+
+66DE : ASL $05 			;算术左移
+
+66E0 : BMI $66EA 			;N=0则转移,否则继续
+
+66E2 : ASL 			;算术左移
+
+66E3 : CLC 			;清进位标志
+
+66E4 :  3  ;???
+
+66E5 : ORA $3E 			;A∨$3E→A
+
+66E7 : PHP 			;标志寄存器P进栈
+
+66E8 : ORA $3F 			;A∨$3F→A
+
+66EA : PHP 			;标志寄存器P进栈
+
+66EB :  4  ;???
+
+66EC : ASL $02 			;算术左移
+
+66EE : INT $0206
+
+66F1 : ORA $3E 			;A∨$3E→A
+
+66F3 : PHP 			;标志寄存器P进栈
+
+66F4 : ORA $6B 			;A∨$6B→A
+
+66F6 : ASL $1E 			;算术左移
+
+66F8 : ORA ($09),Y 			;A∨(ADDRES)→A
+
+66FA : ORA $B6 			;A∨$B6→A
+
+66FC : ASL $05 			;算术左移
+
+66FE : B7  ;???
+
+66FF : ASL $05 			;算术左移
+
+6701 : CLV 			;清溢出标志
+
+6702 : ASL $05 			;算术左移
+
+6704 : LDA $1E06,Y 			;->A
+
+6707 : A7  ;???
+
+6708 : ASL $FF 			;算术左移
+
+670A : ORA ($00,X) 			;A∨($00)→A
+
+670C :  C  ;???
+
+670D : ORA $0A 			;A∨$0A→A
+
+670F :  7  ;???
+
+6710 : ORA $75 			;A∨$75→A
+
+6712 : ASL $05 			;算术左移
+
+6714 : ROR $1406 			;循环右移
+
+6717 : ASL $03,X 			;算术左移
+
+6719 : FF  ;???
+
+671A : ORA ($00,X) 			;A∨($00)→A
+
+671C :  C  ;???
+
+671D :  3  ;???
+
+671E : 43  ;???
+
+671F : PHP 			;标志寄存器P进栈
+
+6720 :  3  ;???
+
+6721 : 43  ;???
+
+6722 : PHP 			;标志寄存器P进栈
+
+6723 : ASL 			;算术左移
+
+6724 : 27  ;???
+
+6725 :  3  ;???
+
+6726 :  3  ;???
+
+6727 : 43  ;???
+
+6728 : PHP 			;标志寄存器P进栈
+
+6729 : ASL 			;算术左移
+
+672A : PHP 			;标志寄存器P进栈
+
+672B :  4  ;???
+
+672C :  3  ;???
+
+672D : 43  ;???
+
+672E : PHP 			;标志寄存器P进栈
+
+672F : ASL 			;算术左移
+
+6730 : 80  ;???
+
+6731 : ASL $03 			;算术左移
+
+6733 : 43  ;???
+
+6734 : PHP 			;标志寄存器P进栈
+
+6735 :  3  ;???
+
+6736 : 43  ;???
+
+6737 : PHP 			;标志寄存器P进栈
+
+6738 : ASL 			;算术左移
+
+6739 : PLP 			;标志寄存器P出栈
+
+673A :  3  ;???
+
+673B : FF  ;???
+
+673C : ORA ($0B,X) 			;A∨($0B)→A
+
+673E :  B  ;???
+
+673F : ORA ($0D,X) 			;A∨($0D)→A
+
+6741 :  B  ;???
+
+6742 : ORA $40 			;A∨$40→A
+
+6744 : PHP 			;标志寄存器P进栈
+
+6745 : ORA ($40,X) 			;A∨($40)→A
+
+6747 : PHP 			;标志寄存器P进栈
+
+6748 : ORA ($40,X) 			;A∨($40)→A
+
+674A : PHP 			;标志寄存器P进栈
+
+674B : ORA $0E 			;A∨$0E→A
+
+674D : ASL $01 			;算术左移
+
+674F :  3  ;???
+
+6750 :  7  ;???
+
+6751 : ORA $3D 			;A∨$3D→A
+
+6753 : PHP 			;标志寄存器P进栈
+
+6754 : ORA ($08,X) 			;A∨($08)→A
+
+6756 :  7  ;???
+
+6757 : ORA ($07,X) 			;A∨($07)→A
+
+6759 : ASL 			;算术左移
+
+675A :  4  ;???
+
+675B : ORA ($04,X) 			;A∨($04)→A
+
+675D : ORA $40 			;A∨$40→A
+
+675F : PHP 			;标志寄存器P进栈
+
+6760 : ORA ($40,X) 			;A∨($40)→A
+
+6762 : PHP 			;标志寄存器P进栈
+
+6763 : ASL 			;算术左移
+
+6764 : ORA ($07),Y 			;A∨(ADDRES)→A
+
+6766 : ORA ($41,X) 			;A∨($41)→A
+
+6768 : PHP 			;标志寄存器P进栈
+
+6769 : ORA ($41,X) 			;A∨($41)→A
+
+676B : PHP 			;标志寄存器P进栈
+
+676C : ORA ($41,X) 			;A∨($41)→A
+
+676E : PHP 			;标志寄存器P进栈
+
+676F : ORA ($41,X) 			;A∨($41)→A
+
+6771 : PHP 			;标志寄存器P进栈
+
+6772 : ORA ($41,X) 			;A∨($41)→A
+
+6774 : PHP 			;标志寄存器P进栈
+
+6775 : ORA ($41,X) 			;A∨($41)→A
+
+6777 : PHP 			;标志寄存器P进栈
+
+6778 : ASL 			;算术左移
+
+6779 : INT $FF0A
+
+677C : ORA ($00,X) 			;A∨($00)→A
+
+677E :  B  ;???
+
+677F : ASL 			;算术左移
+
+6780 : 42  ;???
+
+6781 : PHP 			;标志寄存器P进栈
+
+6782 : ORA ($42,X) 			;A∨($42)→A
+
+6784 : PHP 			;标志寄存器P进栈
+
+6785 : ORA ($42,X) 			;A∨($42)→A
+
+6787 : PHP 			;标志寄存器P进栈
+
+6788 : ASL 			;算术左移
+
+6789 : ROL 			;A循环左移
+
+678A : PHP 			;标志寄存器P进栈
+
+678B : INT $082A
+
+678E : INT $0706
+
+6791 : INT $0706
+
+6794 : INT $0706
+
+6797 : INT $0706
+
+679A : ASL 			;算术左移
+
+679B : AND $0108 			;A∧($n2n1)→A
+
+679E : AND $0108 			;A∧($n2n1)→A
+
+67A1 : AND $0108 			;A∧($n2n1)→A
+
+67A4 : AND $0108 			;A∧($n2n1)→A
+
+67A7 : AND $0108 			;A∧($n2n1)→A
+
+67AA : AND $0108 			;A∧($n2n1)→A
+
+67AD : AND $0108 			;A∧($n2n1)→A
+
+67B0 : AND $0108 			;A∧($n2n1)→A
+
+67B3 : AND $0108 			;A∧($n2n1)→A
+
+67B6 : AND $0108 			;A∧($n2n1)→A
+
+67B9 : AND $0508 			;A∧($n2n1)→A
+
+67BC :  F  ;???
+
+67BD : ASL $0A 			;算术左移
+
+67BF : 42  ;???
+
+67C0 : PHP 			;标志寄存器P进栈
+
+67C1 : ORA $08 			;A∨$08→A
+
+67C3 : ASL 			;算术左移
+
+67C4 : ORA ($42,X) 			;A∨($42)→A
+
+67C6 : PHP 			;标志寄存器P进栈
+
+67C7 : INT $0402
+
+67CA : ORA $40 			;A∨$40→A
+
+67CC : PHP 			;标志寄存器P进栈
+
+67CD : ORA ($40,X) 			;A∨($40)→A
+
+67CF : PHP 			;标志寄存器P进栈
+
+67D0 : ASL 			;算术左移
+
+67D1 : ASL $0A0A 			;算术左移
+
+67D4 :  C  ;???
+
+67D5 : ASL 			;算术左移
+
+67D6 : FF  ;???
+
+67D7 : ORA ($3E,X) 			;A∨($3E)→A
+
+67D9 : PHP 			;标志寄存器P进栈
+
+67DA : INT $083E
+
+67DD :  2  ;???
+
+67DE : ORA $0A 			;A∨$0A→A
+
+67E0 : INT $0A05
+
+67E3 :  2  ;???
+
+67E4 : ROL $0008,X 			;循环左移
+
+67E7 : ROL $0208,X 			;循环左移
+
+67EA : EOR ($08,X) 			;A异或()→A
+
+67EC : ASL 			;算术左移
+
+67ED :  3  ;???
+
+67EE : ASL 			;算术左移
+
+67EF :  2  ;???
+
+67F0 :  3  ;???
+
+67F1 :  4  ;???
+
+67F2 : ASL 			;算术左移
+
+67F3 : EOR ($08,X) 			;A异或()→A
+
+67F5 : ORA ($41,X) 			;A∨($41)→A
+
+67F7 : PHP 			;标志寄存器P进栈
+
+67F8 : ORA ($41,X) 			;A∨($41)→A
+
+67FA : PHP 			;标志寄存器P进栈
+
+67FB : ORA ($41,X) 			;A∨($41)→A
+
+67FD : PHP 			;标志寄存器P进栈
+
+67FE : ORA ($41,X) 			;A∨($41)→A
+
+6800 : PHP 			;标志寄存器P进栈
+
+6801 : ORA ($41,X) 			;A∨($41)→A
+
+6803 : PHP 			;标志寄存器P进栈
+
+6804 : ORA ($41,X) 			;A∨($41)→A
+
+6806 : PHP 			;标志寄存器P进栈
+
+6807 : ASL 			;算术左移
+
+6808 : ORA #$0A 			;A∨$n→A
+
+680A : FF  ;???
+
+680B : ORA ($0A,X) 			;A∨($0A)→A
+
+680D :  B  ;???
+
+680E : ASL 			;算术左移
+
+680F : AND $0108 			;A∧($n2n1)→A
+
+6812 : AND $0108 			;A∧($n2n1)→A
+
+6815 : AND $0108 			;A∧($n2n1)→A
+
+6818 : AND $0108 			;A∧($n2n1)→A
+
+681B : AND $0108 			;A∧($n2n1)→A
+
+681E : AND $0108 			;A∧($n2n1)→A
+
+6821 : AND $0A08 			;A∧($n2n1)→A
+
+6824 : AND $08 			;A∧($n)→A
+
+6826 : INT $0825
+
+6829 : INT $0825
+
+682C : INT $0825
+
+682F : INT $0825
+
+6832 : INT $0825
+
+6835 : INT $0825
+
+6838 : INT $0825
+
+683B : INT $0A04
+
+683E : INT $0A04
+
+6841 : INT $0A04
+
+6844 : INT $0825
+
+6847 : INT $0825
+
+684A : INT $0825
+
+684D : INT $0825
+
+6850 : FF  ;???
+
+6851 : ORA ($0F,X) 			;A∨($0F)→A
+
+6853 :  B  ;???
+
+6854 :  2  ;???
+
+6855 : ORA ($0B),Y 			;A∨(ADDRES)→A
+
+6857 : ASL 			;算术左移
+
+6858 : EOR ($08,X) 			;A异或()→A
+
+685A : ORA ($41,X) 			;A∨($41)→A
+
+685C : PHP 			;标志寄存器P进栈
+
+685D : ASL 			;算术左移
+
+685E :  7  ;???
+
+685F :  7  ;???
+
+6860 : ORA ($40,X) 			;A∨($40)→A
+
+6862 : PHP 			;标志寄存器P进栈
+
+6863 : ORA ($40,X) 			;A∨($40)→A
+
+6865 : PHP 			;标志寄存器P进栈
+
+6866 : ORA $12 			;A∨$12→A
+
+6868 : ASL $05 			;算术左移
+
+686A : EOR ($08,X) 			;A异或()→A
+
+686C : ORA ($41,X) 			;A∨($41)→A
+
+686E : PHP 			;标志寄存器P进栈
+
+686F : ORA ($41,X) 			;A∨($41)→A
+
+6871 : PHP 			;标志寄存器P进栈
+
+6872 : ORA ($41,X) 			;A∨($41)→A
+
+6874 : PHP 			;标志寄存器P进栈
+
+6875 : ORA ($41,X) 			;A∨($41)→A
+
+6877 : PHP 			;标志寄存器P进栈
+
+6878 : ORA ($41,X) 			;A∨($41)→A
+
+687A : PHP 			;标志寄存器P进栈
+
+687B : ORA ($41,X) 			;A∨($41)→A
+
+687D : PHP 			;标志寄存器P进栈
+
+687E : ASL 			;算术左移
+
+687F : ORA #$0A 			;A∨$n→A
+
+6881 : FF  ;???
+
+6882 : ORA ($0A,X) 			;A∨($0A)→A
+
+6884 :  B  ;???
+
+6885 : ASL 			;算术左移
+
+6886 : AND $0108 			;A∧($n2n1)→A
+
+6889 : AND $0108 			;A∧($n2n1)→A
+
+688C : AND $0108 			;A∧($n2n1)→A
+
+688F : AND $0108 			;A∧($n2n1)→A
+
+6892 : AND $0108 			;A∧($n2n1)→A
+
+6895 : AND $0108 			;A∧($n2n1)→A
+
+6898 : AND $0A08 			;A∧($n2n1)→A
+
+689B : 43  ;???
+
+689C : PHP 			;标志寄存器P进栈
+
+689D : INT $0A01
+
+68A0 : FF  ;???
+
+68A1 : ORA ($0A,X) 			;A∨($0A)→A
+
+68A3 :  7  ;???
+
+68A4 : INT $0A02
+
+68A7 : INT $070A
+
+68AA : ASL 			;算术左移
+
+68AB : AND $0108 			;A∧($n2n1)→A
+
+68AE : AND $0108 			;A∧($n2n1)→A
+
+68B1 : AND $0108 			;A∧($n2n1)→A
+
+68B4 : AND $0108 			;A∧($n2n1)→A
+
+68B7 : AND $0108 			;A∧($n2n1)→A
+
+68BA : AND $0108 			;A∧($n2n1)→A
+
+68BD : AND $0A08 			;A∧($n2n1)→A
+
+68C0 : ORA $FF0A 			;A∨($n2n1)→A
+
+68C3 : FF  ;???
+
+68C4 : ORA ($3E,X) 			;A∨($3E)→A
+
+68C6 : PHP 			;标志寄存器P进栈
+
+68C7 : INT $0A06
+
+68CA : INT $0A06
+
+68CD : ORA ($3F,X) 			;A∨($3F)→A
+
+68CF : PHP 			;标志寄存器P进栈
+
+68D0 : ASL 			;算术左移
+
+68D1 : ASL 			;算术左移
+
+68D2 :  7  ;???
+
+68D3 : ASL 			;算术左移
+
+68D4 : AND $0108 			;A∧($n2n1)→A
+
+68D7 : AND $0108 			;A∧($n2n1)→A
+
+68DA : AND $0108 			;A∧($n2n1)→A
+
+68DD : AND $0108 			;A∧($n2n1)→A
+
+68E0 : AND $0108 			;A∧($n2n1)→A
+
+68E3 : AND $0108 			;A∧($n2n1)→A
+
+68E6 : AND $0A08 			;A∧($n2n1)→A
+
+68E9 : ORA $FF0A 			;A∨($n2n1)→A
+
+68EC : ORA $09 			;A∨$09→A
+
+68EE : ORA #$05 			;A∨$n→A
+
+68F0 : 43  ;???
+
+68F1 : PHP 			;标志寄存器P进栈
+
+68F2 : ASL 			;算术左移
+
+68F3 : ROL $FF03 			;循环左移
+
+68F6 : ORA $0A 			;A∨$0A→A
+
+68F8 : ORA #$0A 			;A∨$n→A
+
+68FA : STA $06,X 			;A->MEM
+
+68FC : ASL 			;算术左移
+
+68FD : BMI $6902 			;N=0则转移,否则继续
+
+68FF : ASL 			;算术左移
+
+6900 : STX $06,Y 			;X->MEM
+
+6902 : FF  ;???
+
+6903 : ORA $0B 			;A∨$0B→A
+
+6905 : ORA #$0A 			;A∨$n→A
+
+6907 : LDA ($06,X) 			;->A
+
+6909 : FF  ;???
+
+690A : ORA ($09,X) 			;A∨($09)→A
+
+690C : ASL 			;算术左移
+
+690D : ORA $07 			;A∨$07→A
+
+690F : ORA #$03 			;A∨$n→A
+
+6911 : 43  ;???
+
+6912 : PHP 			;标志寄存器P进栈
+
+6913 : ASL 			;算术左移
+
+6914 : BIT $03  			;A∧($n)(结果=0,Z=1)(结果!=0,Z=0)
+
+6916 :  3  ;???
+
+6917 : 43  ;???
+
+6918 : PHP 			;标志寄存器P进栈
+
+6919 : ORA ($41,X) 			;A∨($41)→A
+
+691B : PHP 			;标志寄存器P进栈
+
+691C : ORA ($42,X) 			;A∨($42)→A
+
+691E : PHP 			;标志寄存器P进栈
+
+691F : ASL 			;算术左移
+
+6920 : AND $03 			;A∧($n)→A
+
+6922 : ORA ($42,X) 			;A∨($42)→A
+
+6924 : PHP 			;标志寄存器P进栈
+
+6925 : ORA ($43,X) 			;A∨($43)→A
+
+6927 : PHP 			;标志寄存器P进栈
+
+6928 :  3  ;???
+
+6929 :  7  ;???
+
+692A :  2  ;???
+
+692B : INT $0207
+
+692E : ORA ($42,X) 			;A∨($42)→A
+
+6930 : PHP 			;标志寄存器P进栈
+
+6931 : ASL 			;算术左移
+
+6932 : ROL $03 			;循环左移
+
+6934 :  3  ;???
+
+6935 : EOR $08 			;A异或()→A
+
+6937 :  3  ;???
+
+6938 : EOR $08 			;A异或()→A
+
+693A : ORA $82 			;A∨$82→A
+
+693C : ASL $05 			;算术左移
+
+693E : 43  ;???
+
+693F : PHP 			;标志寄存器P进栈
+
+6940 : ASL $090F,X 			;算术左移
+
+6943 : ORA $AF 			;A∨$AF→A
+
+6945 : ASL $05 			;算术左移
+
+6947 : BCS $694F 			;借位标志C=1则转移,否则继续
+
+6949 : ORA $B1 			;A∨$B1→A
+
+694B : ASL $1E 			;算术左移
+
+694D : TAY 			;A->Y
+
+694E : ASL $FF 			;算术左移
+
+6950 : ORA ($0A,X) 			;A∨($0A)→A
+
+6952 :  B  ;???
+
+6953 : ORA $08 			;A∨$08→A
+
+6955 : ORA #$05 			;A∨$n→A
+
+6957 : 43  ;???
+
+6958 : PHP 			;标志寄存器P进栈
+
+6959 : ORA ($41,X) 			;A∨($41)→A
+
+695B : PHP 			;标志寄存器P进栈
+
+695C : ORA $29 			;A∨$29→A
+
+695E :  3  ;???
+
+695F : ORA ($41,X) 			;A∨($41)→A
+
+6961 : PHP 			;标志寄存器P进栈
+
+6962 : ORA ($41,X) 			;A∨($41)→A
+
+6964 : PHP 			;标志寄存器P进栈
+
+6965 : ORA $43 			;A∨$43→A
+
+6967 : PHP 			;标志寄存器P进栈
+
+6968 : ASL 			;算术左移
+
+6969 : ROL 			;A循环左移
+
+696A :  3  ;???
+
+696B : ORA $43 			;A∨$43→A
+
+696D : PHP 			;标志寄存器P进栈
+
+696E : ORA ($42,X) 			;A∨($42)→A
+
+6970 : PHP 			;标志寄存器P进栈
+
+6971 : ORA ($42,X) 			;A∨($42)→A
+
+6973 : PHP 			;标志寄存器P进栈
+
+6974 : ASL 			;算术左移
+
+6975 : 2B  ;???
+
+6976 :  3  ;???
+
+6977 : ORA $43 			;A∨$43→A
+
+6979 : PHP 			;标志寄存器P进栈
+
+697A : ORA $43 			;A∨$43→A
+
+697C : PHP 			;标志寄存器P进栈
+
+697D : ASL 			;算术左移
+
+697E : BIT $0503 			;A∧($n2n1)
+
+6981 : 43  ;???
+
+6982 : PHP 			;标志寄存器P进栈
+
+6983 : ASL 			;算术左移
+
+6984 : STY $0506 			;Y->MEM
+
+6987 : 43  ;???
+
+6988 : PHP 			;标志寄存器P进栈
+
+6989 : ORA ($43,X) 			;A∨($43)→A
+
+698B : PHP 			;标志寄存器P进栈
+
+698C : ORA ($43,X) 			;A∨($43)→A
+
+698E : PHP 			;标志寄存器P进栈
+
+698F : ASL 			;算术左移
+
+6990 : AND $0503 			;A∧($n2n1)→A
+
+6993 : 8B  ;???
+
+6994 : ASL $1E 			;算术左移
+
+6996 : ORA $0509 			;A∨($n2n1)→A
+
+6999 : LDY $1E06 			;->Y
+
+699C : LDA #$06 			;->A
+
+699E : FF  ;???
+
+699F : ASL 			;算术左移
+
+69A0 : 1B  ;???
+
+69A1 : PHP 			;标志寄存器P进栈
+
+69A2 : ASL 			;算术左移
+
+69A3 : ASL $0A08 			;算术左移
+
+69A6 : ORA ($08,X) 			;A∨($08)→A
+
+69A8 : ORA $01 			;A∨$01→A
+
+69AA : ASL $05 			;算术左移
+
+69AC :  C  ;???
+
+69AD : ASL $0A 			;算术左移
+
+69AF : 1B  ;???
+
+69B0 : PHP 			;标志寄存器P进栈
+
+69B1 : FF  ;???
+
+69B2 : ASL 			;算术左移
+
+69B3 : 1B  ;???
+
+69B4 : PHP 			;标志寄存器P进栈
+
+69B5 : ASL 			;算术左移
+
+69B6 : ASL $0A08 			;算术左移
+
+69B9 : ORA ($08,X) 			;A∨($08)→A
+
+69BB : ORA $1D 			;A∨$1D→A
+
+69BD : ASL $05 			;算术左移
+
+69BF : ASL $0506,X 			;算术左移
+
+69C2 : ORA ($08,X) 			;A∨($08)→A
+
+69C4 : FF  ;???
+
+69C5 : ASL 			;算术左移
+
+69C6 : ORA $0A06,Y 			;A∨($n2n1+Y)→A
+
+69C9 : ORA ($08,X) 			;A∨($08)→A
+
+69CB : ASL 			;算术左移
+
+69CC : ASL $0508 			;算术左移
+
+69CF :  2  ;???
+
+69D0 : ASL $0A 			;算术左移
+
+69D2 : JMP $0008 			;
+
+69D5 : ORA #$05 			;A∨$n→A
+
+69D7 : INT $084C
+
+69DA : FF  ;???
+
+69DB : ASL 			;算术左移
+
+69DC : 37  ;???
+
+69DD : PHP 			;标志寄存器P进栈
+
+69DE : ORA $39 			;A∨$39→A
+
+69E0 : PHP 			;标志寄存器P进栈
+
+69E1 : ASL 			;算术左移
+
+69E2 : TAX 			;A->X
+
+69E3 : ASL $FF 			;算术左移
+
+69E5 : ASL 			;算术左移
+
+69E6 : ASL 			;算术左移
+
+69E7 : ASL $0A 			;算术左移
+
+69E9 : ASL $0508 			;算术左移
+
+69EC : ASL $06 			;算术左移
+
+69EE : FF  ;???
+
+69EF : FF  ;???
+
+69F0 : ASL 			;算术左移
+
+69F1 : INT $1405
+
+69F4 : 33  ;???
+
+69F5 : PHP 			;标志寄存器P进栈
+
+69F6 : ORA $1F 			;A∨$1F→A
+
+69F8 : ASL $05 			;算术左移
+
+69FA : 1C  ;???
+
+69FB : ASL $0A 			;算术左移
+
+69FD : 33  ;???
+
+69FE : PHP 			;标志寄存器P进栈
+
+69FF : 14  ;???
+
+6A00 : ORA $0507 			;A∨($n2n1)→A
+
+6A03 : CLC 			;清进位标志
+
+6A04 : ASL $14 			;算术左移
+
+6A06 : INT $FF05
+
+6A09 : 14  ;???
+
+6A0A :  7  ;???
+
+6A0B : PHP 			;标志寄存器P进栈
+
+6A0C : ORA $26 			;A∨$26→A
+
+6A0E : ASL $05 			;算术左移
+
+6A10 : 14  ;???
+
+6A11 : ASL $FF 			;算术左移
+
+6A13 : 14  ;???
+
+6A14 : PHP 			;标志寄存器P进栈
+
+6A15 : PHP 			;标志寄存器P进栈
+
+6A16 : ORA $1A 			;A∨$1A→A
+
+6A18 : ASL $FF 			;算术左移
+
+6A1A : 14  ;???
+
+6A1B : ORA #$08 			;A∨$n→A
+
+6A1D : ORA $13 			;A∨$13→A
+
+6A1F : ASL $FF 			;算术左移
+
+6A21 : 14  ;???
+
+6A22 : ASL 			;算术左移
+
+6A23 : PHP 			;标志寄存器P进栈
+
+6A24 : ORA $0B 			;A∨$0B→A
+
+6A26 : ASL $FF 			;算术左移
+
+6A28 : ORA $01 			;A∨$01→A
+
+6A2A : ORA $14 			;A∨$14→A
+
+6A2C :  B  ;???
+
+6A2D : PHP 			;标志寄存器P进栈
+
+6A2E : ORA $23 			;A∨$23→A
+
+6A30 : ASL $FF 			;算术左移
+
+6A32 : ORA $39 			;A∨$39→A
+
+6A34 : PHP 			;标志寄存器P进栈
+
+6A35 : ASL 			;算术左移
+
+6A36 : BPL $6A3E 			;N=1则转移,否则继续
+
+6A38 :  F  ;???
+
+6A39 :  3  ;???
+
+6A3A : ASL $05 			;算术左移
+
+6A3C : BIT $06  			;A∧($n)(结果=0,Z=1)(结果!=0,Z=0)
+
+6A3E :  F  ;???
+
+6A3F : AND $FF08,Y 			;A∧($n2n1+Y)→A
+
+6A42 : ASL 			;算术左移
+
+6A43 : PHA 			;累加器进栈
+
+6A44 : PHP 			;标志寄存器P进栈
+
+6A45 : ORA $39 			;A∨$39→A
+
+6A47 : PHP 			;标志寄存器P进栈
+
+6A48 : ORA $28 			;A∨$28→A
+
+6A4A : ASL $14 			;算术左移
+
+6A4C : 2B  ;???
+
+6A4D : ASL $05 			;算术左移
+
+6A4F : AND $FF06 			;A∧($n2n1)→A
+
+6A52 : ORA $31 			;A∨$31→A
+
+6A54 : ASL $05 			;算术左移
+
+6A56 : 32  ;???
+
+6A57 : ASL $FF 			;算术左移
+
+6A59 : ASL 			;算术左移
+
+6A5A : 1B  ;???
+
+6A5B : PHP 			;标志寄存器P进栈
+
+6A5C : ORA $2E 			;A∨$2E→A
+
+6A5E : ASL $14 			;算术左移
+
+6A60 :  3  ;???
+
+6A61 : PHP 			;标志寄存器P进栈
+
+6A62 : ORA $33 			;A∨$33→A
+
+6A64 : ASL $19 			;算术左移
+
+6A66 : 2F  ;???
+
+6A67 : ASL $FF 			;算术左移
+
+6A69 : ORA $02 			;A∨$02→A
+
+6A6B : ORA $0A 			;A∨$0A→A
+
+6A6D : PHA 			;累加器进栈
+
+6A6E : PHP 			;标志寄存器P进栈
+
+6A6F : ORA $2C 			;A∨$2C→A
+
+6A71 : ASL $FF 			;算术左移
+
+6A73 : ASL 			;算术左移
+
+6A74 : 1B  ;???
+
+6A75 : PHP 			;标志寄存器P进栈
+
+6A76 : ORA $29 			;A∨$29→A
+
+6A78 : ASL $0A 			;算术左移
+
+6A7A : SEC 			;置进位标志C=1
+
+6A7B : PHP 			;标志寄存器P进栈
+
+6A7C : ORA ($38,X) 			;A∨($38)→A
+
+6A7E : PHP 			;标志寄存器P进栈
+
+6A7F : ORA ($38,X) 			;A∨($38)→A
+
+6A81 : PHP 			;标志寄存器P进栈
+
+6A82 : ASL 			;算术左移
+
+6A83 :  F  ;???
+
+6A84 : PHP 			;标志寄存器P进栈
+
+6A85 : ORA $01 			;A∨$01→A
+
+6A87 : PHP 			;标志寄存器P进栈
+
+6A88 : ORA $27 			;A∨$27→A
+
+6A8A : ASL $FF 			;算术左移
+
+6A8C : ASL 			;算术左移
+
+6A8D :  3  ;???
+
+6A8E : ORA $05 			;A∨$05→A
+
+6A90 : AND $0A06,Y 			;A∧($n2n1+Y)→A
+
+6A93 : 1B  ;???
+
+6A94 : PHP 			;标志寄存器P进栈
+
+6A95 : 14  ;???
+
+6A96 : ASL $0508 			;算术左移
+
+6A99 : ROL $06,X 			;循环左移
+
+6A9B : FF  ;???
+
+6A9C : ASL 			;算术左移
+
+6A9D :  4  ;???
+
+6A9E : ORA $05 			;A∨$05→A
+
+6AA0 : 1B  ;???
+
+6AA1 : PHP 			;标志寄存器P进栈
+
+6AA2 : ORA $3E 			;A∨$3E→A
+
+6AA4 : ASL $05 			;算术左移
+
+6AA6 : ASL $0508 			;算术左移
+
+6AA9 :  2  ;???
+
+6AAA : PHP 			;标志寄存器P进栈
+
+6AAB : ORA $3D 			;A∨$3D→A
+
+6AAD : ASL $FF 			;算术左移
+
+6AAF : ORA $1B 			;A∨$1B→A
+
+6AB1 : PHP 			;标志寄存器P进栈
+
+6AB2 : ORA $3C 			;A∨$3C→A
+
+6AB4 : ASL $0A 			;算术左移
+
+6AB6 : 37  ;???
+
+6AB7 : PHP 			;标志寄存器P进栈
+
+6AB8 : ORA ($37,X) 			;A∨($37)→A
+
+6ABA : PHP 			;标志寄存器P进栈
+
+6ABB : ORA $3B 			;A∨$3B→A
+
+6ABD : ASL $05 			;算术左移
+
+6ABF : SEC 			;置进位标志C=1
+
+6AC0 : ASL $FF 			;算术左移
+
+6AC2 : FF  ;???
+
+6AC3 : ASL 			;算术左移
+
+6AC4 : ASL $05 			;算术左移
+
+6AC6 : ORA $40 			;A∨$40→A
+
+6AC8 : ASL $05 			;算术左移
+
+6ACA : 1B  ;???
+
+6ACB : PHP 			;标志寄存器P进栈
+
+6ACC :  2  ;???
+
+6ACD : 1B  ;???
+
+6ACE : PHP 			;标志寄存器P进栈
+
+6ACF : ORA $3F 			;A∨$3F→A
+
+6AD1 : ASL $05 			;算术左移
+
+6AD3 : ASL $0508 			;算术左移
+
+6AD6 : 42  ;???
+
+6AD7 : ASL $FF 			;算术左移
+
+6AD9 : ORA $0A 			;A∨$0A→A
+
+6ADB : ORA $0A 			;A∨$0A→A
+
+6ADD : 97  ;???
+
+6ADE : ASL $0A 			;算术左移
+
+6AE0 : TYA 			;Y->A
+
+6AE1 : ASL $0A 			;算术左移
+
+6AE3 : STA $0A06,Y 			;A->MEM
+
+6AE6 : TXS 			;X->堆栈
+
+6AE7 : ASL $0A 			;算术左移
+
+6AE9 : 9B  ;???
+
+6AEA : ASL $FF 			;算术左移
+
+6AEC : ASL 			;算术左移
+
+6AED : CLI 			;清终端禁止
+
+6AEE : ASL $0A 			;算术左移
+
+6AF0 : AND ($08),Y 			;A∧(ADDRES)→A
+
+6AF2 : ORA $52 			;A∨$52→A
+
+6AF4 : ASL $05 			;算术左移
+
+6AF6 : 53  ;???
+
+6AF7 : ASL $FF 			;算术左移
+
+6AF9 : ASL 			;算术左移
+
+6AFA : AND ($08),Y 			;A∧(ADDRES)→A
+
+6AFC : ORA $5B 			;A∨$5B→A
+
+6AFE : ASL $0F 			;算术左移
+
+6B00 : 54  ;???
+
+6B01 : ASL $FF 			;算术左移
+
+6B03 : ASL 			;算术左移
+
+6B04 : 5A  ;???
+
+6B05 : ASL $1E 			;算术左移
+
+6B07 : AND ($08),Y 			;A∧(ADDRES)→A
+
+6B09 : ORA $59 			;A∨$59→A
+
+6B0B : ASL $FF 			;算术左移
+
+6B0D : ASL 			;算术左移
+
+6B0E : 32  ;???
+
+6B0F : PHP 			;标志寄存器P进栈
+
+6B10 : ORA $5F 			;A∨$5F→A
+
+6B12 : ASL $05 			;算术左移
+
+6B14 : 32  ;???
+
+6B15 : PHP 			;标志寄存器P进栈
+
+6B16 : 14  ;???
+
+6B17 : LSR $FF06,X 			;逻辑右移
+
+6B1A : ORA $57 			;A∨$57→A
+
+6B1C : ASL $FF 			;算术左移
+
+6B1E : ASL 			;算术左移
+
+6B1F : PHA 			;累加器进栈
+
+6B20 : PHP 			;标志寄存器P进栈
+
+6B21 : ORA $02 			;A∨$02→A
+
+6B23 : PHP 			;标志寄存器P进栈
+
+6B24 : ORA $6D 			;A∨$6D→A
+
+6B26 : ASL $05 			;算术左移
+
+6B28 : JMP ($FF06) 			;
+
+6B2B : ASL 			;算术左移
+
+6B2C : ADC ($06,X) 			;与(A+标志C)相加,结果送A
+
+6B2E : ORA $68 			;A∨$68→A
+
+6B30 : ASL $0A 			;算术左移
+
+6B32 :  2  ;???
+
+6B33 :  7  ;???
+
+6B34 : ASL 			;算术左移
+
+6B35 : SEC 			;置进位标志C=1
+
+6B36 : PHP 			;标志寄存器P进栈
+
+6B37 : FF  ;???
+
+6B38 : ASL 			;算术左移
+
+6B39 : ORA ($07,X) 			;A∨($07)→A
+
+6B3B : FF  ;???
+
+6B3C : ASL 			;算术左移
+
+6B3D : PHA 			;累加器进栈
+
+6B3E : PHP 			;标志寄存器P进栈
+
+6B3F : ORA $66 			;A∨$66→A
+
+6B41 : ASL $14 			;算术左移
+
+6B43 : BPL $6B4D 			;N=1则转移,否则继续
+
+6B45 : ORA $67 			;A∨$67→A
+
+6B47 : ASL $FF 			;算术左移
+
+6B49 : ASL 			;算术左移
+
+6B4A : SEC 			;置进位标志C=1
+
+6B4B : PHP 			;标志寄存器P进栈
+
+6B4C : ORA $63 			;A∨$63→A
+
+6B4E : ASL $05 			;算术左移
+
+6B50 : 64  ;???
+
+6B51 : ASL $FF 			;算术左移
+
+6B53 : ASL 			;算术左移
+
+6B54 :  7  ;???
+
+6B55 : ORA $05 			;A∨$05→A
+
+6B57 : 62  ;???
+
+6B58 : ASL $FF 			;算术左移
+
+6B5A : ORA $39 			;A∨$39→A
+
+6B5C : PHP 			;标志寄存器P进栈
+
+6B5D : ORA $7B 			;A∨$7B→A
+
+6B5F : ASL $05 			;算术左移
+
+6B61 : 77  ;???
+
+6B62 : ASL $FF 			;算术左移
+
+6B64 : ORA $39 			;A∨$39→A
+
+6B66 : PHP 			;标志寄存器P进栈
+
+6B67 : ORA $6F 			;A∨$6F→A
+
+6B69 : ASL $05 			;算术左移
+
+6B6B : BVS $6B73 			;溢出标志V=1则转移,否则继续
+
+6B6D : FF  ;???
+
+6B6E : FF  ;???
+
+6B6F : ORA $07 			;A∨$07→A
+
+6B71 : ASL $0A 			;算术左移
+
+6B73 :  B  ;???
+
+6B74 :  7  ;???
+
+6B75 : 3C  ;???
+
+6B76 : 17  ;???
+
+6B77 : ASL $FF 			;算术左移
+
+6B79 : ORA $05 			;A∨$05→A
+
+6B7B : ASL $0A 			;算术左移
+
+6B7D : PHA 			;累加器进栈
+
+6B7E : PHP 			;标志寄存器P进栈
+
+6B7F : INT $0848
+
+6B82 : 14  ;???
+
+6B83 : JSR $0506  			;跳转子程序
+
+6B86 : BPL $6B90 			;N=1则转移,否则继续
+
+6B88 : ORA $22 			;A∨$22→A
+
+6B8A : ASL $05 			;算术左移
+
+6B8C : AND $06 			;A∧($n)→A
+
+6B8E : FF  ;???
+
+6B8F : ASL 			;算术左移
+
+6B90 : PHA 			;累加器进栈
+
+6B91 : PHP 			;标志寄存器P进栈
+
+6B92 : ORA $30 			;A∨$30→A
+
+6B94 : ASL $FF 			;算术左移
+
+6B96 : ORA $46 			;A∨$46→A
+
+6B98 : ASL $FF 			;算术左移
+
+6B9A : ASL 			;算术左移
+
+6B9B : ORA $05 			;A∨$05→A
+
+6B9D : ORA $44 			;A∨$44→A
+
+6B9F : ASL $05 			;算术左移
+
+6BA1 : 1B  ;???
+
+6BA2 : PHP 			;标志寄存器P进栈
+
+6BA3 : ORA $0635,Y 			;A∨($n2n1+Y)→A
+
+6BA6 : ORA $37 			;A∨$37→A
+
+6BA8 : ASL $FF 			;算术左移
+
+6BAA : ORA $1B 			;A∨$1B→A
+
+6BAC : PHP 			;标志寄存器P进栈
+
+6BAD : ORA $3A 			;A∨$3A→A
+
+6BAF : ASL $05 			;算术左移
+
+6BB1 : EOR $06 			;A异或()→A
+
+6BB3 : FF  ;???
+
+6BB4 : ASL 			;算术左移
+
+6BB5 : BPL $6BBF 			;N=1则转移,否则继续
+
+6BB7 : ORA $43 			;A∨$43→A
+
+6BB9 : ASL $FF 			;算术左移
+
+6BBB : FF  ;???
+
+6BBC : ORA $4F 			;A∨$4F→A
+
+6BBE : ASL $FF 			;算术左移
+
+6BC0 : ORA $48 			;A∨$48→A
+
+6BC2 : PHP 			;标志寄存器P进栈
+
+6BC3 : 14  ;???
+
+6BC4 :  4  ;???
+
+6BC5 :  7  ;???
+
+6BC6 : ASL 			;算术左移
+
+6BC7 :  C  ;???
+
+6BC8 :  7  ;???
+
+6BC9 : ASL 			;算术左移
+
+6BCA : BPL $6BD3 			;N=1则转移,否则继续
+
+6BCC : INT $0710
+
+6BCF : INT $0710
+
+6BD2 : ASL 			;算术左移
+
+6BD3 : PHA 			;累加器进栈
+
+6BD4 : PHP 			;标志寄存器P进栈
+
+6BD5 : FF  ;???
+
+6BD6 : ASL 			;算术左移
+
+6BD7 : 9C  ;???
+
+6BD8 : ASL $0A 			;算术左移
+
+6BDA : STA $0A06,X 			;A->MEM
+
+6BDD : 9E  ;???
+
+6BDE : ASL $0A 			;算术左移
+
+6BE0 : 9F  ;???
+
+6BE1 : ASL $0A 			;算术左移
+
+6BE3 : LDY #$06 			;->Y
+
+6BE5 : FF  ;???
+
+6BE6 : ASL 			;算术左移
+
+6BE7 : PHP 			;标志寄存器P进栈
+
+6BE8 : ASL $FF 			;算术左移
+
+6BEA : ASL 			;算术左移
+
+6BEB : ASL $06,X 			;算术左移
+
+6BED : ORA $15 			;A∨$15→A
+
+6BEF : ASL $FF 			;算术左移
+
+6BF1 :  F  ;???
+
+6BF2 : ROR 			;循环右移
+
+6BF3 : ASL $05 			;算术左移
+
+6BF5 : ADC #$06 			;与(A+标志C)相加,结果送A
+
+6BF7 : FF  ;???
+
+6BF8 : ORA $4A 			;A∨$4A→A
+
+6BFA : ASL $05 			;算术左移
+
+6BFC : PHA 			;累加器进栈
+
+6BFD : ASL $FF 			;算术左移
+
+6BFF : ORA $4B 			;A∨$4B→A
+
+6C01 : ASL $05 			;算术左移
+
+6C03 : EOR #$06 			;A异或($n)→A
+
+6C05 : FF  ;???
+
+6C06 :  2  ;???
+
+6C07 : JMP $0008 			;
+
+6C0A : PHP 			;标志寄存器P进栈
+
+6C0B : ORA $00 			;A∨$00→A
+
+6C0D : JMP $0008 			;
+
+6C10 : JMP $0508 			;
+
+6C13 : EOR ($06),Y 			;与A异或,结果送A
+
+6C15 : ORA $50 			;A∨$50→A
+
+6C17 : ASL $FF 			;算术左移
+
+6C19 : FF  ;???
+
+6C1A : ORA $01 			;A∨$01→A
+
+6C1C : PHP 			;标志寄存器P进栈
+
+6C1D : ORA $0E 			;A∨$0E→A
+
+6C1F : PHP 			;标志寄存器P进栈
+
+6C20 : ORA $01 			;A∨$01→A
+
+6C22 : PHP 			;标志寄存器P进栈
+
+6C23 : ORA $1B 			;A∨$1B→A
+
+6C25 : PHP 			;标志寄存器P进栈
+
+6C26 : ASL 			;算术左移
+
+6C27 : STY $06 			;Y->MEM
+
+6C29 : ASL 			;算术左移
+
+6C2A : 87  ;???
+
+6C2B : ASL $05 			;算术左移
+
+6C2D : 1C  ;???
+
+6C2E : PHP 			;标志寄存器P进栈
+
+6C2F : FF  ;???
+
+6C30 : ASL 			;算术左移
+
+6C31 : 7F  ;???
+
+6C32 : ASL $05 			;算术左移
+
+6C34 : ORA ($08,X) 			;A∨($08)→A
+
+6C36 : ORA $48 			;A∨$48→A
+
+6C38 : PHP 			;标志寄存器P进栈
+
+6C39 : ORA $01 			;A∨$01→A
+
+6C3B : PHP 			;标志寄存器P进栈
+
+6C3C : ORA $3B 			;A∨$3B→A
+
+6C3E : PHP 			;标志寄存器P进栈
+
+6C3F : ORA $1C 			;A∨$1C→A
+
+6C41 : PHP 			;标志寄存器P进栈
+
+6C42 : ORA $93 			;A∨$93→A
+
+6C44 : ASL $05 			;算术左移
+
+6C46 : STY $06,X 			;Y->MEM
+
+6C48 : FF  ;???
+
+6C49 : ORA $1C 			;A∨$1C→A
+
+6C4B : PHP 			;标志寄存器P进栈
+
+6C4C : ORA $11 			;A∨$11→A
+
+6C4E : PHP 			;标志寄存器P进栈
+
+6C4F : ORA $01 			;A∨$01→A
+
+6C51 : PHP 			;标志寄存器P进栈
+
+6C52 : ASL 			;算术左移
+
+6C53 : STA ($06,X)  			;A->MEM
+
+6C55 : FF  ;???
+
+6C56 : ORA $47 			;A∨$47→A
+
+6C58 : PHP 			;标志寄存器P进栈
+
+6C59 : ORA $3C 			;A∨$3C→A
+
+6C5B : PHP 			;标志寄存器P进栈
+
+6C5C : ORA $01 			;A∨$01→A
+
+6C5E : PHP 			;标志寄存器P进栈
+
+6C5F : ORA $0E 			;A∨$0E→A
+
+6C61 : PHP 			;标志寄存器P进栈
+
+6C62 : ASL 			;算术左移
+
+6C63 : STA $06 			;A->MEM
+
+6C65 : ASL 			;算术左移
+
+6C66 : STX $06 			;X->MEM
+
+6C68 : FF  ;???
+
+6C69 : ORA $01 			;A∨$01→A
+
+6C6B : PHP 			;标志寄存器P进栈
+
+6C6C : ORA $1C 			;A∨$1C→A
+
+6C6E : PHP 			;标志寄存器P进栈
+
+6C6F : ASL 			;算术左移
+
+6C70 : ROR $0506,X 			;循环右移
+
+6C73 : AND ($08),Y 			;A∧(ADDRES)→A
+
+6C75 : ASL 			;算术左移
+
+6C76 : DEY 			;Y--
+
+6C77 : ASL $05 			;算术左移
+
+6C79 : 1C  ;???
+
+6C7A : PHP 			;标志寄存器P进栈
+
+6C7B : FF  ;???
+
+6C7C : ORA $1C 			;A∨$1C→A
+
+6C7E : PHP 			;标志寄存器P进栈
+
+6C7F : ORA $17 			;A∨$17→A
+
+6C81 : PHP 			;标志寄存器P进栈
+
+6C82 : ORA $01 			;A∨$01→A
+
+6C84 : PHP 			;标志寄存器P进栈
+
+6C85 : ASL 			;算术左移
+
+6C86 : 83  ;???
+
+6C87 : ASL $05 			;算术左移
+
+6C89 : PHA 			;累加器进栈
+
+6C8A : PHP 			;标志寄存器P进栈
+
+6C8B : ORA $1C 			;A∨$1C→A
+
+6C8D : PHP 			;标志寄存器P进栈
+
+6C8E : FF  ;???
+
+6C8F : ORA $1C 			;A∨$1C→A
+
+6C91 : PHP 			;标志寄存器P进栈
+
+6C92 : ORA $0E 			;A∨$0E→A
+
+6C94 : PHP 			;标志寄存器P进栈
+
+6C95 : ORA $01 			;A∨$01→A
+
+6C97 : PHP 			;标志寄存器P进栈
+
+6C98 : ASL 			;算术左移
+
+6C99 : 89  ;???
+
+6C9A : ASL $05 			;算术左移
+
+6C9C : PHA 			;累加器进栈
+
+6C9D : PHP 			;标志寄存器P进栈
+
+6C9E : ASL 			;算术左移
+
+6C9F : BCC $6CA7 			;进位标志C=0则转移,否则继续
+
+6CA1 : FF  ;???
+
+6CA2 : ORA $1C 			;A∨$1C→A
+
+6CA4 : PHP 			;标志寄存器P进栈
+
+6CA5 : ORA $3C 			;A∨$3C→A
+
+6CA7 : PHP 			;标志寄存器P进栈
+
+6CA8 : ORA $01 			;A∨$01→A
+
+6CAA : PHP 			;标志寄存器P进栈
+
+6CAB : ASL 			;算术左移
+
+6CAC : TXA 			;X->A
+
+6CAD : ASL $FF 			;算术左移
+
+6CAF : ORA $1C 			;A∨$1C→A
+
+6CB1 : PHP 			;标志寄存器P进栈
+
+6CB2 : ORA $48 			;A∨$48→A
+
+6CB4 : PHP 			;标志寄存器P进栈
+
+6CB5 : ORA $01 			;A∨$01→A
+
+6CB7 : PHP 			;标志寄存器P进栈
+
+6CB8 : ORA $0E 			;A∨$0E→A
+
+6CBA : PHP 			;标志寄存器P进栈
+
+6CBB : ASL 			;算术左移
+
+6CBC : 92  ;???
+
+6CBD : ASL $FF 			;算术左移
+
+6CBF : ORA $1C 			;A∨$1C→A
+
+6CC1 : PHP 			;标志寄存器P进栈
+
+6CC2 : ORA $01 			;A∨$01→A
+
+6CC4 : PHP 			;标志寄存器P进栈
+
+6CC5 : ASL 			;算术左移
+
+6CC6 : STA ($06),Y 			;A->MEM
+
+6CC8 : ORA $3B 			;A∨$3B→A
+
+6CCA : PHP 			;标志寄存器P进栈
+
+6CCB : ORA $17 			;A∨$17→A
+
+6CCD : PHP 			;标志寄存器P进栈
+
+6CCE : ASL 			;算术左移
+
+6CCF : STX $FF06 			;X->MEM
+
+6CD2 : ORA $1C 			;A∨$1C→A
+
+6CD4 : PHP 			;标志寄存器P进栈
+
+6CD5 : ORA $01 			;A∨$01→A
+
+6CD7 : PHP 			;标志寄存器P进栈
+
+6CD8 : ASL 			;算术左移
+
+6CD9 : STA $0506 			;A->MEM
+
+6CDC : 17  ;???
+
+6CDD : PHP 			;标志寄存器P进栈
+
+6CDE : ASL 			;算术左移
+
+6CDF : 8F  ;???
+
+6CE0 : ASL $05 			;算术左移
+
+6CE2 : PHA 			;累加器进栈
+
+6CE3 : PHP 			;标志寄存器P进栈
+
+6CE4 : FF  ;???
+
+6CE5 : ASL 			;算术左移
+
+6CE6 : ORA $07 			;A∨$07→A
+
+6CE8 : FF  ;???
+
+6CE9 : FF  ;???
+
+6CEA : ROL 			;A循环左移
+
+6CEB : 4F  ;???
+
+6CEC : EOR ($56,X) 			;A异或()→A
+
+6CEE : LSR $5D51 			;逻辑右移
+
+6CF1 : 53  ;???
+
+6CF2 : ADC $55 			;与(A+标志C)相加,结果送A
+
+6CF4 : 6B  ;???
+
+6CF5 : 54  ;???
+
+6CF6 : 82  ;???
+
+6CF7 : 52  ;???
+
+6CF8 : 8B  ;???
+
+6CF9 : BVC $6C7B 			;溢出V=0则转移,否则继续
+
+6CFB : 5A  ;???
+
+6CFC : STY $AC5B 			;Y->MEM
+
+6CFF : FF  ;???
+
+6D00 : LDA $AEFF 			;->A
+
+6D03 : FF  ;???
+
+6D04 : AF  ;???
+
+6D05 : FF  ;???
+
+6D06 : BCS $6D07 			;借位标志C=1则转移,否则继续
+
+6D08 : LDA ($FF),Y 			;->A
+
+6D0A : B2  ;???
+
+6D0B : FF  ;???
+
+6D0C : B3  ;???
+
+6D0D : FF  ;???
+
+6D0E : LDY $FF,X 			;->Y
+
+6D10 : LDA $FF,X 			;->A
+
+6D12 : LDX $FF,Y 			;->X
+
+6D14 : B7  ;???
+
+6D15 : FF  ;???
+
+6D16 : CLV 			;清溢出标志
+
+6D17 : FF  ;???
+
+6D18 : LDA $BAFF,Y 			;->A
+
+6D1B : FF  ;???
+
+6D1C : BB  ;???
+
+6D1D : FF  ;???
+
+6D1E : LDY $BDFF,X 			;->Y
+
+6D21 : FF  ;???
+
+6D22 : LDX $BFFF,Y 			;->X
+
+6D25 : FF  ;???
+
+6D26 : CPY #$FF 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+6D28 : CMP ($FF,X) 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+6D2A : RTS 			;子程序返回
+
+6D2B : LDA #$00 			;->A
+6D2D : STA $201A 			;A->MEM
+6D30 : LDA #$00 			;->A
+6D32 : STA $81 			;A->MEM
+6D34 : LDA #$00 			;->A
+6D36 : STA $80 			;A->MEM
+6D38 : INT $3029
+6D3B : LDX #$22 			;->X
+6D3D : LDA $273F,X 			;->A
+6D40 : STA $201C,X 			;A->MEM
+6D43 : DEX 			;X--
+6D44 : BNE $6D3D 			;Z=0则转移,否则继续
+6D46 : LDA #$06 			;->A
+6D48 : STA $043F 			;A->MEM
+6D4B : LDA #$03 			;->A
+6D4D : STA $0440 			;A->MEM
+6D50 : LDA #$96 			;->A
+6D52 : STA $0441 			;A->MEM
+6D55 : LDA #$4B 			;->A
+6D57 : STA $0442 			;A->MEM
+6D5A : LDX #$38 			;->X
+6D5C : LDA $766F,X 			;->A  
+6D5F : STA $2D7F,X 			;A->MEM  一座高山,山顶终年积雪,相传山顶有神仙居住,想上去看看吗?
+6D62 : DEX 			;X--
+6D63 : BNE $6D5C 			;Z=0则转移,否则继续
+6D65 : LDA #$80 			;->A
+6D67 : STA $A6 			;A->MEM
+6D69 : LDA #$2D 			;->A
+6D6B : STA $A7 			;A->MEM
+6D6D : INT $302F    ;[输入]确认,[跳出]放弃c=1
+6D70 : BCC $6D75 			;进位标志C=0则转移,否则继续
+6D72 : JMP $6E10 			;end
+6D75 : LDX #$4B 			;->X
+6D77 : LDA $76A7,X 			;->A
+6D7A : STA $2D7F,X 			;A->MEM  76A8  这是方圆百里最有名的游戏厅,你想玩甚麽?(选择数字)\n1.跳舞毯\n2.投铅球\n3.放弃
+6D7D : DEX 			;X--
+6D7E : BNE $6D77 			;Z=0则转移,否则继续
+6D80 : LDA #$80 			;->A
+6D82 : STA $A6 			;A->MEM
+6D84 : LDA #$2D 			;->A
+6D86 : STA $A7 			;A->MEM
+6D88 : LDA #$06 			;->A
+6D8A : STA $043F 			;A->MEM
+6D8D : LDA #$03 			;->A
+6D8F : STA $0440 			;A->MEM
+6D92 : LDA #$96 			;->A
+6D94 : STA $0441 			;A->MEM
+6D97 : LDA #$4B 			;->A
+6D99 : STA $0442 			;A->MEM
+6D9C : INT $3032
+6D9F : JSR $7976  			;跳转子程序 readkey->2E8B
+6DA2 : LDA $2E8B 			;->A
+6DA5 : INT $3039
+6DA8 : BCC $6E10 			;进位标志C=0则转移,否则继续
+6DAA : INY 			;Y++
+6DAB : LDA $2EDB,Y 			;->A
+6DAE : STA $2000 			;A->MEM
+6DB1 : INY 			;Y++
+6DB2 : LDA $2EDB,Y 			;->A
+6DB5 : STA $2001 			;A->MEM
+6DB8 : INY 			;Y++
+6DB9 : LDA $2EDB,Y 			;->A
+6DBC : STA $2002 			;A->MEM
+6DBF : LDA #$01 			;->A
+6DC1 : STA $043F 			;A->MEM
+6DC4 : LDA #$01 			;->A
+6DC6 : STA $0440 			;A->MEM
+6DC9 : LDA #$9F 			;->A
+6DCB : STA $0441 			;A->MEM
+6DCE : LDA #$4F 			;->A
+6DD0 : STA $0442 			;A->MEM
+6DD3 : LDA $2E8B 			;->A
+6DD6 : CMP #$07 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+6DD8 : BNE $6DDD 			;Z=0则转移,否则继续
+6DDA : JMP $6EB2 			;dance
+6DDD : CMP #$08 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+6DDF : BNE $6DE4 			;Z=0则转移,否则继续
+6DE1 : JMP $71BC 			;throw ball
+6DE4 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+6DE6 : BNE $6DEB 			;Z=0则转移,否则继续
+6DE8 : JMP $6E10 			;
+;Minigame return to map
+6DEB : JSR $6E14  			;跳转子程序
+6DEE : LDA #$80 			;->A
+6DF0 : STA $A6 			;A->MEM
+6DF2 : LDA #$2D 			;->A
+6DF4 : STA $A7 			;A->MEM
+6DF6 : INT $302D   ;显示对话
+6DF9 : LDA #$06 			;->A
+6DFB : STA $043F 			;A->MEM
+6DFE : LDA #$03 			;->A
+6E00 : STA $0440 			;A->MEM
+6E03 : LDA #$96 			;->A
+6E05 : STA $0441 			;A->MEM
+6E08 : LDA #$4B 			;->A
+6E0A : STA $0442 			;A->MEM
+6E0D : INT $302E			;wait for Esc key
+6E10 : INT $3044			;draw map
+6E13 : RTS 			;子程序返回
+
+6E14 : LDA #$00 			;->A
+6E16 : STA $2017 			;A->MEM
+6E19 : LDA #$00 			;->A
+6E1B : STA $2018 			;A->MEM
+6E1E : CLC 			;清进位标志
+6E1F : LDA $2013 			;->A
+6E22 : ADC $2001 			;与(A+标志C)相加,结果送A
+6E25 : STA $2013 			;A->MEM
+6E28 : LDA $2014 			;->A
+6E2B : ADC $2002 			;与(A+标志C)相加,结果送A
+6E2E : STA $2014 			;A->MEM
+6E31 : LDA $2000 			;->A
+6E34 : TAX 			;A->X
+6E35 : INT $9E1F      ;A,X相乘，结果放80
+6E38 : SEC 			;置进位标志C=1
+6E39 : LDA $2013 			;->A
+6E3C : SBC $80 			;A-MEM-C->A
+6E3E : STA $2013 			;A->MEM
+6E41 : LDA $2014 			;->A
+6E44 : SBC $81 			;A-MEM-C->A
+6E46 : STA $2014 			;A->MEM
+6E49 : BCC $6E5E 			;进位标志C=0则转移,否则继续
+6E4B : INC $2000 			;MEM++
+6E4E : CLC 			;清进位标志
+6E4F : LDA $2017 			;->A
+6E52 : ADC #$01 			;与(A+标志C)相加,结果送A
+6E54 : STA $2017 			;A->MEM
+6E57 : BCC $6E5C 			;进位标志C=0则转移,否则继续
+6E59 : INC $2018 			;MEM++
+6E5C : BNE $6E31 			;Z=0则转移,否则继续
+6E5E : CLC 			;清进位标志
+6E5F : LDA $2013 			;->A
+6E62 : ADC $80 			;与(A+标志C)相加,结果送A
+6E64 : STA $2013 			;A->MEM
+6E67 : LDA $2014 			;->A
+6E6A : ADC $81 			;与(A+标志C)相加,结果送A
+6E6C : STA $2014 			;A->MEM
+6E6F : LDA $2013 			;->A
+6E72 : STA $2001 			;A->MEM
+6E75 : LDA $2014 			;->A
+6E78 : STA $2002 			;A->MEM
+6E7B : LDA $2E8B 			;->A
+6E7E : INT $3039
+6E81 : LDA $2EDC,Y 			;->A
+6E84 : CMP #$3C 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+6E86 : BCC $6E94 			;进位标志C=0则转移,否则继续
+6E88 : LDX #$3A 			;->X
+6E8A : LDA $7640,X 			;->A  你的$k进步了01 1720 0A00  级!
+6E8D : STA $2D7F,X 			;A->MEM
+6E90 : DEX 			;X--
+6E91 : BNE $6E8A 			;Z=0则转移,否则继续
+6E93 : RTS 			;子程序返回
+6E94 : LDA $2000 			;->A
+6E97 : STA $2EDC,Y 			;A->MEM
+6E9A : LDA $2001 			;->A
+6E9D : STA $2EDD,Y 			;A->MEM
+6EA0 : LDA $2002 			;->A
+6EA3 : STA $2EDE,Y 			;A->MEM
+6EA6 : LDX #$2F 			;->X
+6EA8 : LDA $7640,X 			;->A  你的$k进步了01 1720 0A00  级!
+6EAB : STA $2D7F,X 			;A->MEM
+6EAE : DEX 			;X--
+6EAF : BNE $6EA8 			;Z=0则转移,否则继续
+6EB1 : RTS 			;子程序返回
+
+;dance
+6EB2 : LDA #$00 			;->A
+6EB4 : STA $2013 			;A->MEM
+6EB7 : LDA #$00 			;->A
+6EB9 : STA $2014 			;A->MEM
+6EBC : JSR $76F3  			;跳转子程序  draw dance
+6EBF : LDA #$57 			;->A
+6EC1 : STA $200F 			;A->MEM
+6EC4 : LDA #$0A 			;->A
+6EC6 : STA $2010 			;A->MEM
+6EC9 : LDA #$87 			;->A
+6ECB : STA $2011 			;A->MEM
+6ECE : LDA #$75 			;->A
+6ED0 : STA $2012 			;A->MEM 7587  跳舞毯箭头上
+6ED3 : LDA #$A4 			;->A
+6ED5 : STA $80 			;A->MEM
+6ED7 : LDA #$0B 			;->A
+6ED9 : STA $81 			;A->MEM
+6EDB : LDA #$87 			;->A
+6EDD : STA $82 			;A->MEM
+6EDF : LDA #$75 			;->A
+6EE1 : STA $83 			;A->MEM 7587  跳舞毯箭头上
+6EE3 : LDX #$10 			;->X
+6EE5 : JSR $7773  			;跳转子程序 load image->videomem
+6EE8 : LDA #$E6 			;->A
+6EEA : STA $80 			;A->MEM
+6EEC : LDA #$0C 			;->A
+6EEE : STA $81 			;A->MEM
+6EF0 : LDA #$C7 			;->A
+6EF2 : STA $82 			;A->MEM
+6EF4 : LDA #$75 			;->A
+6EF6 : STA $83 			;A->MEM  75C7  跳舞毯箭头
+6EF8 : LDX #$10 			;->X
+6EFA : JSR $7773  			;跳转子程序 load image->videomem
+6EFD : LDA #$E2 			;->A
+6EFF : STA $80 			;A->MEM
+6F01 : LDA #$0C 			;->A
+6F03 : STA $81 			;A->MEM
+6F05 : LDA #$E7 			;->A
+6F07 : STA $82 			;A->MEM
+6F09 : LDA #$75 			;->A
+6F0B : STA $83 			;A->MEM  75E7  跳舞毯箭头
+6F0D : LDX #$10 			;->X
+6F0F : JSR $7773  			;跳转子程序 load image->videomem
+6F12 : LDA #$24 			;->A
+6F14 : STA $80 			;A->MEM
+6F16 : LDA #$0E 			;->A
+6F18 : STA $81 			;A->MEM 0E24
+6F1A : LDA #$A7 			;->A
+6F1C : STA $82 			;A->MEM
+6F1E : LDA #$75 			;->A
+6F20 : STA $83 			;A->MEM  75A7  跳舞毯箭头下
+6F22 : LDX #$10 			;->X 10
+6F24 : JSR $7773  			;跳转子程序 load image->videomem
+6F27 : LDA #$06 			;->A
+6F29 : STA $80 			;A->MEM
+6F2B : LDA #$0E 			;->A
+6F2D : STA $81 			;A->MEM
+6F2F : LDA #$1D 			;->A
+6F31 : STA $82 			;A->MEM  1D0E
+6F33 : LDA #$20 			;->A
+6F35 : STA $83 			;A->MEM
+6F37 : JSR $7760  			;跳转子程序  load image->videomem
+6F3A : LDA #$04 			;->A
+6F3C : STA $04CB 			;A->MEM
+6F3F : LDA #$00 			;->A
+6F41 : STA $04CC 			;A->MEM
+6F44 : INT $9E27      ;Random number
+6F47 : CMP $201B 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+6F4A : BEQ $6F3A 			;Z=1则转移,否则继续
+6F4C : STA $201B 			;A->MEM
+6F4F : CMP #$00 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+6F51 : BNE $6F5D 			;Z=0则转移,否则继续
+6F53 : LDA #$59 			;->A
+6F55 : STA $84 			;A->MEM
+6F57 : LDA #$0A 			;->A
+6F59 : STA $85 			;A->MEM  0A59
+6F5B : BNE $6F81 			;Z=0则转移,否则继续
+6F5D : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+6F5F : BNE $6F6B 			;Z=0则转移,否则继续
+6F61 : LDA #$5B 			;->A
+6F63 : STA $84 			;A->MEM
+6F65 : LDA #$0A 			;->A
+6F67 : STA $85 			;A->MEM  0A5B
+6F69 : BNE $6F81 			;Z=0则转移,否则继续
+6F6B : CMP #$02 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+6F6D : BNE $6F79 			;Z=0则转移,否则继续
+6F6F : LDA #$5D 			;->A
+6F71 : STA $84 			;A->MEM
+6F73 : LDA #$0A 			;->A
+6F75 : STA $85 			;A->MEM  0A5D
+6F77 : BNE $6F81 			;Z=0则转移,否则继续
+6F79 : LDA #$57 			;->A
+6F7B : STA $84 			;A->MEM
+6F7D : LDA #$0A 			;->A
+6F7F : STA $85 			;A->MEM  0A57
+6F81 : LDA $80 			;->A
+6F83 : STA $86 			;A->MEM
+6F85 : LDA $81 			;->A
+6F87 : STA $87 			;A->MEM
+6F89 : JSR $7843  			;跳转子程序
+6F8C : LDA $86 			;->A
+6F8E : STA $80 			;A->MEM
+6F90 : LDA $87 			;->A
+6F92 : STA $81 			;A->MEM
+6F94 : LDA #$87 			;->A
+6F96 : STA $82 			;A->MEM
+6F98 : LDA #$75 			;->A
+6F9A : STA $83 			;A->MEM  7587  跳舞毯箭头上
+6F9C : LDA $80 			;->A
+6F9E : ASL 			;算术左移
+6F9F : ASL 			;算术左移
+6FA0 : ASL 			;算术左移
+6FA1 : ASL 			;算术左移
+6FA2 : ASL 			;算术左移
+6FA3 : CLC 			;清进位标志
+6FA4 : ADC $82 			;与(A+标志C)相加,结果送A
+6FA6 : STA $82 			;A->MEM
+6FA8 : BCC $6FAC 			;进位标志C=0则转移,否则继续
+6FAA : INC $83 			;MEM++
+6FAC : LDA $84 			;->A
+6FAE : STA $80 			;A->MEM
+6FB0 : LDA $85 			;->A
+6FB2 : STA $81 			;A->MEM
+6FB4 : LDA $80 			;->A
+6FB6 : STA $200F 			;A->MEM
+6FB9 : LDA $81 			;->A
+6FBB : STA $2010 			;A->MEM
+6FBE : LDA $82 			;->A
+6FC0 : STA $2011 			;A->MEM
+6FC3 : LDA $83 			;->A
+6FC5 : STA $2012 			;A->MEM
+6FC8 : JSR $778E  			;跳转子程序 Pic 取反
+6FCB : LDA #$00 			;->A
+6FCD : STA $C7 			;A->MEM
+6FCF : LDX #$FA 			;->X
+6FD1 : INT $3042      ;delay
+6FD4 : LDA $C7 			;->A
+6FD6 : AND #$7F 			;A∧$n→A
+6FD8 : TAX 			;A->X
+6FD9 : LDY #$05 			;->Y
+6FDB : LDA #$F8 			;->A
+6FDD : STA $80 			;A->MEM
+6FDF : LDA #$6F 			;->A
+6FE1 : STA $81 			;A->MEM  6FF8:1B 17 16 14 15 addr 0770 0D70 7970 E570 5071 (exit L R U D)
+6FE3 : TXA 			;X->A
+6FE4 : JSR $813F  			;跳转子程序  find addr by id
+6FE7 : LDA $201A 			;->A
+6FEA : CMP #$FF 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+6FEC : BEQ $6FF1 			;Z=1则转移,否则继续
+6FEE : JMP $6F3A 			;
+6FF1 : LDA #$00 			;->A
+6FF3 : STA $C7 			;A->MEM
+6FF5 : JMP $6DEB 			;Minigame return to map
+6FF8 : 1B 17 16 14 15 addr 0770 0D70 7970 E570 5071
+;dance exit
+7007 : LDA #$FF 			;->A
+7009 : STA $201A 			;A->MEM
+700C : RTS 			;子程序返回
+;dance left
+700D : LDA #$E2 			;->A
+700F : STA $80 			;A->MEM
+7011 : LDA #$0C 			;->A
+7013 : STA $81 			;A->MEM
+7015 : LDA #$E7 			;->A
+7017 : STA $82 			;A->MEM
+7019 : LDA #$75 			;->A
+701B : STA $83 			;A->MEM
+701D : LDA #$E2 			;->A
+701F : STA $2005 			;A->MEM
+7022 : LDA #$0C 			;->A
+7024 : STA $2006 			;A->MEM
+7027 : LDA #$E7 			;->A
+7029 : STA $2007 			;A->MEM
+702C : LDA #$75 			;->A
+702E : STA $2008 			;A->MEM
+7031 : JSR $7878  			;跳转子程序
+7034 : JSR $778E  			;跳转子程序  Pic 取反
+7037 : JSR $7812  			;跳转子程序
+703A : LDA #$00 			;->A
+703C : STA $81 			;A->MEM
+703E : LDA #$05 			;->A
+7040 : STA $80 			;A->MEM
+7042 : INT $3029
+7045 : LDA $92 			;->A
+7047 : STA $82 			;A->MEM
+7049 : LDA $93 			;->A
+704B : STA $83 			;A->MEM
+704D : LDA #$04 			;->A
+704F : STA $80 			;A->MEM
+7051 : LDA #$0E 			;->A
+7053 : STA $81 			;A->MEM
+7055 : LDA #$04 			;->A
+7057 : STA $2009 			;A->MEM
+705A : LDA #$0E 			;->A
+705C : STA $200A 			;A->MEM
+705F : LDA $82 			;->A
+7061 : STA $200B 			;A->MEM
+7064 : LDA $83 			;->A
+7066 : STA $200C 			;A->MEM
+7069 : JSR $7760  			;跳转子程序  load image->videomem
+706C : JSR $78B6  			;跳转子程序;delay 40ms
+706F : JSR $78B6  			;跳转子程序;delay 40ms
+7072 : JSR $77AF  			;跳转子程序
+7075 : JSR $77C9  			;跳转子程序
+7078 : RTS 			;子程序返回
+;dance right
+7079 : LDA #$E6 			;->A
+707B : STA $80 			;A->MEM
+707D : LDA #$0C 			;->A
+707F : STA $81 			;A->MEM
+7081 : LDA #$C7 			;->A
+7083 : STA $82 			;A->MEM
+7085 : LDA #$75 			;->A
+7087 : STA $83 			;A->MEM
+7089 : LDA #$E6 			;->A
+708B : STA $2005 			;A->MEM
+708E : LDA #$0C 			;->A
+7090 : STA $2006 			;A->MEM
+7093 : LDA #$C7 			;->A
+7095 : STA $2007 			;A->MEM
+7098 : LDA #$75 			;->A
+709A : STA $2008 			;A->MEM
+709D : JSR $7878  			;跳转子程序
+70A0 : JSR $778E  			;跳转子程序  Pic 取反
+70A3 : JSR $7812  			;跳转子程序
+70A6 : LDA #$00 			;->A
+70A8 : STA $81 			;A->MEM
+70AA : LDA #$07 			;->A
+70AC : STA $80 			;A->MEM
+70AE : INT $3029
+70B1 : LDA $92 			;->A
+70B3 : STA $82 			;A->MEM
+70B5 : LDA $93 			;->A
+70B7 : STA $83 			;A->MEM
+70B9 : LDA #$08 			;->A
+70BB : STA $80 			;A->MEM
+70BD : LDA #$0E 			;->A
+70BF : STA $81 			;A->MEM
+70C1 : LDA #$08 			;->A
+70C3 : STA $2009 			;A->MEM
+70C6 : LDA #$0E 			;->A
+70C8 : STA $200A 			;A->MEM
+70CB : LDA $82 			;->A
+70CD : STA $200B 			;A->MEM
+70D0 : LDA $83 			;->A
+70D2 : STA $200C 			;A->MEM
+70D5 : JSR $7760  			;跳转子程序  load image->videomem
+70D8 : JSR $78B6  			;跳转子程序;delay 40ms
+70DB : JSR $78B6  			;跳转子程序;delay 40ms
+70DE : JSR $77AF  			;跳转子程序
+70E1 : JSR $77C9  			;跳转子程序
+70E4 : RTS 			;子程序返回
+;dance up
+70E5 : LDA $BB 			;->A
+70E7 : STA $2019 			;A->MEM
+70EA : LDA #$A4 			;->A
+70EC : STA $80 			;A->MEM
+70EE : LDA #$0B 			;->A
+70F0 : STA $81 			;A->MEM
+70F2 : LDA #$87 			;->A
+70F4 : STA $82 			;A->MEM
+70F6 : LDA #$75 			;->A
+70F8 : STA $83 			;A->MEM
+70FA : LDA #$A4 			;->A
+70FC : STA $2005 			;A->MEM
+70FF : LDA #$0B 			;->A
+7101 : STA $2006 			;A->MEM
+7104 : LDA #$87 			;->A
+7106 : STA $2007 			;A->MEM
+7109 : LDA #$75 			;->A
+710B : STA $2008 			;A->MEM
+710E : JSR $7878  			;跳转子程序
+7111 : LDA $2019 			;->A
+7114 : STA $BB 			;A->MEM
+7116 : JSR $778E  			;跳转子程序  Pic 取反
+7119 : JSR $7812  			;跳转子程序
+711C : LDA #$B2 			;->A
+711E : STA $80 			;A->MEM
+7120 : LDA #$0C 			;->A
+7122 : STA $81 			;A->MEM
+7124 : LDA #$1D 			;->A
+7126 : STA $82 			;A->MEM
+7128 : LDA #$20 			;->A
+712A : STA $83 			;A->MEM
+712C : LDA #$B2 			;->A
+712E : STA $2009 			;A->MEM
+7131 : LDA #$0C 			;->A
+7133 : STA $200A 			;A->MEM
+7136 : LDA #$1D 			;->A
+7138 : STA $200B 			;A->MEM
+713B : LDA #$20 			;->A
+713D : STA $200C 			;A->MEM
+7140 : JSR $7760  			;跳转子程序  load image->videomem
+7143 : JSR $78B6  			;跳转子程序delay 40ms
+7146 : JSR $78B6  			;跳转子程序delay 40ms
+7149 : JSR $77AF  			;跳转子程序
+714C : JSR $77C9  			;跳转子程序
+714F : RTS 			;子程序返回
+;dance down
+7150 : LDA #$24 			;->A
+7152 : STA $80 			;A->MEM
+7154 : LDA #$0E 			;->A
+7156 : STA $81 			;A->MEM
+7158 : LDA #$A7 			;->A
+715A : STA $82 			;A->MEM
+715C : LDA #$75 			;->A
+715E : STA $83 			;A->MEM
+7160 : LDA #$24 			;->A
+7162 : STA $2005 			;A->MEM
+7165 : LDA #$0E 			;->A
+7167 : STA $2006 			;A->MEM
+716A : LDA #$A7 			;->A
+716C : STA $2007 			;A->MEM
+716F : LDA #$75 			;->A
+7171 : STA $2008 			;A->MEM
+7174 : JSR $7878  			;跳转子程序
+7177 : JSR $778E  			;跳转子程序  Pic 取反
+717A : JSR $7812  			;跳转子程序
+717D : LDA #$00 			;->A
+717F : STA $81 			;A->MEM
+7181 : LDA #$02 			;->A
+7183 : STA $80 			;A->MEM
+7185 : INT $3029
+7188 : LDA $92 			;->A
+718A : STA $82 			;A->MEM
+718C : LDA $93 			;->A
+718E : STA $83 			;A->MEM
+7190 : LDA #$06 			;->A
+7192 : STA $80 			;A->MEM
+7194 : LDA #$0E 			;->A
+7196 : STA $81 			;A->MEM
+7198 : LDA #$06 			;->A
+719A : STA $2009 			;A->MEM
+719D : LDA #$0E 			;->A
+719F : STA $200A 			;A->MEM
+71A2 : LDA $82 			;->A
+71A4 : STA $200B 			;A->MEM
+71A7 : LDA $83 			;->A
+71A9 : STA $200C 			;A->MEM
+71AC : JSR $7760  			;跳转子程序  load image->videomem
+71AF : JSR $78B6  			;跳转子程序 delay 40ms
+71B2 : JSR $78B6  			;跳转子程序 delay 40ms
+71B5 : JSR $77AF  			;跳转子程序
+71B8 : JSR $77C9  			;跳转子程序
+71BB : RTS 			;子程序返回
+
+;throw
+71BC : LDA #$00 			;->A
+71BE : STA $201A 			;A->MEM
+71C1 : LDA #$00 			;->A  score = 0;
+71C3 : STA $2013 			;A->MEM
+71C6 : LDA #$00 			;->A
+71C8 : STA $2014 			;A->MEM
+71CB : JSR $734A  			;跳转子程序  Draw
+71CE : INT $3043       ;readkey
+71D1 : TAX 			;A->X
+71D2 : LDY #$02 			;->Y
+71D4 : LDA #$EA 			;->A
+71D6 : STA $80 			;A->MEM
+71D8 : LDA #$71 			;->A
+71DA : STA $81 			;A->MEM  71EA 1B 0D addr F071 F671
+71DC : TXA 			;X->A
+71DD : JSR $813F  			;跳转子程序 find addr by id
+71E0 : LDA $201A 			;->A
+71E3 : CMP #$FF 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+71E5 : BNE $71CB 			;Z=0则转移,否则继续
+71E7 : JMP $6DEB 			;Minigame return to map
+71EA : 1B 0D F071 F671
+;throw exit
+71F0 : LDA #$FF 			;->A
+71F2 : STA $201A 			;A->MEM
+71F5 : RTS 			;子程序返回
+;throw enter
+71F6 : JSR $7261  			;跳转子程序  ball左右移动
+71F9 : LDA $2003 			;->A
+71FC : STA $200B 			;A->MEM
+71FF : LDA $2004 			;->A
+7202 : STA $200C 			;A->MEM
+7205 : LDA $2003 			;->A
+7208 : CMP #$1B 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+720A : BCS $7212 			;借位标志C=1则转移,否则继续
+720C : JSR $733E  			;跳转子程序
+720F : JMP $7240 			;
+7212 : BEQ $721A 			;Z=1则转移,否则继续
+7214 : JSR $7344  			;跳转子程序
+7217 : JMP $7240 			;
+721A : LDA #$3C 			;->A
+721C : STA $2003 			;A->MEM
+721F : LDA #$45 			;->A
+7221 : STA $2004 			;A->MEM  453C 
+7224 : JSR $74BD  			;跳转子程序  clear Ball
+7227 : LDA #$DF 			;->A
+7229 : STA $8E 			;A->MEM
+722B : LDA #$74 			;->A
+722D : STA $8F 			;A->MEM  74DF 
+722F : JSR $72F3  			;跳转子程序  throw out
+7232 : LDA #$14 			;->A
+7234 : CLC 			;清进位标志
+7235 : ADC $2013 			;与(A+标志C)相加,结果送A
+7238 : STA $2013 			;A->MEM  score
+723B : BCC $7240 			;进位标志C=0则转移,否则继续
+723D : INC $2014 			;MEM++
+7240 : LDA $200B 			;->A
+7243 : STA $2003 			;A->MEM
+7246 : LDA $200C 			;->A
+7249 : STA $2004 			;A->MEM
+724C : JSR $74BD  			;跳转子程序  clear Ball
+724F : LDA #$7F 			;->A
+7251 : STA $2003 			;A->MEM
+7254 : LDA #$26 			;->A
+7256 : STA $2004 			;A->MEM
+7259 : JSR $74BD  			;跳转子程序  clear Ball
+725C : LDA #$00 			;->A
+725E : STA $C7 			;A->MEM
+7260 : RTS 			;子程序返回
+;ball左右移动
+7261 : LDA #$00 			;->A
+7263 : STA $C7 			;A->MEM
+7265 : LDA #$1B 			;->A
+7267 : STA $2003 			;A->MEM
+726A : LDA #$10 			;->A
+726C : STA $2004 			;A->MEM
+726F : LDA $2003 			;->A
+7272 : CMP #$0C 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+7274 : BCC $7298 			;进位标志C=0则转移,否则继续
+7276 : JSR $74BD  			;跳转子程序  clear Ball
+7279 : DEC $2003 			;MEM--
+727C : LDA #$CF 			;->A
+727E : STA $80 			;A->MEM
+7280 : LDA #$74 			;->A
+7282 : STA $81 			;A->MEM  74CF ball
+7284 : JSR $74AB  			;跳转子程序 Draw Pic 8081 addr 2003x 2004y
+7287 : JSR $72C2  			;跳转子程序 ball speed delay
+728A : LDA $C7 			;->A
+728C : AND #$7F 			;A∧$n→A
+728E : CMP #$0D 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+7290 : BNE $7295 			;Z=0则转移,否则继续
+7292 : JMP $72EF 			;
+7295 : JMP $726F 			;
+7298 : LDA $2003 			;->A
+729B : CMP #$2C 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+729D : BCS $726F 			;借位标志C=1则转移,否则继续
+729F : JSR $74BD  			;跳转子程序
+72A2 : INC $2003 			;MEM++
+72A5 : LDA #$CF 			;->A
+72A7 : STA $80 			;A->MEM
+72A9 : LDA #$74 			;->A
+72AB : STA $81 			;A->MEM  74CF ball
+72AD : JSR $74AB  			;跳转子程序 Draw Pic 8081 addr 2003x 2004y
+72B0 : JSR $72C2  			;跳转子程序  72C2
+72B3 : LDA $C7 			;->A
+72B5 : AND #$7F 			;A∧$n→A
+72B7 : CMP #$0D 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+72B9 : BNE $72BE 			;Z=0则转移,否则继续
+72BB : JMP $72EF 			;
+72BE : JMP $7298 			;
+72C1 : RTS 			;子程序返回
+;ball speed
+72C2 : LDA #$04 			;->A
+72C4 : STA $04CB 			;A->MEM
+72C7 : LDA #$00 			;->A
+72C9 : STA $04CC 			;A->MEM
+72CC : INT $9E27      ;Random number
+72CF : CMP #$00 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+72D1 : BNE $72D9 			;Z=0则转移,否则继续
+72D3 : LDX #$05 			;->X
+72D5 : JSR $78BC  			;跳转子程序 delay 0x5(==0)
+72D8 : RTS 			;子程序返回
+72D9 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+72DB : BNE $72E1 			;Z=0则转移,否则继续
+72DD : JSR $78B6  			;跳转子程序 delay (==1)
+72E0 : RTS 			;子程序返回
+72E1 : CMP #$02 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+72E3 : BNE $72EB 			;Z=0则转移,否则继续
+72E5 : LDX #$14 			;->X
+72E7 : JSR $78BC  			;跳转子程序 delay 0x14(==2)
+72EA : RTS 			;子程序返回
+72EB : JSR $78B6  			;跳转子程序 delay (else)
+72EE : RTS 			;子程序返回
+
+72EF : LDA $2003 			;->A
+72F2 : RTS 			;子程序返回
+
+;draw ball(throw out)
+72F3 : LDY #$00 			;->Y
+72F5 : LDA ($8E),Y 			;->A
+72F7 : STA $2015 			;A->MEM
+72FA : STY $2017 			;Y->MEM
+72FD : LDY $2017 			;->Y
+7300 : INY 			;Y++
+7301 : LDA ($8E),Y 			;->A
+7303 : STA $2003 			;A->MEM
+7306 : STA $2007 			;A->MEM
+7309 : INY 			;Y++
+730A : LDA ($8E),Y 			;->A
+730C : STA $2004 			;A->MEM
+730F : STA $2008 			;A->MEM
+7312 : STY $2017 			;Y->MEM
+7315 : LDA #$CF 			;->A
+7317 : STA $80 			;A->MEM
+7319 : LDA #$74 			;->A
+731B : STA $81 			;A->MEM  74CF  ball
+731D : JSR $74AB  			;跳转子程序 Draw Pic 8081 addr 2003x 2004y
+7320 : LDX #$0A 			;->X
+7322 : JSR $78BC  			;跳转子程序 delay
+7325 : LDA $2007 			;->A
+7328 : STA $2003 			;A->MEM
+732B : LDA $2008 			;->A
+732E : STA $2004 			;A->MEM
+7331 : JSR $74BD  			;跳转子程序
+7334 : DEC $2015 			;MEM--
+7337 : BNE $72FD 			;Z=0则转移,否则继续
+7339 : LDA #$00 			;->A
+733B : STA $C7 			;A->MEM
+733D : RTS 			;子程序返回
+
+733E : LDX #$FA 			;->X
+7340 : JSR $78BC  			;跳转子程序 delay
+7343 : RTS 			;子程序返回
+
+7344 : LDX #$FA 			;->X
+7346 : JSR $78BC  			;跳转子程序 delay
+7349 : RTS 			;子程序返回
+;Draw throw
+734A : LDA #$00 			;->A
+734C : STA $0445 			;A->MEM
+734F : INT $C30A  ;FillRect
+7352 : LDA #$01 			;->A
+7354 : STA $0445 			;A->MEM
+7357 : INT $C30C  ;DrawRect
+735A : JSR $7402  			;跳转子程序 Draw throw Basket
+735D : LDA #$00 			;->A
+735F : STA $81 			;A->MEM
+7361 : LDA #$06 			;->A
+7363 : STA $80 			;A->MEM
+7365 : INT $3029    	;load player image
+7368 : LDA $92 			;->A
+736A : STA $82 			;A->MEM
+736C : LDA $93 			;->A
+736E : STA $83 			;A->MEM
+7370 : LDA #$62 			;->A
+7372 : STA $80 			;A->MEM
+7374 : LDA #$0E 			;->A
+7376 : STA $81 			;A->MEM 0E 62
+7378 : JSR $7760  			;跳转子程序  load image->videomem
+737B : JSR $794F  			;跳转子程序  throw draw player
+737E : JSR $7897  			;跳转子程序  draw socre
+7381 : LDA #$14 			;->A 20
+7383 : STA $043F 			;A->MEM
+7386 : LDA #$9B 			;->A 155
+7388 : STA $0441 			;A->MEM
+738B : LDA #$4B 			;->A 75
+738D : STA $0440 			;A->MEM
+7390 : STA $0442 			;A->MEM
+7393 : INT $C30B 			;DrawLine
+7396 : LDA #$0A 			;->A 10
+7398 : STA $043F 			;A->MEM
+739B : LDA #$0F 			;->A 16
+739D : STA $0440 			;A->MEM
+73A0 : LDA #$32 			;->A 50
+73A2 : STA $0441 			;A->MEM
+73A5 : LDA #$16 			;->A 22
+73A7 : STA $0442 			;A->MEM
+73AA : INT $C30C  			;DrawRect
+73AD : LDA #$1B 			;->A 27
+73AF : STA $043F 			;A->MEM
+73B2 : STA $0441 			;A->MEM
+73B5 : LDA #$16 			;->A 22
+73B7 : STA $0440 			;A->MEM
+73BA : LDA #$17 			;->A 23
+73BC : STA $0442 			;A->MEM
+73BF : INT $C30B  		;DrawLine
+73C2 : LDA #$20 			;->A 32
+73C4 : STA $043F 			;A->MEM
+73C7 : STA $0441 			;A->MEM
+73CA : LDA #$16 			;->A 22
+73CC : STA $0440 			;A->MEM
+73CF : LDA #$17 			;->A 23
+73D1 : STA $0442 			;A->MEM 
+73D4 : INT $C30B  ;DrawLine
+73D7 : LDA #$CF 			;->A
+73D9 : STA $80 			;A->MEM
+73DB : LDA #$74 			;->A
+73DD : STA $81 			;A->MEM  74CF  ball
+73DF : LDA #$3C 			;->A
+73E1 : STA $2003 			;A->MEM
+73E4 : LDA #$45 			;->A
+73E6 : STA $2004 			;A->MEM
+73E9 : JSR $74AB  			;跳转子程序 Draw Pic 8081 addr 2003x 2004y
+73EC : LDA #$CF 			;->A
+73EE : STA $80 			;A->MEM
+73F0 : LDA #$74 			;->A
+73F2 : STA $81 			;A->MEM    74CF  ball
+73F4 : LDA #$1B 			;->A
+73F6 : STA $2003 			;A->MEM
+73F9 : LDA #$10 			;->A
+73FB : STA $2004 			;A->MEM
+73FE : JSR $74AB  			;跳转子程序 Draw Pic 8081 addr 2003x 2004y
+7401 : RTS 			;子程序返回
+;Draw throw Basket
+7402 : LDA #$96 			;->A
+7404 : STA $043F 			;A->MEM
+7407 : STA $0441 			;A->MEM
+740A : LDA #$19 			;->A
+740C : STA $0440 			;A->MEM
+740F : LDA #$4B 			;->A
+7411 : STA $0442 			;A->MEM
+7414 : INT $C30B ;DrawLine(#$96,#$19,#$96,#$4B)
+7417 : LDA #$87 			;->A
+7419 : STA $043F 			;A->MEM
+741C : LDA #$96 			;->A
+741E : STA $0441 			;A->MEM
+7421 : LDA #$1B 			;->A
+7423 : STA $0440 			;A->MEM
+7426 : STA $0442 			;A->MEM
+7429 : INT $C30B ;DrawLine(#$87,#$1B,#$96,#$1B
+742C : LDA #$87 			;->A
+742E : STA $043F 			;A->MEM
+7431 : LDA #$96 			;->A
+7433 : STA $0441 			;A->MEM
+7436 : LDA #$28 			;->A
+7438 : STA $0440 			;A->MEM
+743B : STA $0442 			;A->MEM
+743E : INT $C30B ;DrawLine(#$87,#$28,#$96,#$28
+7441 : LDA #$87 			;->A
+7443 : STA $043F 			;A->MEM
+7446 : STA $0441 			;A->MEM
+7449 : LDA #$14 			;->A
+744B : STA $0440 			;A->MEM
+744E : LDA #$2D 			;->A
+7450 : STA $0442 			;A->MEM
+7453 : INT $C30B ;DrawLine(#$87,#$14,#$87,#$2D 
+7456 : LDA #$7D 			;->A
+7458 : STA $043F 			;A->MEM
+745B : LDA #$87 			;->A
+745D : STA $0441 			;A->MEM
+7460 : LDA #$26 			;->A
+7462 : STA $0440 			;A->MEM
+7465 : STA $0442 			;A->MEM
+7468 : INT $C30B ;DrawLine(#$7D,#$26,#$87,#$26 
+746B : LDA #$7F 			;->A
+746D : STA $043F 			;A->MEM
+7470 : STA $0441 			;A->MEM
+7473 : LDA #$26 			;->A
+7475 : STA $0440 			;A->MEM
+7478 : LDA #$2C 			;->A
+747A : STA $0442 			;A->MEM
+747D : INT $C30B ;DrawLine(#$7F,#$26,#$7F,#$2C
+7480 : LDA #$84 			;->A
+7482 : STA $043F 			;A->MEM
+7485 : STA $0441 			;A->MEM
+7488 : LDA #$26 			;->A
+748A : STA $0440 			;A->MEM
+748D : LDA #$2C 			;->A
+748F : STA $0442 			;A->MEM
+7492 : INT $C30B ;DrawLine(#$84,#$26,#$84,#$2C
+7495 : LDA #$7F 			;->A
+7497 : STA $043F 			;A->MEM
+749A : LDA #$84 			;->A
+749C : STA $0441 			;A->MEM
+749F : LDA #$2B 			;->A
+74A1 : STA $0440 			;A->MEM
+74A4 : STA $0442 			;A->MEM
+74A7 : INT $C30B ;DrawLine(#$7F,#$2B,#$84,#$2B
+74AA : RTS 				;子程序返回
+;Draw Pic 8081 addr 2003x 2004y
+74AB : LDX $2003 			;->X
+74AE : LDY $2004 			;->Y
+74B1 : LDA $80 			;->A
+74B3 : STA $92 			;A->MEM
+74B5 : LDA $81 			;->A
+74B7 : STA $93 			;A->MEM
+74B9 : INT $C30D ;DrawPIC
+74BC : RTS 			;子程序返回
+;clear Ball
+74BD : LDX $2003 			;->X
+74C0 : LDY $2004 			;->Y
+74C3 : LDA #$D7 			;->A
+74C5 : STA $92 			;A->MEM
+74C7 : LDA #$74 			;->A
+74C9 : STA $93 			;A->MEM 74D7 NULL
+74CB : INT $C30D ;DrawPIC
+74CE : RTS 			;子程序返回
+74CF : 06063048B4B44830
+74D7 : 0606000000000000
+;ball loactions
+74DF : 53  ;Number
+74E0 : 3C3C 3D3A 3E38 3F36 4034 4132 4230 432F 442E 452C
+	   462A 4729 4828 4927 4A26 4B25 4C24 4D23 4E22 4F21
+	   5020 5120 521F 531E 541D 551D 561C 571B 581B 591A
+	   5A19 5B19 5C18 5D18 5E17 5F17 6016 6116 6115 6215
+	   6315 6415 6514 6614 6714 6814 6914 6A14 6B15 6C15
+	   6D15 6E16 6F16 7017 7117 7218 7319 741A 751B 761C
+	   7F2E 7F2F 7F30 7F31 7F32 7F33 7F34 7F35 7F36 7F37
+	   7F38 7F39 7F3A 7F3B 7F3C 7F3D 7F3E 7F3F 7F40 7F41
+	   7F42 7F43 7F44
+7586 : RTS 			;子程序返回
+;图片：跳舞毯箭头上
+7587 : 0000 0180 0240 0420
+       0810 1008 2004 781E
+       0810 0810 0810 0810
+       0810 0810 0FF0 0000
+;图片：跳舞毯箭头Down
+75A7 : 0000 0FF0 0810 0810
+       0810 0810 0810 0810
+       781E 2004 1008 0810
+       0420 0240 0180 0000
+;图片：跳舞毯箭头右
+75C7 : 0000 0080 00C0 00A0
+       7F90 4008 4004 4002
+       4002 4004 4008 7F90
+       00A0 00C0 0080 0000
+;图片：跳舞毯箭头左
+75E7 : 0000 0100 0300 0500
+       09FE 1002 2002 4002
+       4002 2002 1002 09FE
+       0500 0300 0100 0000
+7607 : 大侠
+760C : 你在这瞎玩也没什么长进
+7623 : 外面有更大的天空可以让你驰骋
+7641 : 你的$k进步了01 1720  级!
+7658 : $k等级:01 0020 点数: 02 1020
+7670 : 一座高山,山顶终年积雪,相传山顶有神仙居住,想上去看看吗?
+76A8 : 这是方圆百里最有名的游戏厅,你想玩甚麽?(选择数字)
+76D9 : 1.跳舞毯
+76e3 : 2.投铅球
+76ea : 3.放弃
+;draw dance
+76F3 : LDA #$00 			;->A
+76F5 : STA $0445 			;A->MEM
+76F8 : INT $C30A ;FillRect
+76FB : LDA #$01 			;->A
+76FD : STA $0445 			;A->MEM
+7700 : INT $C30C ;DrawRect
+7703 : LDA #$4E 			;->A
+7705 : STA $043F 			;A->MEM
+7708 : STA $0441 			;A->MEM
+770B : LDA #$01 			;->A
+770D : STA $0440 			;A->MEM
+7710 : LDA #$4F 			;->A
+7712 : STA $0442 			;A->MEM
+7715 : INT $C30B ;DrawLine
+7718 : JSR $794F  			;跳转子程序  draw player
+771B : JSR $7897  			;跳转子程序
+771E : LDA #$4F 			;->A
+7720 : STA $043F 			;A->MEM
+7723 : LDA #$9E 			;->A
+7725 : STA $0441 			;A->MEM
+7728 : LDA #$19 			;->A
+772A : STA $0440 			;A->MEM
+772D : STA $0442 			;A->MEM
+7730 : INT $C30B ;DrawLine
+7733 : LDA #$5A 			;->A
+7735 : STA $043F 			;A->MEM
+7738 : LDA #$96 			;->A
+773A : STA $0441 			;A->MEM
+773D : LDA #$46 			;->A
+773F : STA $0440 			;A->MEM
+7742 : STA $0442 			;A->MEM
+7745 : INT $C30B ;DrawLine
+7748 : LDA #$24 			;->A
+774A : STA $043F 			;A->MEM
+774D : LDA #$2C 			;->A
+774F : STA $0440 			;A->MEM
+7752 : LDA #$2B 			;->A
+7754 : STA $0441 			;A->MEM
+7757 : LDA #$33 			;->A
+7759 : STA $0442 			;A->MEM
+775C : INT $C30C ;DrawRect
+775F : RTS 			;子程序返回
+;load image->videomem
+7760 : LDY #$01 			;->Y
+7762 : LDA ($82),Y 			;->A
+7764 : TAX 			;A->X
+7765 : STX $200D 			;X->MEM
+7768 : LDA #$02 			;->A
+776A : CLC 			;清进位标志
+776B : ADC $82 			;与(A+标志C)相加,结果送A
+776D : STA $82 			;A->MEM
+776F : BCC $7773 			;进位标志C=0则转移,否则继续
+7771 : INC $83 			;MEM++
+;load image->videomem
+7773 : LDY #$00 			;->Y
+7775 : LDA ($82),Y 			;->A
+7777 : STA ($80),Y 			;A->MEM
+7779 : INY 			;Y++
+777A : LDA ($82),Y 			;->A
+777C : STA ($80),Y 			;A->MEM
+777E : INY 			;Y++
+777F : LDA #$12 			;->A
+7781 : CLC 			;清进位标志
+7782 : ADC $80 			;与(A+标志C)相加,结果送A
+7784 : STA $80 			;A->MEM
+7786 : BCC $778A 			;进位标志C=0则转移,否则继续
+7788 : INC $81 			;MEM++
+778A : DEX 			;X--
+778B : BNE $7775 			;Z=0则转移,否则继续
+778D : RTS 			;子程序返回
+;Pic 取反
+778E : LDX #$10 			;->X
+7790 : LDY #$00 			;->Y
+7792 : LDA ($82),Y 			;->A
+7794 : EOR #$FF 			;A异或($n)→A
+7796 : STA ($80),Y 			;A->MEM
+7798 : INY 			;Y++
+7799 : LDA ($82),Y 			;->A
+779B : EOR #$FF 			;A异或($n)→A
+779D : STA ($80),Y 			;A->MEM
+779F : INY 			;Y++
+77A0 : LDA #$12 			;->A
+77A2 : CLC 			;清进位标志
+77A3 : ADC $80 			;与(A+标志C)相加,结果送A
+77A5 : STA $80 			;A->MEM
+77A7 : BCC $77AB 			;进位标志C=0则转移,否则继续
+77A9 : INC $81 			;MEM++
+77AB : DEX 			;X--
+77AC : BNE $7792 			;Z=0则转移,否则继续
+77AE : RTS 			;子程序返回
+
+77AF : LDA $2005 			;->A
+77B2 : STA $80 			;A->MEM
+77B4 : LDA $2006 			;->A
+77B7 : STA $81 			;A->MEM
+77B9 : LDA $2007 			;->A
+77BC : STA $82 			;A->MEM
+77BE : LDA $2008 			;->A
+77C1 : STA $83 			;A->MEM
+77C3 : LDX #$10 			;->X
+77C5 : JSR $7773  			;跳转子程序 load image->videomem
+77C8 : RTS 			;子程序返回
+
+77C9 : LDA $2009 			;->A
+77CC : STA $80 			;A->MEM
+77CE : LDA $200A 			;->A
+77D1 : STA $81 			;A->MEM
+77D3 : LDA $200B 			;->A
+77D6 : STA $82 			;A->MEM
+77D8 : LDA $200C 			;->A
+77DB : STA $83 			;A->MEM
+77DD : LDX $200D 			;->X
+77E0 : LDY #$00 			;->Y
+77E2 : LDA ($82),Y 			;->A
+77E4 : AND #$00 			;A∧$n→A
+77E6 : STA ($80),Y 			;A->MEM
+77E8 : INY 			;Y++
+77E9 : LDA ($82),Y 			;->A
+77EB : AND #$00 			;A∧$n→A
+77ED : STA ($80),Y 			;A->MEM
+77EF : INY 			;Y++
+77F0 : LDA #$12 			;->A
+77F2 : CLC 			;清进位标志
+77F3 : ADC $80 			;与(A+标志C)相加,结果送A
+77F5 : STA $80 			;A->MEM
+77F7 : BCC $77FB 			;进位标志C=0则转移,否则继续
+77F9 : INC $81 			;MEM++
+77FB : DEX 			;X--
+77FC : BNE $77E2 			;Z=0则转移,否则继续
+77FE : LDA #$06 			;->A
+7800 : STA $80 			;A->MEM
+7802 : LDA #$0E 			;->A
+7804 : STA $81 			;A->MEM
+7806 : LDA #$1D 			;->A
+7808 : STA $82 			;A->MEM
+780A : LDA #$20 			;->A
+780C : STA $83 			;A->MEM
+780E : JSR $7760  			;跳转子程序  load image->videomem
+7811 : RTS 			;子程序返回
+
+7812 : LDA #$06 			;->A
+7814 : STA $80 			;A->MEM
+7816 : LDA #$0E 			;->A
+7818 : STA $81 			;A->MEM
+781A : LDA #$1D 			;->A
+781C : STA $82 			;A->MEM
+781E : LDA #$20 			;->A
+7820 : STA $83 			;A->MEM
+7822 : LDX #$10 			;->X
+7824 : LDY #$00 			;->Y
+7826 : LDA ($82),Y 			;->A
+7828 : AND #$00 			;A∧$n→A
+782A : STA ($80),Y 			;A->MEM
+782C : INY 			;Y++
+782D : LDA ($82),Y 			;->A
+782F : AND #$00 			;A∧$n→A
+7831 : STA ($80),Y 			;A->MEM
+7833 : INY 			;Y++
+7834 : LDA #$12 			;->A
+7836 : CLC 			;清进位标志
+7837 : ADC $80 			;与(A+标志C)相加,结果送A
+7839 : STA $80 			;A->MEM
+783B : BCC $783F 			;进位标志C=0则转移,否则继续
+783D : INC $81 			;MEM++
+783F : DEX 			;X--
+7840 : BNE $7826 			;Z=0则转移,否则继续
+7842 : RTS 			;子程序返回
+
+7843 : LDA $200F 			;->A
+7846 : STA $80 			;A->MEM
+7848 : LDA $2010 			;->A
+784B : STA $81 			;A->MEM
+784D : LDA $2011 			;->A
+7850 : STA $82 			;A->MEM
+7852 : LDA $2012 			;->A
+7855 : STA $83 			;A->MEM
+7857 : LDX #$10 			;->X
+7859 : LDY #$00 			;->Y
+785B : LDA ($82),Y 			;->A
+785D : AND #$00 			;A∧$n→A
+785F : STA ($80),Y 			;A->MEM
+7861 : INY 			;Y++
+7862 : LDA ($82),Y 			;->A
+7864 : AND #$00 			;A∧$n→A
+7866 : STA ($80),Y 			;A->MEM
+7868 : INY 			;Y++
+7869 : LDA #$12 			;->A
+786B : CLC 			;清进位标志
+786C : ADC $80 			;与(A+标志C)相加,结果送A
+786E : STA $80 			;A->MEM
+7870 : BCC $7874 			;进位标志C=0则转移,否则继续
+7872 : INC $81 			;MEM++
+7874 : DEX 			;X--
+7875 : BNE $785B 			;Z=0则转移,否则继续
+7877 : RTS 			;子程序返回
+
+7878 : LDA $2008 			;->A
+787B : CMP $2012 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+787E : BNE $7886 			;Z=0则转移,否则继续
+7880 : LDA $2007 			;->A
+7883 : CMP $2011 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+7886 : BEQ $7889 			;Z=1则转移,否则继续
+7888 : RTS 			;子程序返回
+7889 : LDA #$03 			;->A
+788B : CLC 			;清进位标志
+788C : ADC $2013 			;与(A+标志C)相加,结果送A
+788F : STA $2013 			;A->MEM
+7892 : BCC $7897 			;进位标志C=0则转移,否则继续
+7894 : INC $2014 			;MEM++
+;draw Score:xxx
+7897 : LDA $2013 			;->A
+789A : STA $84 			;A->MEM
+789C : LDA $2014 			;->A
+789F : STA $85 			;A->MEM
+78A1 : LDX #$00 			;->X
+78A3 : JSR $78C0  			;跳转子程序
+78A6 : STX $2017 			;X->MEM
+78A9 : JSR $78FC  			;跳转子程序
+78AC : LDX $2017 			;->X
+78AF : INX 			;X++
+78B0 : INX 			;X++
+78B1 : CPX $0A 			;与X比较,(X>=MEM,c=1)(X<MEM,C=0,N=1)(X==MEM,Z=0)
+78B3 : BCC $78A3 			;进位标志C=0则转移,否则继续
+78B5 : RTS 			;子程序返回
+
+;delay 40
+78B6 : LDX #$28 			;->X
+78B8 : INT $3042  ;delay
+78BB : RTS 			;子程序返回
+;delay
+78BC : INT $3042    ;delay
+78BF : RTS 			;子程序返回
+;score?
+78C0 : LDA #$FF 			;->A
+78C2 : STA $2016 			;A->MEM
+78C5 : INC $2016 			;MEM++
+78C8 : LDA $78F2,X 			;->A
+78CB : STA $86 			;A->MEM
+78CD : LDA $78F3,X 			;->A  78F2 1027E80364000A000100
+78D0 : STA $87 			;A->MEM
+78D2 : SEC 			;置进位标志C=1
+78D3 : LDA $84 			;->A
+78D5 : SBC $86 			;A-MEM-C->A
+78D7 : STA $84 			;A->MEM
+78D9 : LDA $85 			;->A
+78DB : SBC $87 			;A-MEM-C->A
+78DD : STA $85 			;A->MEM
+78DF : BCS $78C5 			;借位标志C=1则转移,否则继续
+78E1 : CLC 			;清进位标志
+78E2 : LDA $84 			;->A
+78E4 : ADC $86 			;与(A+标志C)相加,结果送A
+78E6 : STA $84 			;A->MEM
+78E8 : LDA $85 			;->A
+78EA : ADC $87 			;与(A+标志C)相加,结果送A
+78EC : STA $85 			;A->MEM
+78EE : LDA $2016 			;->A
+78F1 : RTS 			;子程序返回
+78F2 : 1027E80364000A000100
+
+78FC : STA $2016 			;A->MEM
+78FF : ASL 			;算术左移
+7900 : ROL 			;A循环左移
+7901 : ROL 			;A循环左移
+7902 : SEC 			;置进位标志C=1
+7903 : SBC $2016 			;A-MEM-C->A
+7906 : TAX 			;A->X
+7907 : LDA #$15 			;->A
+7909 : STA $88 			;A->MEM
+790B : LDA #$0A 			;->A
+790D : STA $89 			;A->MEM
+790F : LDY #$02 			;->Y
+7911 : LDA #$07 			;->A
+7913 : STA $2016 			;A->MEM
+7916 : LDA #$05 			;->A
+7918 : STA $2015 			;A->MEM
+791B : LDA $799A,X 			;->A  draw Score
+791E : ASL 			;算术左移
+791F : PHA 			;累加器进栈
+7920 : LDA ($88),Y 			;->A
+7922 : ROL 			;A循环左移
+7923 : STA ($88),Y 			;A->MEM
+7925 : DEY 			;Y--
+7926 : LDA ($88),Y 			;->A
+7928 : ROL 			;A循环左移
+7929 : STA ($88),Y 			;A->MEM
+792B : DEY 			;Y--
+792C : LDA ($88),Y 			;->A
+792E : ROL 			;A循环左移
+792F : STA ($88),Y 			;A->MEM
+7931 : INY 			;Y++
+7932 : INY 			;Y++
+7933 : PLA 			;A出栈
+7934 : DEC $2015 			;MEM--
+7937 : BNE $791E 			;Z=0则转移,否则继续
+7939 : JSR $7943  			;跳转子程序 (8889)+0x14
+793C : INX 			;X++
+793D : DEC $2016 			;MEM--
+7940 : BNE $7916 			;Z=0则转移,否则继续
+7942 : RTS 			;子程序返回
+;(8889)+0x14
+7943 : LDA #$14 			;->A
+7945 : CLC 			;清进位标志
+7946 : ADC $88 			;与(A+标志C)相加,结果送A
+7948 : STA $88 			;A->MEM
+794A : BCC $794E 			;进位标志C=0则转移,否则继续
+794C : INC $89 			;MEM++
+794E : RTS 			;子程序返回
+;throw draw player
+794F : LDA #$05 			;05->A
+7951 : STA $2018 			;A->MEM
+7954 : LDX #$4D 			;4d->X
+7956 : STX $2017 			;X->MEM 054D
+7959 : LDA #$11 			;11->A
+795B : STA $88 			;A->MEM
+795D : LDA #$0A 			;0A->A
+795F : STA $89 			;A->MEM  0A11
+7961 : JSR $790F  			;跳转子程序
+7964 : LDA #$07 			;07->A
+7966 : CLC 			;清进位标志
+7967 : ADC $2017 			;与(A+标志C)相加,结果送A
+796A : STA $2017 			;A->MEM
+796D : LDX $2017 			;->X
+7970 : DEC $2018 			;MEM--
+7973 : BNE $7959 			;Z=0则转移,否则继续
+7975 : RTS 			;子程序返回
+
+;readkey
+7976 : INT $3043       ;readkey      ;ReadKey->A
+7979 : CMP #$62 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+797B : BEQ $7988 			;Z=1则转移,否则继续(按下1‘b’)
+797D : CMP #$6E 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+797F : BEQ $798E 			;Z=1则转移,否则继续(按下2‘n’)
+7981 : CMP #$6D 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+7983 : BEQ $7994 			;Z=1则转移,否则继续(按下3‘m’)
+7985 : JMP $7976 			;
+;按下1‘b’
+7988 : LDA #$07 			;->A
+798A : STA $2E8B 			;A->MEM
+798D : RTS 			;子程序返回
+按下2‘n’
+798E : LDA #$08 			;->A
+7990 : STA $2E8B 			;A->MEM
+7993 : RTS 			;子程序返回
+按下3‘m’
+7994 : LDA #$01 			;->A
+7996 : STA $2E8B 			;A->MEM
+7999 : RTS 			;子程序返回
+
+;Score Pic 0--9 & Score
+799A : 30484848484830
+       10301010101038
+       30480810204078
+       78102010084830
+       48484878080808
+       78407008084830
+       30484070484830
+       78080810101010
+       30484830484830
+       30484838084830
+       00000000000000
+;Score:
+79E7 : 30484030084830
+       30484040404830
+       30484848484830
+       70484870605048
+       78404078404078
+       00200000002000
+
+;红外init
+7A11 : JSR $7A1B  			;跳转子程序
+7A14 : JSR $7E4B  			;跳转子程序
+7A17 : JSR $811F  			;跳转子程序
+7A1A : RTS 			;子程序返回
+
+7A1B : PHP 			;标志寄存器P进栈
+7A1C : PHA 			;累加器进栈
+7A1D : LDA $3D 			;->A
+7A1F : AND #$FC 			;A∧$n→A
+7A21 : ORA #$02 			;A∨$n→A
+7A23 : STA $3D 			;A->MEM
+7A25 : PLA 			;A出栈
+7A26 : PLP 			;标志寄存器P出栈
+7A27 : LDA #$20 			;->A
+7A29 : STA $3C 			;A->MEM
+7A2B : PHP 			;标志寄存器P进栈
+7A2C : PHA 			;累加器进栈
+7A2D : LDA $3D 			;->A
+7A2F : AND #$FC 			;A∧$n→A
+7A31 : ORA #$00 			;A∨$n→A
+7A33 : STA $3D 			;A->MEM
+7A35 : PLA 			;A出栈
+7A36 : PLP 			;标志寄存器P出栈
+7A37 : LDA #$04 			;->A
+7A39 : STA $3D 			;A->MEM
+7A3B : JSR $7E67  			;跳转子程序
+7A3E : LDA $05BA 			;->A
+7A41 : ORA #$40 			;A∨$n→A
+7A43 : STA $01 			;A->MEM
+7A45 : STA $05BA 			;A->MEM
+7A48 : LDA $05BF 			;->A
+7A4B : AND #$F7 			;A∧$n→A
+7A4D : STA $18 			;A->MEM
+7A4F : STA $05BF 			;A->MEM
+7A52 : PHP 			;标志寄存器P进栈
+7A53 : PHA 			;累加器进栈
+7A54 : LDA $3D 			;->A
+7A56 : AND #$FC 			;A∧$n→A
+7A58 : ORA #$00 			;A∨$n→A
+7A5A : STA $3D 			;A->MEM
+7A5C : PLA 			;A出栈
+7A5D : PLP 			;标志寄存器P出栈
+7A5E : RTS 			;子程序返回
+
+;红外shutdown
+7A5F : LDA $05BA 			;->A
+7A62 : ORA #$40 			;A∨$n→A
+7A64 : STA $01 			;A->MEM
+7A66 : STA $05BA 			;A->MEM
+7A69 : LDA $05BF 			;->A
+7A6C : ORA #$08 			;A∨$n→A
+7A6E : STA $18 			;A->MEM
+7A70 : STA $05BF 			;A->MEM
+7A73 : PHP 			;标志寄存器P进栈
+7A74 : PHA 			;累加器进栈
+7A75 : LDA $3D 			;->A
+7A77 : AND #$FC 			;A∧$n→A
+7A79 : ORA #$03 			;A∨$n→A
+7A7B : STA $3D 			;A->MEM
+7A7D : PLA 			;A出栈
+7A7E : PLP 			;标志寄存器P出栈
+7A7F : LDA #$80 			;->A
+7A81 : STA $3A 			;A->MEM
+7A83 : STA $3C 			;A->MEM
+7A85 : PHP 			;标志寄存器P进栈
+7A86 : PHA 			;累加器进栈
+7A87 : LDA $3D 			;->A
+7A89 : AND #$FC 			;A∧$n→A
+7A8B : ORA #$00 			;A∨$n→A
+7A8D : STA $3D 			;A->MEM
+7A8F : PLA 			;A出栈
+7A90 : PLP 			;标志寄存器P出栈
+7A91 : LDA #$00 			;->A
+7A93 : STA $3D 			;A->MEM
+7A95 : PHP 			;标志寄存器P进栈
+7A96 : PHA 			;累加器进栈
+7A97 : LDA $3D 			;->A
+7A99 : AND #$FC 			;A∧$n→A
+7A9B : ORA #$02 			;A∨$n→A
+7A9D : STA $3D 			;A->MEM
+7A9F : PLA 			;A出栈
+7AA0 : PLP 			;标志寄存器P出栈
+7AA1 : LDA #$00 			;->A
+7AA3 : STA $3C 			;A->MEM
+7AA5 : RTS 			;子程序返回
+
+;红外？
+7AA6 : JSR $80EE  			;跳转子程序
+7AA9 : JSR $7CA8  			;跳转子程序
+7AAC : JSR $7AE5  			;跳转子程序
+7AAF : JSR $7AF8  			;跳转子程序
+7AB2 : JSR $7C09  			;跳转子程序
+7AB5 : JSR $7AE5  			;跳转子程序
+7AB8 : JSR $7CFA  			;跳转子程序
+7ABB : JSR $7AE5  			;跳转子程序
+7ABE : JMP $7ADC 			;
+
+;红外？
+7AC1 : JSR $80EE  			;跳转子程序
+7AC4 : JSR $7B80  			;跳转子程序
+7AC7 : JSR $7AE5  			;跳转子程序
+7ACA : JSR $7AF8  			;跳转子程序
+7ACD : JSR $7B08  			;跳转子程序
+7AD0 : JSR $7AE5  			;跳转子程序
+7AD3 : JSR $7B95  			;跳转子程序
+7AD6 : JSR $7AE5  			;跳转子程序
+7AD9 : JMP $7ADC 			;
+
+7ADC : CLC 			;清进位标志
+7ADD : PHP 			;标志寄存器P进栈
+7ADE : JMP $7AE3 			;
+7AE1 : SEC 			;置进位标志C=1
+7AE2 : PHP 			;标志寄存器P进栈
+7AE3 : PLP 			;标志寄存器P出栈
+7AE4 : RTS 			;子程序返回
+
+7AE5 : LDA $173E 			;->A
+
+7AE8 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7AEA : BNE $7AED 			;Z=0则转移,否则继续
+
+7AEC : RTS 			;子程序返回
+
+7AED : PLA 			;A出栈
+
+7AEE : PLA 			;A出栈
+
+7AEF : DEC $173E 			;MEM--
+
+7AF2 : LDA $173E 			;->A
+
+7AF5 : JMP $7AE1 			;
+
+7AF8 : LDA $170B 			;->A
+
+7AFB : AND #$80 			;A∧$n→A
+
+7AFD : BEQ $7B07 			;Z=1则转移,否则继续
+
+7AFF : LDA $170B 			;->A
+
+7B02 : AND #$7F 			;A∧$n→A
+
+7B04 : STA $170B 			;A->MEM
+
+7B07 : RTS 			;子程序返回
+
+7B08 : LDA $A4 			;->A
+
+7B0A : STA $170E 			;A->MEM
+
+7B0D : LDA $A5 			;->A
+
+7B0F : STA $170F 			;A->MEM
+
+7B12 : LDA #$00 			;->A
+
+7B14 : STA $1710 			;A->MEM
+
+7B17 : LDA #$00 			;->A
+
+7B19 : STA $1711 			;A->MEM
+
+7B1C : LDA #$30 			;->A
+
+7B1E : STA $1707 			;A->MEM
+
+7B21 : JSR $7BA5  			;跳转子程序
+
+7B24 : LDA $173E 			;->A
+
+7B27 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7B29 : BNE $7B7F 			;Z=0则转移,否则继续
+
+7B2B : LDA #$5D 			;->A
+
+7B2D : STA $8A 			;A->MEM
+
+7B2F : LDA #$17 			;->A
+
+7B31 : STA $8B 			;A->MEM
+
+7B33 : LDA $170E 			;->A
+
+7B36 : STA $88 			;A->MEM
+
+7B38 : LDA $170F 			;->A
+
+7B3B : STA $89 			;A->MEM
+
+7B3D : LDA $170D 			;->A
+
+7B40 : SEC 			;置进位标志C=1
+
+7B41 : SBC #$05 			;A-MEM-C->A
+
+7B43 : STA $1700 			;A->MEM
+
+7B46 : JSR $7E8F  			;跳转子程序
+
+7B49 : CLC 			;清进位标志
+
+7B4A : LDA $170E 			;->A
+
+7B4D : ADC $1700 			;与(A+标志C)相加,结果送A
+
+7B50 : STA $170E 			;A->MEM
+
+7B53 : LDA $170F 			;->A
+
+7B56 : ADC #$00 			;与(A+标志C)相加,结果送A
+
+7B58 : STA $170F 			;A->MEM
+
+7B5B : CLC 			;清进位标志
+
+7B5C : LDA $1710 			;->A
+
+7B5F : ADC $1700 			;与(A+标志C)相加,结果送A
+
+7B62 : STA $1710 			;A->MEM
+
+7B65 : LDA $1711 			;->A
+
+7B68 : ADC #$00 			;与(A+标志C)相加,结果送A
+
+7B6A : STA $1711 			;A->MEM
+
+7B6D : LDA $1710 			;->A
+
+7B70 : STA $302F 			;A->MEM
+
+7B73 : LDA $170A 			;->A
+
+7B76 : AND #$80 			;A∧$n→A
+
+7B78 : BNE $7B1C 			;Z=0则转移,否则继续
+
+7B7A : LDA #$01 			;->A
+
+7B7C : STA $173E 			;A->MEM
+
+7B7F : RTS 			;子程序返回
+
+7B80 : LDA #$10 			;->A
+
+7B82 : STA $1707 			;A->MEM
+
+7B85 : LDA $170B 			;->A
+
+7B88 : AND #$80 			;A∧$n→A
+
+7B8A : BNE $7B91 			;Z=0则转移,否则继续
+
+7B8C : LDA #$11 			;->A
+
+7B8E : STA $1707 			;A->MEM
+
+7B91 : JSR $7BA5  			;跳转子程序
+
+7B94 : RTS 			;子程序返回
+
+7B95 : LDA #$20 			;->A
+
+7B97 : STA $1707 			;A->MEM
+
+7B9A : JSR $7BA5  			;跳转子程序
+
+7B9D : LDA $173E 			;->A
+
+7BA0 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7BA2 : BNE $7BA4 			;Z=0则转移,否则继续
+
+7BA4 : RTS 			;子程序返回
+
+7BA5 : LDA #$FF 			;->A
+
+7BA7 : STA $1715 			;A->MEM
+
+7BAA : INC $1715 			;MEM++
+
+7BAD : LDA $1715 			;->A
+
+7BB0 : CMP #$0A 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7BB2 : BNE $7BBC 			;Z=0则转移,否则继续
+
+7BB4 : LDA #$FF 			;->A
+
+7BB6 : STA $1715 			;A->MEM
+
+7BB9 : JSR $7A1B  			;跳转子程序
+
+7BBC : JSR $80F4  			;跳转子程序
+
+7BBF : LDA $173E 			;->A
+
+7BC2 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7BC4 : BNE $7C08 			;Z=0则转移,否则继续
+
+7BC6 : LDA #$01 			;->A
+
+7BC8 : JSR $80BB  			;跳转子程序
+
+7BCB : LDA #$59 			;->A
+
+7BCD : STA $88 			;A->MEM
+
+7BCF : LDA #$17 			;->A
+
+7BD1 : STA $89 			;A->MEM
+
+7BD3 : JSR $7F3E  			;跳转子程序
+
+7BD6 : LDA $173E 			;->A
+
+7BD9 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7BDB : BEQ $7BE0 			;Z=1则转移,否则继续
+
+7BDD : JMP $7BAA 			;
+
+7BE0 : JSR $7ECE  			;跳转子程序
+
+7BE3 : LDA $173E 			;->A
+
+7BE6 : CMP #$00 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7BE8 : BNE $7BED 			;Z=0则转移,否则继续
+
+7BEA : JMP $7BAA 			;
+
+7BED : LDA $170A 			;->A
+
+7BF0 : AND #$7F 			;A∧$n→A
+
+7BF2 : STA $1704 			;A->MEM
+
+7BF5 : LDA $1708 			;->A
+
+7BF8 : STA $1709 			;A->MEM
+
+7BFB : JSR $7EA0  			;跳转子程序
+
+7BFE : LDA $173E 			;->A
+
+7C01 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7C03 : BEQ $7C08 			;Z=1则转移,否则继续
+
+7C05 : JMP $7BAA 			;
+
+7C08 : RTS 			;子程序返回
+
+7C09 : LDA $A4 			;->A
+
+7C0B : STA $170E 			;A->MEM
+
+7C0E : LDA $A5 			;->A
+
+7C10 : STA $170F 			;A->MEM
+
+7C13 : LDA #$59 			;->A
+
+7C15 : STA $1744 			;A->MEM
+
+7C18 : LDA #$17 			;->A
+
+7C1A : STA $1745 			;A->MEM
+
+7C1D : LDA #$00 			;->A
+
+7C1F : STA $1711 			;A->MEM
+
+7C22 : LDA $302F 			;->A
+
+7C25 : STA $1710 			;A->MEM
+
+7C28 : BNE $7C2F 			;Z=0则转移,否则继续
+
+7C2A : LDA #$01 			;->A
+
+7C2C : STA $1711 			;A->MEM
+
+7C2F : LDA #$40 			;->A
+
+7C31 : STA $1703 			;A->MEM
+
+7C34 : LDA $1711 			;->A
+
+7C37 : BNE $7C46 			;Z=0则转移,否则继续
+
+7C39 : LDA $1710 			;->A
+
+7C3C : CMP #$40 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7C3E : BCS $7C46 			;借位标志C=1则转移,否则继续
+
+7C40 : LDA $1710 			;->A
+
+7C43 : STA $1703 			;A->MEM
+
+7C46 : SEC 			;置进位标志C=1
+
+7C47 : LDA $1710 			;->A
+
+7C4A : SBC $1703 			;A-MEM-C->A
+
+7C4D : STA $1710 			;A->MEM
+
+7C50 : LDA $1711 			;->A
+
+7C53 : SBC #$00 			;A-MEM-C->A
+
+7C55 : STA $1711 			;A->MEM
+
+7C58 : LDA #$30 			;->A
+
+7C5A : STA $1709 			;A->MEM
+
+7C5D : LDA $1702 			;->A
+
+7C60 : ORA #$80 			;A∨$n→A
+
+7C62 : STA $1702 			;A->MEM
+
+7C65 : LDA $1704 			;->A
+
+7C68 : ORA #$80 			;A∨$n→A
+
+7C6A : STA $1704 			;A->MEM
+
+7C6D : LDA $1710 			;->A
+
+7C70 : ORA $1711 			;A∨($n2n1)→A
+
+7C73 : BNE $7C7D 			;Z=0则转移,否则继续
+
+7C75 : LDA $1704 			;->A
+
+7C78 : AND #$7F 			;A∧$n→A
+
+7C7A : STA $1704 			;A->MEM
+
+7C7D : JSR $7D98  			;跳转子程序
+
+7C80 : JSR $7D28  			;跳转子程序
+
+7C83 : LDA $173E 			;->A
+
+7C86 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7C88 : BNE $7CA7 			;Z=0则转移,否则继续
+
+7C8A : LDA $1710 			;->A
+
+7C8D : ORA $1711 			;A∨($n2n1)→A
+
+7C90 : BEQ $7CA7 			;Z=1则转移,否则继续
+
+7C92 : CLC 			;清进位标志
+
+7C93 : LDA $170E 			;->A
+
+7C96 : ADC $1703 			;与(A+标志C)相加,结果送A
+
+7C99 : STA $170E 			;A->MEM
+
+7C9C : LDA $170F 			;->A
+
+7C9F : ADC #$00 			;与(A+标志C)相加,结果送A
+
+7CA1 : STA $170F 			;A->MEM
+
+7CA4 : JMP $7C2F 			;
+
+7CA7 : RTS 			;子程序返回
+
+7CA8 : JSR $7CEE  			;跳转子程序
+
+7CAB : LDA #$10 			;->A
+
+7CAD : STA $1709 			;A->MEM
+
+7CB0 : LDA $170B 			;->A
+
+7CB3 : AND #$80 			;A∧$n→A
+
+7CB5 : BNE $7CBC 			;Z=0则转移,否则继续
+
+7CB7 : LDA #$11 			;->A
+
+7CB9 : STA $1709 			;A->MEM
+
+7CBC : LDA $1702 			;->A
+
+7CBF : ORA #$80 			;A∨$n→A
+
+7CC1 : STA $1702 			;A->MEM
+
+7CC4 : LDA $1704 			;->A
+
+7CC7 : ORA #$80 			;A∨$n→A
+
+7CC9 : STA $1704 			;A->MEM
+
+7CCC : LDA #$00 			;->A
+
+7CCE : STA $1703 			;A->MEM
+
+7CD1 : LDA #$59 			;->A
+
+7CD3 : STA $1744 			;A->MEM
+
+7CD6 : LDA #$17 			;->A
+
+7CD8 : STA $1745 			;A->MEM
+
+7CDB : JSR $7D98  			;跳转子程序
+
+7CDE : JSR $7D28  			;跳转子程序
+
+7CE1 : RTS 			;子程序返回
+
+7CE2 : DEC $1704 			;MEM--
+
+7CE5 : LDA $1704 			;->A
+
+7CE8 : AND #$7F 			;A∧$n→A
+
+7CEA : STA $1704 			;A->MEM
+
+7CED : RTS 			;子程序返回
+
+7CEE : INC $1704 			;MEM++
+
+7CF1 : LDA $1704 			;->A
+
+7CF4 : AND #$7F 			;A∧$n→A
+
+7CF6 : STA $1704 			;A->MEM
+
+7CF9 : RTS 			;子程序返回
+
+7CFA : LDA #$20 			;->A
+
+7CFC : STA $1709 			;A->MEM
+
+7CFF : LDA $1702 			;->A
+
+7D02 : ORA #$80 			;A∨$n→A
+
+7D04 : STA $1702 			;A->MEM
+
+7D07 : LDA $1704 			;->A
+
+7D0A : AND #$7F 			;A∧$n→A
+
+7D0C : STA $1704 			;A->MEM
+
+7D0F : LDA #$00 			;->A
+
+7D11 : STA $1703 			;A->MEM
+
+7D14 : LDA #$59 			;->A
+
+7D16 : STA $1744 			;A->MEM
+
+7D19 : LDA #$17 			;->A
+
+7D1B : STA $1745 			;A->MEM
+
+7D1E : JSR $7D98  			;跳转子程序
+
+7D21 : JSR $7D28  			;跳转子程序
+
+7D24 : JSR $7CE2  			;跳转子程序
+
+7D27 : RTS 			;子程序返回
+
+7D28 : JSR $80F4  			;跳转子程序
+
+7D2B : LDA $173E 			;->A
+
+7D2E : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7D30 : BNE $7D50 			;Z=0则转移,否则继续
+
+7D32 : LDA $170C 			;->A
+
+7D35 : STA $1700 			;A->MEM
+
+7D38 : LDA #$59 			;->A
+
+7D3A : STA $88 			;A->MEM
+
+7D3C : LDA #$17 			;->A
+
+7D3E : STA $89 			;A->MEM
+
+7D40 : JSR $7FD3  			;跳转子程序
+
+7D43 : JSR $7D51  			;跳转子程序
+
+7D46 : LDA $173E 			;->A
+
+7D49 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7D4B : BNE $7D28 			;Z=0则转移,否则继续
+
+7D4D : INC $1704 			;MEM++
+
+7D50 : RTS 			;子程序返回
+
+7D51 : LDA #$00 			;->A
+
+7D53 : JSR $80BB  			;跳转子程序
+
+7D56 : LDA #$AC 			;->A
+
+7D58 : STA $88 			;A->MEM
+
+7D5A : LDA #$17 			;->A
+
+7D5C : STA $89 			;A->MEM
+
+7D5E : JSR $7F3E  			;跳转子程序
+
+7D61 : LDA $173E 			;->A
+
+7D64 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7D66 : BNE $7D97 			;Z=0则转移,否则继续
+
+7D68 : LDA #$00 			;->A
+
+7D6A : STA $173E 			;A->MEM
+
+7D6D : LDY #$00 			;->Y
+
+7D6F : LDA ($88),Y 			;->A
+
+7D71 : CMP $1712 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7D74 : BNE $7D92 			;Z=0则转移,否则继续
+
+7D76 : INY 			;Y++
+
+7D77 : LDA ($88),Y 			;->A
+
+7D79 : EOR $1702 			;A异或($n2n1)→A
+
+7D7C : CMP #$80 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7D7E : BNE $7D92 			;Z=0则转移,否则继续
+
+7D80 : LDA $170A 			;->A
+
+7D83 : EOR $1704 			;A异或($n2n1)→A
+
+7D86 : AND #$7F 			;A∧$n→A
+
+7D88 : BNE $7D92 			;Z=0则转移,否则继续
+
+7D8A : LDA #$01 			;->A
+
+7D8C : STA $173E 			;A->MEM
+
+7D8F : JMP $7D97 			;
+
+7D92 : LDA $072C 			;->A
+
+7D95 : BNE $7D56 			;Z=0则转移,否则继续
+
+7D97 : RTS 			;子程序返回
+
+7D98 : LDA $1700 			;->A
+
+7D9B : PHA 			;累加器进栈
+
+7D9C : LDA $1701 			;->A
+
+7D9F : PHA 			;累加器进栈
+
+7DA0 : LDA $88 			;->A
+
+7DA2 : PHA 			;累加器进栈
+
+7DA3 : LDA $89 			;->A
+
+7DA5 : PHA 			;累加器进栈
+
+7DA6 : LDA $8A 			;->A
+
+7DA8 : PHA 			;累加器进栈
+
+7DA9 : LDA $8B 			;->A
+
+7DAB : PHA 			;累加器进栈
+
+7DAC : LDA #$00 			;->A
+
+7DAE : STA $1700 			;A->MEM
+
+7DB1 : STA $1701 			;A->MEM
+
+7DB4 : LDY $1701 			;->Y
+
+7DB7 : LDA $1744 			;->A
+
+7DBA : STA $8A 			;A->MEM
+
+7DBC : LDA $1745 			;->A
+
+7DBF : STA $8B 			;A->MEM
+
+7DC1 : LDA $1712 			;->A
+
+7DC4 : STA ($8A),Y 			;A->MEM
+
+7DC6 : INY 			;Y++
+
+7DC7 : LDA $1702 			;->A
+
+7DCA : STA ($8A),Y 			;A->MEM
+
+7DCC : INY 			;Y++
+
+7DCD : LDA $1709 			;->A
+
+7DD0 : STA ($8A),Y 			;A->MEM
+
+7DD2 : INY 			;Y++
+
+7DD3 : LDA $1703 			;->A
+
+7DD6 : CLC 			;清进位标志
+
+7DD7 : ADC #$01 			;与(A+标志C)相加,结果送A
+
+7DD9 : STA ($8A),Y 			;A->MEM
+
+7DDB : INY 			;Y++
+
+7DDC : TYA 			;Y->A
+
+7DDD : STA $1701 			;A->MEM
+
+7DE0 : LDA $1703 			;->A
+
+7DE3 : BEQ $7E07 			;Z=1则转移,否则继续
+
+7DE5 : LDA $170E 			;->A
+
+7DE8 : STA $88 			;A->MEM
+
+7DEA : LDA $170F 			;->A
+
+7DED : STA $89 			;A->MEM
+
+7DEF : LDY $1700 			;->Y
+
+7DF2 : LDA ($88),Y 			;->A
+
+7DF4 : LDY $1701 			;->Y
+
+7DF7 : STA ($8A),Y 			;A->MEM
+
+7DF9 : INC $1700 			;MEM++
+
+7DFC : INC $1701 			;MEM++
+
+7DFF : LDA $1700 			;->A
+
+7E02 : CMP $1703 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7E05 : BNE $7DEF 			;Z=0则转移,否则继续
+
+7E07 : LDY $1701 			;->Y
+
+7E0A : LDA $1704 			;->A
+
+7E0D : STA ($8A),Y 			;A->MEM
+
+7E0F : INC $1701 			;MEM++
+
+7E12 : LDA $1701 			;->A
+
+7E15 : STA $1700 			;A->MEM
+
+7E18 : LDA $8A 			;->A
+
+7E1A : STA $88 			;A->MEM
+
+7E1C : LDA $8B 			;->A
+
+7E1E : STA $89 			;A->MEM
+
+7E20 : JSR $8091  			;跳转子程序
+
+7E23 : LDY $1701 			;->Y
+
+7E26 : LDA $1705 			;->A
+
+7E29 : STA ($8A),Y 			;A->MEM
+
+7E2B : INY 			;Y++
+
+7E2C : LDA $1706 			;->A
+
+7E2F : STA ($8A),Y 			;A->MEM
+
+7E31 : INY 			;Y++
+
+7E32 : TYA 			;Y->A
+
+7E33 : STA $170C 			;A->MEM
+
+7E36 : PLA 			;A出栈
+
+7E37 : STA $8B 			;A->MEM
+
+7E39 : PLA 			;A出栈
+
+7E3A : STA $8A 			;A->MEM
+
+7E3C : PLA 			;A出栈
+
+7E3D : STA $89 			;A->MEM
+
+7E3F : PLA 			;A出栈
+
+7E40 : STA $88 			;A->MEM
+
+7E42 : PLA 			;A出栈
+
+7E43 : STA $1701 			;A->MEM
+
+7E46 : PLA 			;A出栈
+
+7E47 : STA $1700 			;A->MEM
+
+7E4A : RTS 			;子程序返回
+
+7E4B : LDA $170B 			;->A
+
+7E4E : ORA #$80 			;A∨$n→A
+
+7E50 : STA $170B 			;A->MEM
+
+7E53 : LDA #$04 			;->A
+
+7E55 : STA $3E 			;A->MEM
+
+7E57 : LDA $3F 			;->A
+
+7E59 : AND #$7F 			;A∧$n→A
+
+7E5B : STA $1702 			;A->MEM
+
+7E5E : STA $1704 			;A->MEM
+
+7E61 : LDA #$1C 			;->A
+
+7E63 : STA $1712 			;A->MEM
+
+7E66 : RTS 			;子程序返回
+
+7E67 : PHP 			;标志寄存器P进栈
+
+7E68 : PHA 			;累加器进栈
+
+7E69 : LDA $3D 			;->A
+
+7E6B : AND #$FC 			;A∧$n→A
+
+7E6D : ORA #$01 			;A∨$n→A
+
+7E6F : STA $3D 			;A->MEM
+
+7E71 : PLA 			;A出栈
+
+7E72 : PLP 			;标志寄存器P出栈
+
+7E73 : LDA #$05 			;->A
+
+7E75 : STA $3A 			;A->MEM
+
+7E77 : LDA #$13 			;->A
+
+7E79 : STA $3B 			;A->MEM
+
+7E7B : PHP 			;标志寄存器P进栈
+
+7E7C : PHA 			;累加器进栈
+
+7E7D : LDA $3D 			;->A
+
+7E7F : AND #$FC 			;A∧$n→A
+
+7E81 : ORA #$00 			;A∨$n→A
+
+7E83 : STA $3D 			;A->MEM
+
+7E85 : PLA 			;A出栈
+
+7E86 : PLP 			;标志寄存器P出栈
+
+7E87 : LDA #$01 			;->A
+
+7E89 : STA $3B 			;A->MEM
+
+7E8B : JSR $8063  			;跳转子程序
+
+7E8E : RTS 			;子程序返回
+
+7E8F : TYA 			;Y->A
+
+7E90 : PHA 			;累加器进栈
+
+7E91 : LDY #$00 			;->Y
+
+7E93 : LDA ($8A),Y 			;->A
+
+7E95 : STA ($88),Y 			;A->MEM
+
+7E97 : INY 			;Y++
+
+7E98 : CPY $1700 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+7E9B : BNE $7E93 			;Z=0则转移,否则继续
+
+7E9D : PLA 			;A出栈
+
+7E9E : TAY 			;A->Y
+
+7E9F : RTS 			;子程序返回
+
+7EA0 : LDA $1702 			;->A
+
+7EA3 : AND #$7F 			;A∧$n→A
+
+7EA5 : STA $1702 			;A->MEM
+
+7EA8 : LDA #$00 			;->A
+
+7EAA : STA $1703 			;A->MEM
+
+7EAD : LDA #$AC 			;->A
+
+7EAF : STA $1744 			;A->MEM
+
+7EB2 : LDA #$17 			;->A
+
+7EB4 : STA $1745 			;A->MEM
+
+7EB7 : JSR $7D98  			;跳转子程序
+
+7EBA : LDA $170C 			;->A
+
+7EBD : STA $1700 			;A->MEM
+
+7EC0 : LDA $1744 			;->A
+
+7EC3 : STA $88 			;A->MEM
+
+7EC5 : LDA $1745 			;->A
+
+7EC8 : STA $89 			;A->MEM
+
+7ECA : JSR $7FD3  			;跳转子程序
+
+7ECD : RTS 			;子程序返回
+
+7ECE : TYA 			;Y->A
+
+7ECF : PHA 			;累加器进栈
+
+7ED0 : LDA #$00 			;->A
+
+7ED2 : STA $173E 			;A->MEM
+
+7ED5 : LDY #$00 			;->Y
+
+7ED7 : LDA ($88),Y 			;->A
+
+7ED9 : CMP $1712 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7EDC : BNE $7F3B 			;Z=0则转移,否则继续
+
+7EDE : INY 			;Y++
+
+7EDF : LDA ($88),Y 			;->A
+
+7EE1 : AND #$80 			;A∧$n→A
+
+7EE3 : BEQ $7F3B 			;Z=1则转移,否则继续
+
+7EE5 : LDA $170B 			;->A
+
+7EE8 : AND #$80 			;A∧$n→A
+
+7EEA : BEQ $7F10 			;Z=1则转移,否则继续
+
+7EEC : LDA $1708 			;->A
+
+7EEF : CMP $1707 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7EF2 : BNE $7F3B 			;Z=0则转移,否则继续
+
+7EF4 : LDY #$01 			;->Y
+
+7EF6 : LDA ($88),Y 			;->A
+
+7EF8 : AND #$7F 			;A∧$n→A
+
+7EFA : STA $1702 			;A->MEM
+
+7EFD : LDY $170D 			;->Y
+
+7F00 : DEY 			;Y--
+
+7F01 : LDA ($88),Y 			;->A
+
+7F03 : AND #$7F 			;A∧$n→A
+
+7F05 : STA $1704 			;A->MEM
+
+7F08 : LDA #$01 			;->A
+
+7F0A : STA $173E 			;A->MEM
+
+7F0D : JMP $7F3B 			;
+
+7F10 : LDA ($88),Y 			;->A
+
+7F12 : EOR $1702 			;A异或($n2n1)→A
+
+7F15 : AND #$7F 			;A∧$n→A
+
+7F17 : BNE $7F3B 			;Z=0则转移,否则继续
+
+7F19 : LDA $170A 			;->A
+
+7F1C : AND #$7F 			;A∧$n→A
+
+7F1E : BNE $7F22 			;Z=0则转移,否则继续
+
+7F20 : LDA #$80 			;->A
+
+7F22 : SEC 			;置进位标志C=1
+
+7F23 : SBC $1704 			;A-MEM-C->A
+
+7F26 : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7F28 : BNE $7F32 			;Z=0则转移,否则继续
+
+7F2A : LDA #$01 			;->A
+
+7F2C : STA $173E 			;A->MEM
+
+7F2F : JMP $7F3B 			;
+
+7F32 : CMP #$00 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7F34 : BNE $7F3B 			;Z=0则转移,否则继续
+
+7F36 : LDA #$02 			;->A
+
+7F38 : STA $173E 			;A->MEM
+
+7F3B : PLA 			;A出栈
+
+7F3C : TAY 			;A->Y
+
+7F3D : RTS 			;子程序返回
+
+7F3E : LDA $1700 			;->A
+
+7F41 : PHA 			;累加器进栈
+
+7F42 : LDA $1701 			;->A
+
+7F45 : PHA 			;累加器进栈
+
+7F46 : LDA #$00 			;->A
+
+7F48 : STA $173E 			;A->MEM
+
+7F4B : LDY #$00 			;->Y
+
+7F4D : JSR $8074  			;跳转子程序
+
+7F50 : BNE $7F55 			;Z=0则转移,否则继续
+
+7F52 : JMP $7FCA 			;
+
+7F55 : LDA $3A 			;->A
+
+7F57 : CMP #$C1 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7F59 : BNE $7F4D 			;Z=0则转移,否则继续
+
+7F5B : LDY #$00 			;->Y
+
+7F5D : LDA #$00 			;->A
+
+7F5F : STA $1700 			;A->MEM
+
+7F62 : JSR $8074  			;跳转子程序
+
+7F65 : BEQ $7FCA 			;Z=1则转移,否则继续
+
+7F67 : LDA $3A 			;->A
+
+7F69 : CMP #$C0 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7F6B : BEQ $7F99 			;Z=1则转移,否则继续
+
+7F6D : CMP #$7D 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7F6F : BNE $7F79 			;Z=0则转移,否则继续
+
+7F71 : LDA #$01 			;->A
+
+7F73 : STA $1700 			;A->MEM
+
+7F76 : JMP $7F62 			;
+
+7F79 : STA $1701 			;A->MEM
+
+7F7C : LDA $1700 			;->A
+
+7F7F : CMP #$01 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7F81 : BNE $7F90 			;Z=0则转移,否则继续
+
+7F83 : LDA #$00 			;->A
+
+7F85 : STA $1700 			;A->MEM
+
+7F88 : LDA $1701 			;->A
+
+7F8B : EOR #$20 			;A异或($n)→A
+
+7F8D : STA $1701 			;A->MEM
+
+7F90 : LDA $1701 			;->A
+
+7F93 : STA ($88),Y 			;A->MEM
+
+7F95 : INY 			;Y++
+
+7F96 : JMP $7F62 			;
+
+7F99 : DEY 			;Y--
+
+7F9A : DEY 			;Y--
+
+7F9B : TYA 			;Y->A
+
+7F9C : STA $1700 			;A->MEM
+
+7F9F : JSR $8091  			;跳转子程序
+
+7FA2 : LDA ($88),Y 			;->A
+
+7FA4 : CMP $1705 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7FA7 : BNE $7FCA 			;Z=0则转移,否则继续
+
+7FA9 : INY 			;Y++
+
+7FAA : LDA ($88),Y 			;->A
+
+7FAC : CMP $1706 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7FAF : BNE $7FCA 			;Z=0则转移,否则继续
+
+7FB1 : DEY 			;Y--
+
+7FB2 : DEY 			;Y--
+
+7FB3 : LDA ($88),Y 			;->A
+
+7FB5 : STA $170A 			;A->MEM
+
+7FB8 : LDY #$02 			;->Y
+
+7FBA : LDA ($88),Y 			;->A
+
+7FBC : STA $1708 			;A->MEM
+
+7FBF : LDA #$01 			;->A
+
+7FC1 : STA $173E 			;A->MEM
+
+7FC4 : LDA $1700 			;->A
+
+7FC7 : STA $170D 			;A->MEM
+
+7FCA : PLA 			;A出栈
+
+7FCB : STA $1701 			;A->MEM
+
+7FCE : PLA 			;A出栈
+
+7FCF : STA $1700 			;A->MEM
+
+7FD2 : RTS 			;子程序返回
+
+7FD3 : PHA 			;累加器进栈
+
+7FD4 : PHP 			;标志寄存器P进栈
+
+7FD5 : TYA 			;Y->A
+
+7FD6 : PHA 			;累加器进栈
+
+7FD7 : LDA #$C1 			;->A
+
+7FD9 : JSR $8011  			;跳转子程序
+
+7FDC : LDY #$00 			;->Y
+
+7FDE : LDA ($88),Y 			;->A
+
+7FE0 : CMP #$C1 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7FE2 : BNE $7FEA 			;Z=0则转移,否则继续
+
+7FE4 : JSR $8028  			;跳转子程序
+
+7FE7 : JMP $7FFB 			;
+
+7FEA : CMP #$7D 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7FEC : BNE $7FF4 			;Z=0则转移,否则继续
+
+7FEE : JSR $8028  			;跳转子程序
+
+7FF1 : JMP $7FFB 			;
+
+7FF4 : CMP #$C0 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+
+7FF6 : BNE $7FFB 			;Z=0则转移,否则继续
+
+7FF8 : JSR $8028  			;跳转子程序
+
+7FFB : JSR $8011  			;跳转子程序
+
+7FFE : INY 			;Y++
+
+7FFF : CPY $1700 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+
+8002 : BNE $7FDE 			;Z=0则转移,否则继续
+
+8004 : LDA #$C0 			;->A
+
+8006 : JSR $8011  			;跳转子程序
+
+8009 : JSR $8032  			;跳转子程序
+
+800C : PLA 			;A出栈
+
+800D : TAY 			;A->Y
+
+800E : PLP 			;标志寄存器P出栈
+
+800F : PLA 			;A出栈
+
+8010 : RTS 			;子程序返回
+
+8011 : PHA 			;累加器进栈
+
+8012 : PHP 			;标志寄存器P进栈
+
+8013 : PHA 			;累加器进栈
+
+8014 : LDA $3D 			;->A
+
+8016 : AND #$FC 			;A∧$n→A
+
+8018 : ORA #$00 			;A∨$n→A
+
+801A : STA $3D 			;A->MEM
+
+801C : PLA 			;A出栈
+
+801D : PLP 			;标志寄存器P出栈
+
+801E : LDA $3B 			;->A
+
+8020 : AND #$20 			;A∧$n→A
+
+8022 : BEQ $801E 			;Z=1则转移,否则继续
+
+8024 : PLA 			;A出栈
+
+8025 : STA $3A 			;A->MEM
+
+8027 : RTS 			;子程序返回
+
+8028 : PHA 			;累加器进栈
+
+8029 : LDA #$7D 			;->A
+
+802B : JSR $8011  			;跳转子程序
+
+802E : PLA 			;A出栈
+
+802F : EOR #$20 			;A异或($n)→A
+
+8031 : RTS 			;子程序返回
+
+8032 : LDA #$01 			;->A
+
+8034 : JSR $80BB  			;跳转子程序
+
+8037 : LDA #$00 			;->A
+
+8039 : STA $046E 			;A->MEM
+
+803C : LDA $072C 			;->A
+
+803F : BNE $8047 			;Z=0则转移,否则继续
+
+8041 : JSR $7A1B  			;跳转子程序
+
+8044 : JMP $805F 			;
+
+8047 : PHP 			;标志寄存器P进栈
+
+8048 : PHA 			;累加器进栈
+
+8049 : LDA $3D 			;->A
+
+804B : AND #$FC 			;A∧$n→A
+
+804D : ORA #$00 			;A∨$n→A
+
+804F : STA $3D 			;A->MEM
+
+8051 : PLA 			;A出栈
+
+8052 : PLP 			;标志寄存器P出栈
+
+8053 : LDA $3B 			;->A
+
+8055 : AND #$40 			;A∧$n→A
+
+8057 : BEQ $8037 			;Z=1则转移,否则继续
+
+8059 : LDA $3B 			;->A
+
+805B : AND #$20 			;A∧$n→A
+
+805D : BEQ $8037 			;Z=1则转移,否则继续
+
+805F : JSR $8063  			;跳转子程序
+
+8062 : RTS 			;子程序返回
+
+8063 : PHP 			;标志寄存器P进栈
+
+8064 : PHA 			;累加器进栈
+
+8065 : LDA $3D 			;->A
+
+8067 : AND #$FC 			;A∧$n→A
+
+8069 : ORA #$01 			;A∨$n→A
+
+806B : STA $3D 			;A->MEM
+
+806D : PLA 			;A出栈
+
+806E : PLP 			;标志寄存器P出栈
+
+806F : LDA #$30 			;->A
+
+8071 : STA $3D 			;A->MEM
+
+8073 : RTS 			;子程序返回
+
+8074 : LDA #$00 			;->A
+
+8076 : STA $046E 			;A->MEM
+
+8079 : PHP 			;标志寄存器P进栈
+
+807A : PHA 			;累加器进栈
+
+807B : LDA $3D 			;->A
+
+807D : AND #$FC 			;A∧$n→A
+
+807F : ORA #$00 			;A∨$n→A
+
+8081 : STA $3D 			;A->MEM
+
+8083 : PLA 			;A出栈
+
+8084 : PLP 			;标志寄存器P出栈
+
+8085 : LDA $3B 			;->A
+
+8087 : AND #$01 			;A∧$n→A
+
+8089 : BNE $8090 			;Z=0则转移,否则继续
+
+808B : LDA $072C 			;->A
+
+808E : BNE $8079 			;Z=0则转移,否则继续
+
+8090 : RTS 			;子程序返回
+
+8091 : PHA 			;累加器进栈
+
+8092 : PHP 			;标志寄存器P进栈
+
+8093 : TYA 			;Y->A
+
+8094 : PHA 			;累加器进栈
+
+8095 : LDA #$00 			;->A
+8097 : STA $1705 			;A->MEM
+809A : STA $1706 			;A->MEM
+809D : LDY #$00 			;->Y
+809F : LDA ($88),Y 			;->A
+80A1 : EOR $1706 			;A异或($n2n1)→A
+80A4 : STA $1706 			;A->MEM
+80A7 : CLC 			;清进位标志
+80A8 : LDA ($88),Y 			;->A
+80AA : ADC $1705 			;与(A+标志C)相加,结果送A
+80AD : STA $1705 			;A->MEM
+80B0 : INY 			;Y++
+80B1 : CPY $1700 			;与Y比较,(Y>=MEM,c=1)(Y<MEM,C=0,N=1)(Y==MEM,Z=0)
+80B4 : BNE $809F 			;Z=0则转移,否则继续
+80B6 : PLA 			;A出栈
+80B7 : TAY 			;A->Y
+80B8 : PLP 			;标志寄存器P出栈
+80B9 : PLA 			;A出栈
+80BA : RTS 			;子程序返回
+
+80BB : PHA 			;累加器进栈
+80BC : LDA #$0A 			;->A
+80BE : STA $3E 			;A->MEM
+80C0 : LDA $0901 			;->A
+80C3 : AND #$0F 			;A∧$n→A
+80C5 : STA $3F 			;A->MEM
+80C7 : STA $0901 			;A->MEM
+80CA : PLA 			;A出栈
+80CB : TAY 			;A->Y
+80CC : LDA $80EC,Y 			;->A
+80CF : STA $072E 			;A->MEM
+80D2 : STA $072C 			;A->MEM
+80D5 : LDA #$0B 			;->A
+80D7 : STA $3E 			;A->MEM
+80D9 : LDA #$04 			;->A
+80DB : STA $3F 			;A->MEM
+80DD : LDA #$0A 			;->A
+80DF : STA $3E 			;A->MEM
+80E1 : LDA $0901 			;->A
+80E4 : ORA #$70 			;A∨$n→A
+80E6 : STA $3F 			;A->MEM
+80E8 : STA $0901 			;A->MEM
+80EB : RTS 			;子程序返回
+80EC : 0A14
+
+80EE : LDA #$00 			;->A
+80F0 : STA $04AA 			;A->MEM
+80F3 : RTS 			;子程序返回
+
+80F4 : JSR $8112  			;跳转子程序
+80F7 : BNE $810C 			;Z=0则转移,否则继续
+80F9 : LDA $04AA 			;->A
+80FC : CMP #$F0 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+80FE : BCC $8106 			;进位标志C=0则转移,否则继续
+8100 : LDA #$03 			;->A
+8102 : STA $173E 			;A->MEM
+8105 : RTS 			;子程序返回
+8106 : LDA #$01 			;->A
+8108 : STA $173E 			;A->MEM
+810B : RTS 			;子程序返回
+810C : LDA #$02 			;->A
+810E : STA $173E 			;A->MEM
+8111 : RTS 			;子程序返回
+
+8112 : LDA #$FF 			;->A
+8114 : STA $15 			;A->MEM
+8116 : LDA #$08 			;->A
+8118 : STA $09 			;A->MEM
+811A : LDA $08 			;->A
+811C : AND #$80 			;A∧$n→A
+811E : RTS 			;子程序返回
+
+811F : LDA $1700 			;->A
+8122 : PHA 			;累加器进栈
+8123 : LDA #$04 			;->A
+8125 : STA $3E 			;A->MEM
+8127 : LDA $3F 			;->A
+8129 : CLC 			;清进位标志
+812A : ADC #$32 			;与(A+标志C)相加,结果送A
+812C : STA $1700 			;A->MEM
+812F : LDA #$04 			;->A
+8131 : STA $3E 			;A->MEM
+8133 : LDA $3F 			;->A
+8135 : CMP $1700 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+8138 : BNE $812F 			;Z=0则转移,否则继续
+813A : PLA 			;A出栈
+813B : STA $1700 			;A->MEM
+813E : RTS 			;子程序返回
+
+;find addr by id
+813F : TYA 			;Y->A
+8140 : PHA 			;累加器进栈
+8141 : TXA 			;X->A
+8142 : DEY 			;Y--
+8143 : CMP ($80),Y 			;与A比较,(A>=MEM,c=1)(A<MEM,C=0,N=1)(A==MEM,Z=1)
+8145 : BEQ $814E 			;Z=1则转移,否则继续
+8147 : DEY 			;Y--
+8148 : BPL $8143 			;N=1则转移,否则继续
+814A : PLA 			;A出栈
+814B : TXA 			;X->A
+814C : CLC 			;清进位标志
+814D : RTS 			;子程序返回
+814E : PLA 			;A出栈
+814F : CLC 			;清进位标志
+8150 : ADC $80 			;与(A+标志C)相加,结果送A
+8152 : STA $80 			;A->MEM
+8154 : BCC $8158 			;进位标志C=0则转移,否则继续
+8156 : INC $81 			;MEM++
+8158 : TXA 			;X->A
+8159 : PHA 			;累加器进栈
+815A : TYA 			;Y->A
+815B : ASL 			;算术左移
+815C : TAY 			;A->Y
+815D : LDA ($80),Y 			;->A
+815F : TAX 			;A->X
+8160 : INY 			;Y++
+8161 : LDA ($80),Y 			;->A
+8163 : STA $81 			;A->MEM
+8165 : STX $80 			;X->MEM
+8167 : DEY 			;Y--
+8168 : TYA 			;Y->A
+8169 : LSR 			;A逻辑右移
+816A : TAY 			;A->Y
+816B : PLA 			;A出栈
+816C : TAX 			;A->X
+816D : JSR $8172  			;跳转子程序
+8170 : SEC 			;置进位标志C=1
+8171 : RTS 			;子程序返回
+8172 : JMP ($0080) 			;
+8175--8FFF : FF...FF  ;填充数据

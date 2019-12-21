@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <group
+        android:id="@+id/grout_main"
+        android:checkableBehavior="single" >
+
+        <!-- <item android:id="@+id/item_hook" android:title="Hook"></item> -->
+
+        <item
+            android:id="@+id/item_exit"
+            android:title="Exit Game">
+        </item>
+        <item
+            android:id="@+id/item_setting"
+            android:title="Setting">
+<!--             <menu> -->
+<!--                 <item -->
+<!--                     android:id="@+id/item_hidekey" -->
+<!--                     android:checkable="true" -->
+<!--                     android:checked="false" -->
+<!--                     android:title="Hide SoftKey"> -->
+<!--                 </item> -->
+<!--                 <item -->
+<!--                     android:id="@+id/item_lockscreen" -->
+<!--                     android:checkable="true" -->
+<!--                     android:checked="false" -->
+<!--                     android:title="Lock Screen"> -->
+<!--                 </item> -->
+<!--                 <item -->
+<!--                     android:id="@+id/item_backup" -->
+<!--                     android:title="Backup"/> -->
+<!--                 <item -->
+<!--                     android:id="@+id/item_restore" -->
+<!--                     android:title="Restore"/> -->
+<!--             </menu> -->
+        </item>
+        <item
+            android:id="@+id/item_about"
+            android:title="About"></item>
+        <item android:id="@+id/item_feedback" android:title="Feedback"></item>
+    </group>
+
+</menu>

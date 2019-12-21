@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, Gmud!</string>
+    <string name="app_name">英雄坛说</string>
+    <string name="title">英雄坛说黄金版</string>
+    <string name="about">不曾忘记，老师们忧郁的眼神…
+        \n遥想当年，床头那堆积的电池…
+        \n回味经典，文曲星的英雄坛说
+        \n\n说明：
+        \n纯复古版本，人物形象未做任何改变。
+        \n这是测试版本，欢迎大家为剧情还原或扩展提供建议。mailto:xtulnx@126.com
+        \n目前功能尚未完成，请关注市场正式发布。
+        \n为方便测试或满足娱乐精神，人物存档是明文的，以后若出联机正式版本会将存档编码以保障公平性。
+        \n
+        \n  == 热线帮助  ==
+        \n暂时没有做界面了，就将帮助放这了吧。
+        \n\n菜单：
+        \nExit Game: 彻底退出游戏（普通情况用Back回到桌面时只要有插了电源或没有待机，游戏就一直在跑）；
+        \nHide SoftKey: 隐藏虚拟键，横屏下游戏界面可以铺满屏幕
+        \nLock Screen：锁定横竖屏旋转
+        \nAbout：关于（此界面）
+        \n\n操作：
+        \n1，触屏模式下点击虚拟按键用于控制：LL和RR表示自动左右行走；
+        \n2，实体键映射为——(q=Quit, e=Enter, a=LL, w=Up, s=Down, d=RR, F=Fly, LEFT=Left, RIGHT=Right)；
+        \n\n致谢：
+        \n感谢 新军兄。
+        \n感谢 文曲星 为我们创造的经典，其官网： http://www.ggv.com.cn
+        \n感谢 绝爱仙剑ㄝ宝宝(QQ156692474) 提供的PC版源码，大家可以到 http://156692474.ys168.com/ 找到。
+        \n感谢 SephirothCloud、Razor电魂、wuyinqiu730、KiraDean 等兄弟细心测试。
+        \n\n----------------\n
+        \n能想的呆子(QQ371800833)
+		\n
+		\n欢迎关注项目主页：
+		\n  https://bitbucket.org/xtulnx/gmudsimple
+        \n</string>
+    <string name="title_interface">界面</string>
+    <string name="key_hide_softkey">key_hide_softkey</string>
+    <string name="title_hide_soft">隐藏虚拟键盘</string>
+    <string name="key_lock_screen">key_lock_screen</string>
+    <string name="title_lock_screen">锁定屏幕方向</string>
+    <string name="title_store">存档</string>
+    <string name="key_backup">key_backup</string>
+    <string name="title_backup">备份存档</string>
+    <string name="summary_backup">将存档导出到 SDCard 中。</string>
+    <string name="summary_backup_last">最近一次备份时间：%s</string>
+    <string name="key_restore">key_restore</string>
+    <string name="title_restore">还原存档</string>
+    <string name="summary_restore">没有备份。</string>
+    <string name="summary_resotre_last">备份文件：%s</string>
+    <string name="tip_need_save">必须先存档才能备份！</string>
+    <string name="tip_backup_overwrite">用最新存档覆盖备份文件？</string>
+    <string name="tip_backup_success">备份成功！</string>
+    <string name="tip_backup_failed">备份失败！</string>
+    <string name="tip_restore_overwrite">还原备份数据将覆盖当前存档。是否继续？</string>
+    <string name="tip_restore_success">还原成功，准备重启游戏……</string>
+    <string name="tip_restore_failed">还原失败，请检查备份文件是否正确！</string>
+
+</resources>

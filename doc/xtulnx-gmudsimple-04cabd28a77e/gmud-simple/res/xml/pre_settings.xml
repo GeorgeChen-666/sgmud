@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:persistent="true" android:title="@string/title_interface">
+        <CheckBoxPreference
+            android:key="@string/key_hide_softkey"
+            android:title="@string/title_hide_soft" />
+        <CheckBoxPreference
+            android:key="@string/key_lock_screen"
+            android:title="@string/title_lock_screen" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/title_store">
+        <Preference
+            android:key="@string/key_backup"
+            android:title="@string/title_backup" android:summary="@string/summary_backup"/>
+        <Preference
+            android:key="@string/key_restore"
+            android:title="@string/title_restore" android:summary="@string/summary_restore" android:enabled="false"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

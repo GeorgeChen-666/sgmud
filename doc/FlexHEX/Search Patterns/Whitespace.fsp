@@ -1,0 +1,39 @@
+################################################################################
+#
+# FlexHEX search pattern definition file (www.flexhex.com)
+#
+# Each record has the following format:
+#
+#   type,fgr,bgr,pattern
+#
+# Type specifies how the pattern string should be interpreted.
+# The valid values are:
+#
+#   Ansi, AnsiNoCase - ANSI string (with and without regard to letter case)
+#   Unicode, UnicodeNoCase - UNICODE string (with and without regard to letter case)
+#   Signed8, Signed16, Signed32, Signed64 - Signed decimal values (number shows bit size)
+#   Unsigned8, Unsigned16, Unsigned32, Unsigned64 - Unsigned decimal values (number shows bit size)
+#   Hex8, Hex16, Hex32, Hex64 - Hex values (number shows bit size)
+#
+# fgr and bgr are the foreground and the background colors respectively.
+# The found pattern will be displayed in the edit window using these colors.
+# A color may be either a hex value or -1, which means 'default color'.
+# (Foreground color is not supported and must be -1).
+#
+# Pattern is either a character string (leading and trailing spaces are
+# significant), or a string of comma-separated numbers.
+# FlexHEX supports escape sequences in ANSI or UNICODE strings.
+# See FlexHEX Help for the complete description of escape sequences.
+#
+# Blanks lines are ignored; lines starting with '#' are treated as comments.
+#
+################################################################################
+
+Unicode,-1,-1,\r\n
+Unicode,-1,-1,\r
+Unicode,-1,-1,\n
+Unicode,-1,-1,\t
+Ansi,-1,-1,\r\n
+Ansi,-1,-1,\r
+Ansi,-1,-1,\n
+Ansi,-1,-1,\t
