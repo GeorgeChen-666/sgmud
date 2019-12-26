@@ -2,9 +2,9 @@
   const { 
     DataManager, 
     Scene_Map,
-    _gbb:{ Window_PowerBar, Window_Text } 
+    _gbb:{ Window_PowerBar, Window_Text, basePath } 
   } = window;
-  DataManager.loadMapData(1001,false,'Map.json','js/plugins/Basketball/data/');
+  DataManager.loadMapData(1001,false,'Map.json', `js/plugins/${basePath}data/`);
   let onMapLoaded,onSceneMapUpdate,isMenuEnabled;
   const BasketballManager = new StateMachine({
     init: 'load',
@@ -190,36 +190,29 @@
           }
         } = window;
         const { x, y, direction, mapId,} = this._locHistory;
-        itpr.insertCommands([{"code":201,"indent":0,"parameters":[0,mapId,x,y,direction,0]}]);
+        itpr.insertCommands([{"code":201,"indent":0,"parameters":[ 0, mapId, x, y, direction, 0 ]}]);
         this._restoreSceneMap();
       },
       _hackSceneMap: function() {
         const me = this;
-        isMenuEnabled = Scene_Map.prototype.isMenuEnabled;
-        Scene_Map.prototype.isMenuEnabled = function () {
-          return false;
-        }
+        PluginManager.regDelegate('Scene_Map.prototype.isMenuEnabled',() => false);
         //劫持onMapLoaded显示自定义窗口
-        onMapLoaded = Scene_Map.prototype.onMapLoaded;
-        Scene_Map.prototype.onMapLoaded = function() {
-          onMapLoaded.call(this);
+        onMapLoaded = PluginManager.regHook('Scene_Map.prototype.onMapLoaded',function() {
           me._CustomWindows.forEach(child => {
             child.close();
             this.addWindow(child);
           });
-        };
+        });
         //劫持update
-        onSceneMapUpdate = Scene_Map.prototype.update;
-        Scene_Map.prototype.update = function () {
-          onSceneMapUpdate.call(this);
+        onSceneMapUpdate = PluginManager.regHook('Scene_Map.prototype.update',function() {
           me.update(this);
-        };
+        });
       },
       _restoreSceneMap: function() {
         // 恢复之前的劫持
-        Scene_Map.prototype.onMapLoaded = onMapLoaded;
-        Scene_Map.prototype.update = onSceneMapUpdate;
-        Scene_Map.prototype.isMenuEnabled = isMenuEnabled;
+        PluginManager.restoreDelegate('Scene_Map.prototype.onMapLoaded');
+        PluginManager.delHook('Scene_Map.prototype.update',onSceneMapUpdate);
+        PluginManager.delHook('Scene_Map.prototype.onMapLoaded',onMapLoaded);
       },
       op: function(fn,rightNow = false) {
         if(rightNow) {

@@ -1,1 +1,0 @@
-PluginManager.loadScript('main.js', 'Basketball/js/')
