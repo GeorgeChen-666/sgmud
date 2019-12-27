@@ -20,13 +20,13 @@
         return new Promise(rs => {
           if ($gameSystem) {
             doHook();
-            rs(sObj[sFuncName]);
+            rs(dFunc);
           } else {
             const jobRegHook = setInterval(() => {
               if ($gameSystem) {
                 doHook();
                 clearInterval(jobRegHook);
-                rs(sObj[sFuncName]);
+                rs(dFunc);
               }
             }, 100);
           }
@@ -43,7 +43,7 @@
         let lastFunc = null;
         let currentFunc = sFunc;
         while (currentFunc !== null && currentFunc !== undefined) {
-          if (currentFunc === dFunc) {
+          if (currentFunc.__HookedFunc__ === dFunc) {
             if (lastFunc === null) {
               sObj[sFuncName] = currentFunc.__SourceFunc__;
             } else {
