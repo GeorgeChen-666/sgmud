@@ -74,12 +74,14 @@
     }
   }
 
-  PluginManager.regHook('Sprite_Character.prototype.initMembers', function() {
+  PluginManager.regHook('Sprite_Character.prototype.initMembers', oFunc => function() {
+    oFunc();
     this._textWindow = new Window_TextBalloon();
     this.addChild(this._textWindow);
   });
 
-  PluginManager.regHook('Sprite_Character.prototype.setupBalloon', function() {
+  PluginManager.regHook('Sprite_Character.prototype.setupBalloon', oFunc => function() {
+    oFunc();
     if (
       this._character._balloonText !== undefined &&
       this._textWindow.isClosed()

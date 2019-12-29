@@ -26,34 +26,36 @@
   /**
    * 条件支持js代码
    */
-  const _command111 = Game_Interpreter.prototype.command111;
-  Game_Interpreter.prototype.command111 = function() {
-    if (typeof this._params[0] === 'function') {
-      const result = !!this._params[0]();
-      this._branch[this._indent] = result;
-      if (this._branch[this._indent] === false) {
-        this.skipBranch();
+  PluginManager.regHook(
+    'Game_Interpreter.prototype.command111',
+    oFunc =>
+      function() {
+        if (typeof this._params[0] === 'function') {
+          const result = !!this._params[0]();
+          this._branch[this._indent] = result;
+          if (this._branch[this._indent] === false) {
+            this.skipBranch();
+          }
+          return true;
+        } else {
+          oFunc();
+        }
       }
-      return true;
-    } else {
-      _command111.call(this);
-    }
-  };
+  );
+
   /**
    * 支持JS代码
    */
-  Game_Interpreter.prototype.command355 = function() {
-    if (typeof this._params[0] === 'function') {
-      this._params[0]();
-      return true;
-    } else {
-      var script = this.currentCommand().parameters[0] + '\n';
-      while (this.nextEventCode() === 655) {
-        this._index++;
-        script += this.currentCommand().parameters[0] + '\n';
+  PluginManager.regHook(
+    'Game_Interpreter.prototype.command355',
+    oFunc =>
+      function() {
+        if (typeof this._params[0] === 'function') {
+          this._params[0]();
+          return true;
+        } else {
+          return oFunc();
+        }
       }
-      eval(script);
-      return true;
-    }
-  };
+  );
 })();

@@ -193,26 +193,28 @@
         itpr.insertCommands([{"code":201,"indent":0,"parameters":[ 0, mapId, x, y, direction, 0 ]}]);
         this._restoreSceneMap();
       },
-      _hackSceneMap: function() {
+      _hackSceneMap: async function() {
         const me = this;
-        PluginManager.regDelegate('Scene_Map.prototype.isMenuEnabled',() => false);
+        isMenuEnabled = PluginManager.regHook('Scene_Map.prototype.isMenuEnabled',() => () => false);
         //劫持onMapLoaded显示自定义窗口
-        onMapLoaded = PluginManager.regHook('Scene_Map.prototype.onMapLoaded',function() {
+        onMapLoaded = PluginManager.regHook('Scene_Map.prototype.onMapLoaded',oFunc => function() {
+          oFunc();
           me._CustomWindows.forEach(child => {
             child.close();
             this.addWindow(child);
           });
         });
         //劫持update
-        onSceneMapUpdate = PluginManager.regHook('Scene_Map.prototype.update',function() {
+        onSceneMapUpdate = PluginManager.regHook('Scene_Map.prototype.update',oFunc => function() {
+          oFunc();
           me.update(this);
         });
       },
       _restoreSceneMap: function() {
         // 恢复之前的劫持
-        PluginManager.restoreDelegate('Scene_Map.prototype.onMapLoaded');
-        PluginManager.delHook('Scene_Map.prototype.update',onSceneMapUpdate);
-        PluginManager.delHook('Scene_Map.prototype.onMapLoaded',onMapLoaded);
+        PluginManager.delHook('Scene_Map.prototype.isMenuEnabled', isMenuEnabled);
+        PluginManager.delHook('Scene_Map.prototype.update', onSceneMapUpdate);
+        PluginManager.delHook('Scene_Map.prototype.onMapLoaded', onMapLoaded);
       },
       op: function(fn,rightNow = false) {
         if(rightNow) {

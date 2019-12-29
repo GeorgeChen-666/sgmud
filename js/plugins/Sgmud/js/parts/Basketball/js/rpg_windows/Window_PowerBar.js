@@ -1,4 +1,4 @@
-(()=>{
+(() => {
   const { Window_Base } = window;
   class Window_PowerBar extends Window_Base {
     constructor() {
@@ -27,16 +27,16 @@
       return this._score;
     }
     nextValue() {
-      this._val += (this._offset * this._offsetTime);
+      this._val += this._offset * this._offsetTime;
       this.refresh();
-      if(this._val <= 0 || this._val >= this._max) {
+      if (this._val <= 0 || this._val >= this._max) {
         this._offset *= -1;
       }
-      if(this._val <= 20 || this._val >= 80) {
+      if (this._val <= 20 || this._val >= 80) {
         this._offsetTime = 3;
-      } else if(this._val <= 35 || this._val >= 65) {
+      } else if (this._val <= 35 || this._val >= 65) {
         this._offsetTime = 2.5;
-      } else if(this._val <= 45 || this._val >= 55) {
+      } else if (this._val <= 45 || this._val >= 55) {
         this._offsetTime = 1;
       } else {
         this._offsetTime = 0.5;
@@ -46,7 +46,7 @@
       this._val = val;
       this.refresh();
     }
-  
+
     drawRangeBar(width) {
       const gaugeY = 0 + this.lineHeight() - 40;
       this.contents.gradientFillRect(Math.floor(width * 0), gaugeY, Math.floor(width * 0.45), 20, '#19A15F', '#19A15F');
@@ -63,24 +63,24 @@
     drawPowerBar(width, rate) {
       const gaugeY = 0 + this.lineHeight() - 20;
       this.contents.fillRect(0, gaugeY, width, 20, this.gaugeBackColor());
-  
+
       const fillW = Math.floor(width * rate);
       this.contents.gradientFillRect(fillW - 1, gaugeY, 2, 20, '#fff', '#fff');
-    };
+    }
     refresh() {
       const w = this.contents.width;
       // this.contents.clear();
       // this.drawRangeBar(w);
-      const v = (this._val / this._max);
-      if(v > 0.4875 && v < 0.5125) {
+      const v = this._val / this._max;
+      if (v > 0.4875 && v < 0.5125) {
         this._score = 2;
-      } else if(v > 0.4625 && v < 0.5375) {
+      } else if (v > 0.4625 && v < 0.5375) {
         this._score = 1;
       } else {
         this._score = 0;
       }
-      this.drawPowerBar(w, (this._max === 0 ? 0 : v));
+      this.drawPowerBar(w, this._max === 0 ? 0 : v);
     }
   }
   _gbb.Window_PowerBar = Window_PowerBar;
-})()
+})();
