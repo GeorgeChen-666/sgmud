@@ -1,5 +1,17 @@
 (function() {
   /**
+  * 默认场景的背景是模糊
+  */
+  Scene_Base.prototype.createBackground = function() {
+    this._backgroundSprite = new Sprite();
+    this._backgroundSprite.bitmap = SceneManager.backgroundBitmap();
+    this.addChild(this._backgroundSprite);
+  };
+  Window_Base.prototype.drawHorzLine = function(y) {
+    const line_y = y + this.lineHeight() / 2 - 1
+    this.contents.fillRect(0,line_y,this.contentsWidth(),2,this.normalColor());
+  };
+  /**
    * 直接加载base64资源
    */
   ImageManager.loadBase64Bitmap = function(path, data, hue) {

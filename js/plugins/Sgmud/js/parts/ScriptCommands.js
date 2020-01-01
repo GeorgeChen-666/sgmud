@@ -51,7 +51,7 @@
     oFunc =>
       function() {
         if (typeof this._params[0] === 'function') {
-          this._params[0]();
+          this._params[0].apply(this);
           return true;
         } else {
           return oFunc();
