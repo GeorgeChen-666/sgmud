@@ -1,7 +1,6 @@
 (()=>{
   const { 
     DataManager, 
-    Scene_Map,
     _gbb:{ Window_PowerBar, Window_Text, basePath } 
   } = window;
   DataManager.loadMapData(1001,false,'Map.json', `js/plugins/${basePath}data/`);
@@ -27,7 +26,7 @@
             _interpreter:itpr,
           }
         } = window;
-    
+        const indent = itpr._indent;
         this._CustomWindows = (this._CustomWindows||[]);
         this._actorIndex = 0;
         this._touchCount = 0;
@@ -43,11 +42,11 @@
         this._hackSceneMap();
     
         itpr.insertCommands([
-          {"code":201,"indent":0,"parameters":[0,1001,-1,-1,0,0]},
-          {"code":355,"indent":0,"parameters":[()=>{
+          { code: 201, indent, parameters: [0,1001,-1,-1,0,0]},
+          { code: 355, indent, parameters: [()=>{
             this.op('showMenu');
           }]},
-          {"code":0,"indent":0,"parameters":[]}
+          { code: 0, indent}
         ]);
       },
       onMenu: function() { 
@@ -56,6 +55,7 @@
             _interpreter:itpr,
           }
         } = window;
+        const indent = itpr._indent;
         const evchar = $gameMap.event(3);
         const char = $gameParty.allMembers()[this._actorIndex];
         evchar._characterName = char._characterName;
@@ -65,28 +65,28 @@
         this._powerWindow.close();
         this._textWindow.close();
         itpr.insertCommands([
-          {"code":101,"indent":0,"parameters":["",0,1,0]},
-          {"code":401,"indent":0,"parameters":[""]},
-          {"code":401,"indent":0,"parameters":[""]},
-          {"code":401,"indent":0,"parameters":["                      ==投篮游戏=="]},
-          {"code":102,"indent":0,"parameters":[["开始游戏","游戏说明","退出游戏"],2,0,1,0]},
-          {"code":402,"indent":0,"parameters":[0,"开始游戏"]},
-          {"code":355,"indent":1,"parameters":[()=>{
+          { code: 101, indent, parameters: ["",0,1,0]},
+          { code: 401, indent, parameters: ['']},
+          { code: 401, indent, parameters: ['']},
+          { code: 401, indent, parameters: ["                      ==投篮游戏=="]},
+          { code: 102, indent, parameters: [["开始游戏","游戏说明","退出游戏"],2,0,1,0]},
+          { code: 402, indent, parameters: [0,"开始游戏"]},
+          { code: 355, indent: indent + 1, parameters: [()=>{
             this.op('startGame');
           }]},
-          {"code":402,"indent":0,"parameters":[1,"游戏说明"]},
-          {"code":105,"indent":1,"parameters":[2,false]},
-          {"code":405,"indent":1,"parameters":["这是一段很长很长的说明啊啊啊啊啊啊啊啊啊"]},
-          {"code":355,"indent":1,"parameters":[()=>{
+          { code: 402, indent, parameters: [1,"游戏说明"]},
+          { code: 105, indent: indent + 1, parameters: [2,false]},
+          { code: 405, indent: indent + 1, parameters: ["这是一段很长很长的说明啊啊啊啊啊啊啊啊啊"]},
+          { code: 355, indent: indent + 1, parameters: [()=>{
             this.op('onMenu');
           }]},
-          {"code":0,"indent":1,"parameters":[]},
-          {"code":402,"indent":0,"parameters":[2,"退出游戏"]},
-          {"code":355,"indent":1,"parameters":[()=>{
+          { code: 0, indent: indent + 1},
+          { code: 402, indent, parameters: [2,"退出游戏"]},
+          { code: 355, indent: indent + 1, parameters: [()=>{
             this.op('endGame');
           }]},
-          {"code":0,"indent":1,"parameters":[]},
-          {"code":404,"indent":0,"parameters":[]},
+          { code: 0, indent: indent + 1},
+          { code: 404, indent},
         ]);
       },
       onPower: function() {
@@ -98,6 +98,7 @@
             _interpreter:itpr,
           }
         } = window;
+        const indent = itpr._indent;
         let [x, y] = [12, 0];
         this._powerWindow.refresh();
         this._score = this._powerWindow.getScore();
@@ -107,30 +108,40 @@
           x = x - parseInt(Math.random() * 3) - 1;
         }
         itpr.insertCommands([
-          {"code":205,"indent":0,"parameters":[2,{"list":[{"code":14,"parameters":[0,0],"indent":null},{"code":0}],"repeat":false,"skippable":false,"wait":false}]},
-          {"code":505,"indent":0,"parameters":[{"code":14,"parameters":[0,0],"indent":null}]},
-          {"code":205,"indent":0,"parameters":[3,{"list":[{"code":14,"parameters":[0,0],"indent":null},{"code":0}],"repeat":false,"skippable":false,"wait":true}]},
-          {"code":505,"indent":0,"parameters":[{"code":14,"parameters":[0,0],"indent":null}]},
-          {"code":111,"indent":0,"parameters":[()=>{
+          { code: 205, indent, parameters: [ 2, 
+            { 
+              list: [
+                { code: 14,parameters: [0,0]},
+                { code: 0}
+              ],
+              "repeat":false,
+              "skippable":false,
+              "wait":false
+            }
+          ]},
+          { code: 505, indent, parameters: [{ code: 14, parameters: [0,0]}]},
+          { code: 205, indent, parameters: [3, { list: [{ code: 14, parameters: [0,0]},{ code: 0}],"repeat":false,"skippable":false,"wait":true}]},
+          { code: 505, indent, parameters: [{ code: 14, parameters: [0,0]}]},
+          { code: 111, indent, parameters: [()=>{
             return (this._score == 2);
           }]},
-          {"code":212,"indent":1,"parameters":[2,2,false]},
-          {"code":0,"indent":1,"parameters":[]},
-          {"code":412,"indent":0,"parameters":[]},
-          {"code":205,"indent":0,"parameters":[2,{"list":[{"code":14,"parameters":[x,y],"indent":null},{"code":0}],"repeat":false,"skippable":false,"wait":true}]},
-          {"code":505,"indent":0,"parameters":[{"code":14,"parameters":[x,y],"indent":null}]},
-          {"code":111,"indent":0,"parameters":[()=>{
+          { code: 212, indent: indent + 1, parameters: [2,2,false]},
+          { code: 0, indent: indent + 1},
+          { code: 412, indent, parameters: []},
+          { code: 205, indent, parameters: [2,{ list: [{ code: 14,parameters: [x,y]},{ code: 0}],"repeat":false,"skippable":false,"wait":true}]},
+          { code: 505, indent, parameters: [{ code: 14,parameters: [x,y]}]},
+          { code: 111, indent, parameters: [()=>{
             return (this._score > 0);
           }]},
-          {"code":250,"indent":1,"parameters":[{"name":"Wind7","volume":90,"pitch":130,"pan":0}]},
-          {"code":412,"indent":0,"parameters":[]},
-          {"code":205,"indent":0,"parameters":[3,{"list":[{"code":0}],"repeat":false,"skippable":false,"wait":true}]},
-          {"code":203,"indent":0,"parameters":[2,0,2,10,0]},
-          {"code":355,"indent":0,"parameters":[()=>{
+          { code: 250, indent: indent + 1, parameters: [{"name":"Wind7","volume":90,"pitch":130,"pan":0}]},
+          { code: 412, indent},
+          { code: 205, indent, parameters: [3,{ list: [{ code: 0}],"repeat":false,"skippable":false,"wait":true}]},
+          { code: 203, indent, parameters: [2,0,2,10,0]},
+          { code: 355, indent, parameters: [()=>{
             this.op('showScore');
           }]},
-          {"code":230,"indent":0,"parameters":[60]},
-          {"code":0,"indent":0,"parameters":[]}
+          { code: 230, indent, parameters: [60]},
+          { code: 0, indent}
         ]);
       },
       onScore: function() {
@@ -146,22 +157,23 @@
             _interpreter:itpr,
           }
         } = window;
+        const indent = itpr._indent;
         itpr.insertCommands([
-          {"code":101,"indent":0,"parameters":["",0,0,2]},
-          {"code":401,"indent":0,"parameters":[`共得分${this._totalScore}，是否结束？`]},
-          {"code":102,"indent":0,"parameters":[["是","否"],1,0,2,0]},
-          {"code":402,"indent":0,"parameters":[0,"是"]},
-          {"code":355,"indent":1,"parameters":[()=>{
+          { code: 101, indent, parameters: ["",0,0,2]},
+          { code: 401, indent, parameters: [`共得分${this._totalScore}，是否结束？`]},
+          { code: 102, indent, parameters: [["是","否"],1,0,2,0]},
+          { code: 402, indent, parameters: [0,"是"]},
+          { code: 355, indent: indent + 1, parameters: [()=>{
             this.op('showMenu');
           }]},
-          {"code":0,"indent":1,"parameters":[]},
-          {"code":402,"indent":0,"parameters":[1,"否"]},
-          {"code":355,"indent":1,"parameters":[()=>{
+          { code: 0, indent: indent + 1},
+          { code: 402, indent, parameters: [1,"否"]},
+          { code: 355, indent: indent + 1, parameters: [()=>{
             this.op('startGame');
           }]},
-          {"code":0,"indent":1,"parameters":[]},
-          {"code":404,"indent":0,"parameters":[]},
-          {"code":0,"indent":0,"parameters":[]}
+          { code: 0, indent: indent + 1},
+          { code: 404, indent},
+          { code: 0, indent}
         ]);
       },
       update: function(map) {
@@ -189,8 +201,9 @@
             _interpreter:itpr,
           }
         } = window;
+        const indent = itpr._indent;
         const { x, y, direction, mapId,} = this._locHistory;
-        itpr.insertCommands([{"code":201,"indent":0,"parameters":[ 0, mapId, x, y, direction, 0 ]}]);
+        itpr.insertCommands([{ code: 201, indent, parameters: [ 0, mapId, x, y, direction, 0 ]}]);
         this._restoreSceneMap();
       },
       _hackSceneMap: async function() {

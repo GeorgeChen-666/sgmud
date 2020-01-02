@@ -7,6 +7,7 @@ PluginManager.loadScript('TextBalloon.js', basePath);
 PluginManager.loadScript('Basketball/js/main.js', basePath);
 PluginManager.loadScript('KunFuActorAttr.js', basePath);
 PluginManager.loadScript('KunFuMapMenu.js', basePath);
+PluginManager.loadScript('KunFuNpcMenu.js', basePath);
 PluginManager.loadScript('KunFuNpcInfo.js', basePath);
 PluginManager.loadScript('Test.js', basePath);
 

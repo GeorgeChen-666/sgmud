@@ -11,7 +11,7 @@ Window_NpcInfo.prototype.initialize = function() {
   var height = Graphics.boxHeight;
   Window_Base.prototype.initialize.call(this, 0, 0, width, height);
   var dEvent = $gameMap.getCurrentGameEvent().event();
-  var dActor = $dataActors[dEvent.meta.actorid];
+  var dActor = $dataActors[dEvent.meta.actorId];
   this.drawText(dEvent.name, 0, 0, this.contentsWidth(),'center');
   this.drawHorzLine(this.lineHeight() * 1);
   var hiw = this.lineHeight()*5
