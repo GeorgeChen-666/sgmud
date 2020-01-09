@@ -33,7 +33,7 @@ Game_Interpreter.prototype.showTalkWindow = function() {
   ]);
   const eops = dEvent.meta.eOptions || '';
   const nhops = dEvent.meta.nOptions || '';
-  options = options.concat(eops.split(','));
+  options = options.concat(eops.split(',')).filter(e => !!e);
   var tvs = [
     { code: 102, indent, parameters: [options, -2, 0, 2, 0] },
     ...options
@@ -63,6 +63,7 @@ Game_Interpreter.prototype.showTalkWindow = function() {
     },
     { code: 0, indent}
   ];
+  console.log(JSON.stringify(tvs));
   this.insertCommands(tvs);
 };
 /**
@@ -141,7 +142,7 @@ getLearningCommand = function(indent) {
         indent: indent + 1,
         parameters: [
           function() {
-            var tmps = this._params[1];
+            const tmps = this._params[1];
             showLearnProgess(this, tmps.data, tmps.level, indent + 1);
           },
           tmps

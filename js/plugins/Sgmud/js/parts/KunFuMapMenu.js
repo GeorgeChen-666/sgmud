@@ -20,18 +20,6 @@ PluginManager.regHook('Window_MenuStatus.prototype.drawItemImage', () => functio
   this.drawActorFace(actor, rect.x, rect.y + lineHeight * 2, w, h);
   this.changePaintOpacity(true);
 });
-Window_MenuStatus.prototype.drawGaugeBar = function(title,min,max, x, y, width,hasGauge=false,hasText=true,color1,color2) {
-  width = width || 186;
-  if(hasGauge) {
-      this.drawGauge(x, y, width, (max==0?0:min / max), color1, color2);
-  }
-  this.changeTextColor(this.systemColor());
-  this.drawText(title, x, y, 56);
-  if(hasText) {
-      this.drawCurrentAndMax(min, max, x, y, width,
-                          this.normalColor(), this.normalColor());
-  }
-};
 Window_MenuStatus.prototype.drawActorHp = function(actor, x, y, width,withnum=true) {
   this.drawGaugeBar(TextManager.hpA,actor.hp, actor.mhp,x, y, width,
       true,withnum,this.hpGaugeColor1(),this.hpGaugeColor1());

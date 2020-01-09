@@ -11,6 +11,18 @@
     const line_y = y + this.lineHeight() / 2 - 1
     this.contents.fillRect(0,line_y,this.contentsWidth(),2,this.normalColor());
   };
+  Window_Base.prototype.drawGaugeBar = function(title,min,max, x, y, width,hasGauge=false,hasText=true,color1,color2) {
+    width = width || 186;
+    if(hasGauge) {
+        this.drawGauge(x, y, width, (max==0?0:min / max), color1, color2);
+    }
+    this.changeTextColor(this.systemColor());
+    this.drawText(title, x, y, 56);
+    if(hasText) {
+        this.drawCurrentAndMax(min, max, x, y, width,
+                            this.normalColor(), this.normalColor());
+    }
+  };
   /**
    * 直接加载base64资源
    */
