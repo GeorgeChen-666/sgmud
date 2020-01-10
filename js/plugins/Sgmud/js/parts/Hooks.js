@@ -30,6 +30,9 @@
     }
     return dFunc;
   };
+  PluginManager.regBatchHooks = function(hookMap={}) {
+    return Object.keys(hookMap).map(key => PluginManager.regHook(key, hookMap[key]));
+  };
   /**
    * 解除钩子函数
    */
