@@ -51,21 +51,17 @@
       }
     }
   }
-  PluginManager.regHook(
-    'Game_Message.prototype.clear',
-    oFunc =>
+  Game_Message.prototype.isProgress = function() {
+    return this.progressTitle !== '';
+  };
+  PluginManager.regBatchHooks({
+    'Game_Message.prototype.clear': oFunc =>
       function() {
         oFunc();
         this.progressMax = 10;
         this.progressVal = 0;
         this.progressTitle = '';
-      }
-  );
-
-  Game_Message.prototype.isProgress = function() {
-    return this.progressTitle !== '';
-  };
-  PluginManager.regBatchHooks({
+      },
     //阻止角色地图移动,Game_Player.prototype.canMove
     'Game_Message.prototype.isBusy': oFunc =>
       function() {
