@@ -28,7 +28,9 @@
     } else {
       Scene_Boot.Totos.push(doHook);
     }
-    return dFunc;
+    return () => {
+      delHook(key, dFunc);
+    };
   };
   PluginManager.regBatchHooks = function(hookMap={}) {
     return Object.keys(hookMap).map(key => PluginManager.regHook(key, hookMap[key]));
@@ -36,7 +38,7 @@
   /**
    * 解除钩子函数
    */
-  PluginManager.delHook = function(key, dFunc) {
+  const delHook = function(key, dFunc) {
     const [sObj, sFunc, sFuncName] = [...getKeyObjects(key)];
     const doUnHook = () => {
       let lastFunc = null;

@@ -4,7 +4,7 @@
     _gbb:{ Window_PowerBar, Window_Text, basePath } 
   } = window;
   DataManager.loadMapData(1001,false,'Map.json', `js/plugins/${basePath}data/`);
-  let onMapLoaded,onSceneMapUpdate,isMenuEnabled;
+  let onMapLoadedRestore,onSceneMapUpdateRestore,isMenuEnabledRestore;
   const BasketballManager = new StateMachine({
     init: 'load',
     transitions: [
@@ -208,9 +208,9 @@
       },
       _hackSceneMap: async function() {
         const me = this;
-        isMenuEnabled = PluginManager.regHook('Scene_Map.prototype.isMenuEnabled',() => () => false);
+        isMenuEnabledRestore = PluginManager.regHook('Scene_Map.prototype.isMenuEnabled',() => () => false);
         //劫持onMapLoaded显示自定义窗口
-        onMapLoaded = PluginManager.regHook('Scene_Map.prototype.onMapLoaded',oFunc => function() {
+        onMapLoadedRestore = PluginManager.regHook('Scene_Map.prototype.onMapLoaded',oFunc => function() {
           oFunc();
           me._CustomWindows.forEach(child => {
             child.close();
@@ -218,16 +218,16 @@
           });
         });
         //劫持update
-        onSceneMapUpdate = PluginManager.regHook('Scene_Map.prototype.update',oFunc => function() {
+        onSceneMapUpdateRestore = PluginManager.regHook('Scene_Map.prototype.update',oFunc => function() {
           oFunc();
           me.update(this);
         });
       },
       _restoreSceneMap: function() {
         // 恢复之前的劫持
-        PluginManager.delHook('Scene_Map.prototype.isMenuEnabled', isMenuEnabled);
-        PluginManager.delHook('Scene_Map.prototype.update', onSceneMapUpdate);
-        PluginManager.delHook('Scene_Map.prototype.onMapLoaded', onMapLoaded);
+        isMenuEnabledRestore();
+        onSceneMapUpdateRestore();
+        onMapLoadedRestore();
       },
       op: function(fn,rightNow = false) {
         if(rightNow) {
@@ -241,4 +241,4 @@
     }
   });
   window.BasketballManager = BasketballManager;
-})()
+})();
