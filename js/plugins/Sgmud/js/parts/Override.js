@@ -7,6 +7,18 @@
     this._backgroundSprite.bitmap = SceneManager.backgroundBitmap();
     this.addChild(this._backgroundSprite);
   };
+  /**
+   * 简易的窗体贴图功能，不用写乱糟糟的等资源代码。
+   */
+  Window_Base.prototype.reserveImageTodo = function(image, callBack) {
+    const unReg = PluginManager.regHook('Window_Base.prototype.update', oFunc => function() {
+      oFunc();
+      if(image.isReady()) {
+        callBack();
+        unReg();
+      }
+    });
+  }
   Window_Base.prototype.drawHorzLine = function(y) {
     const line_y = y + this.lineHeight() / 2 - 1
     this.contents.fillRect(0,line_y,this.contentsWidth(),2,this.normalColor());

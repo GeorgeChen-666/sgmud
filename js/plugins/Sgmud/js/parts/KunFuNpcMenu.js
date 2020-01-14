@@ -63,7 +63,6 @@ Game_Interpreter.prototype.showTalkWindow = function() {
     },
     { code: 0, indent}
   ];
-  console.log(JSON.stringify(tvs));
   this.insertCommands(tvs);
 };
 /**

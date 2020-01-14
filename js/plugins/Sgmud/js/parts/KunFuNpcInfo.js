@@ -14,19 +14,21 @@ Window_NpcInfo.prototype.initialize = function() {
   var dActor = $dataActors[dEvent.meta.actorId];
   this.drawText(dEvent.name, 0, 0, this.contentsWidth(),'center');
   this.drawHorzLine(this.lineHeight() * 1);
-  var hiw = this.lineHeight()*5
+  var hiw = this.lineHeight() * 5
   this.drawText(dEvent.name+'看起来约'+parseInt(dActor.meta.年龄/10)+'0多岁', hiw, this.lineHeight()*2, this.contentsWidth());
   this.drawText('生得一脸稚气', hiw, this.lineHeight()*3, this.contentsWidth());
   this.drawText('武艺看起来不堪一击', hiw, this.lineHeight()*4, this.contentsWidth());
   this.drawText('出手似乎很轻', hiw, this.lineHeight()*5, this.contentsWidth());
-  this.drawFace(dActor.faceName,dActor.faceIndex,0,this.lineHeight() * 2.5,Window_Base._faceWidth, Window_Base._faceHeight);
+  const faceBitmap = ImageManager.reserveFace(dActor.faceName, 0);
+  this.reserveImageTodo(faceBitmap, ()=> {
+    const { _faceWidth, _faceHeight } = Window_Base;
+    this.drawFace(dActor.faceName,dActor.faceIndex,0,this.lineHeight() * 2.5,_faceWidth, _faceHeight);
+  })
   this.drawHorzLine(this.lineHeight() * 7);
   this.drawText('带着：', this.lineHeight() * 1, this.lineHeight()*8, this.contentsWidth());
   this.drawHorzLine(this.lineHeight() * 9);
   this.drawTextEx(dActor.profile,this.lineHeight() * 1,this.lineHeight() * 10);
-  
 };
-
 /**
  * 查看npc
  */
