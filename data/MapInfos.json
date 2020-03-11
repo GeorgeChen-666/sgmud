@@ -4,5 +4,5 @@ null,
 {"id":2,"expanded":true,"name":"平安镇南街","order":2,"parentId":5,"scrollX":882,"scrollY":511.3333333333333},
 {"id":3,"expanded":false,"name":"月下老人家","order":3,"parentId":2,"scrollX":820.6666666666666,"scrollY":522},
 {"id":4,"expanded":false,"name":"MAP004","order":5,"parentId":2,"scrollX":610.5,"scrollY":381.5},
-{"id":5,"expanded":true,"name":"世界地图","order":1,"parentId":0,"scrollX":820.6666666666666,"scrollY":522}
+{"id":5,"expanded":true,"name":"世界地图","order":1,"parentId":0,"scrollX":406,"scrollY":295.5}
 ]
