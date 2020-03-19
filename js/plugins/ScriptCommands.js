@@ -502,7 +502,7 @@
         wait: false
       })
     ) {
-      const routeParameters = routeCommandFunc(new RouteCommandGenerator());
+      const routeParameters = routeCommandFunc(new $mvs.RouteCommandGenerator());
       this.commands.push({
         code: 205,
         indent: this.indent,
@@ -901,7 +901,7 @@
       return this;
     }
     shopProcessing(isPurchaseOnly = false, getItems = () => [[0, 0, 0, 0]]) {
-      const [firstItem, ...restItems] = getItems(new ItemListGenerator());
+      const [firstItem, ...restItems] = getItems(new $mvs.ItemListGenerator());
       this.commands.push({
         code: 302,
         indent: this.indent,
@@ -1210,295 +1210,297 @@
       return this;
     }
 
-    static enumBackground = {
-      Window: 0,
-      Dim: 1,
-      Transparent: 2
-    };
-    static enumPositionV = {
-      Top: 0,
-      Middle: 1,
-      Botton: 2
-    };
-    static enumPositionH = {
-      Left: 0,
-      Middle: 1,
-      Right: 2
-    };
-    static enumItemType = {
-      RegularItem: 1,
-      KeyItem: 2,
-      HiddenItemA: 3,
-      HiddenItemB: 4
-    };
-    static enumSwitchValue = {
-      ON: 0,
-      OFF: 1
-    };
-    static enumSelfSwitchName = {
-      A: "A",
-      B: "B",
-      C: "C",
-      D: "D"
-    };
-    static enumVehicleType = {
-      Boat: 0,
-      Ship: 1,
-      Airship: 2
-    };
-    static enumDirection = {
-      Retain: 0,
-      Down: 1,
-      Left: 2,
-      Right: 3,
-      Top: 4
-    };
-    static enumFadeType = {
-      Black: 0,
-      White: 1,
-      None: 2
-    };
-    static enumSpeed = {
-      x8Slower: 1,
-      x4Slower: 2,
-      x2Slower: 3,
-      Normal: 4,
-      x2Faster: 5,
-      x4Faster: 6
-    };
-    static enumBlendMode = {
-      Normal: 0,
-      Additive: 1,
-      Multiply: 2,
-      Screen: 3
-    };
-    static enumWeather = {
-      None: "none",
-      Rain: "rain",
-      Storm: "storm",
-      Snow: "snow"
-    };
-    static enumAbility = {
-      MaxHP: 0,
-      MaxMP: 1,
-      Attack: 2,
-      Defense: 3,
-      MAttack: 4,
-      MDefense: 5,
-      Agility: 6,
-      Luck: 7
-    };
-    ItemListGenerator = class {
-      itemList = [];
-      addItem(id, price = null) {
-        itemList.push(0, id, price === null ? 0 : 1, price);
-      }
-      addWeapon(id, price = null) {
-        itemList.push(1, id, price === null ? 0 : 1, price);
-      }
-      addArmor(id, price = null) {
-        itemList.push(2, id, price === null ? 0 : 1, price);
-      }
-      done() {
-        return itemList;
-      }
-    };
-    RouteCommandGenerator = class {
-      constructor() {
-        this.list = [];
-      }
-      getCommands(repeat, skippable, wait) {
-        return {
-          list: [...this.list, { code: 0 }],
-          repeat,
-          skippable,
-          wait
-        };
-      }
-      moveDown() {
-        this.list.push({ code: 1 });
-        return this;
-      }
-      moveLeft() {
-        this.list.push({ code: 2 });
-        return this;
-      }
-      moveRight() {
-        this.list.push({ code: 3 });
-        return this;
-      }
-      moveUp() {
-        this.list.push({ code: 4 });
-        return this;
-      }
-      moveLeftDown() {
-        this.list.push({ code: 5 });
-        return this;
-      }
-      moveRightDown() {
-        this.list.push({ code: 6 });
-        return this;
-      }
-      moveLeftUp() {
-        this.list.push({ code: 7 });
-        return this;
-      }
-      moveRightUp() {
-        this.list.push({ code: 8 });
-        return this;
-      }
-      moveRandom() {
-        this.list.push({ code: 9 });
-        return this;
-      }
-      moveToward() {
-        this.list.push({ code: 10 });
-        return this;
-      }
-      moveAway() {
-        this.list.push({ code: 11 });
-        return this;
-      }
-      moveForward() {
-        this.list.push({ code: 12 });
-        return this;
-      }
-      moveBackward() {
-        this.list.push({ code: 13 });
-        return this;
-      }
-      jump(x, y) {
-        this.list.push({ code: 14, parameters: [x, y] });
-        return this;
-      }
-      wait(duration) {
-        this.list.push({ code: 15, parameters: [duration] });
-        return this;
-      }
-      turnDown() {
-        this.list.push({ code: 16 });
-        return this;
-      }
-      turnLeft() {
-        this.list.push({ code: 17 });
-        return this;
-      }
-      turnRight() {
-        this.list.push({ code: 18 });
-        return this;
-      }
-      turnUp() {
-        this.list.push({ code: 19 });
-        return this;
-      }
-      turn90dR() {
-        this.list.push({ code: 20 });
-        return this;
-      }
-      turn90dL() {
-        this.list.push({ code: 21 });
-        return this;
-      }
-      turn180d() {
-        this.list.push({ code: 22 });
-        return this;
-      }
-      turn90dRL() {
-        this.list.push({ code: 23 });
-        return this;
-      }
-      turnRandom() {
-        this.list.push({ code: 24 });
-        return this;
-      }
-      turnToward() {
-        this.list.push({ code: 25 });
-        return this;
-      }
-      turnAway() {
-        this.list.push({ code: 26 });
-        return this;
-      }
-      switchOn(switchId) {
-        this.list.push({ code: 27, parameters: [switchId] });
-        return this;
-      }
-      switchOff(switchId) {
-        this.list.push({ code: 28, parameters: [switchId] });
-        return this;
-      }
-      changeSpeed(speed) {
-        this.list.push({ code: 29, parameters: [speed] });
-        return this;
-      }
-      changeFreq(freq) {
-        this.list.push({ code: 30, parameters: [freq] });
-        return this;
-      }
-      walkAnimeOn() {
-        this.list.push({ code: 31 });
-        return this;
-      }
-      walkAnimeOff() {
-        this.list.push({ code: 32 });
-        return this;
-      }
-      stepAnimeOn() {
-        this.list.push({ code: 33 });
-        return this;
-      }
-      stepAnimeOff() {
-        this.list.push({ code: 34 });
-        return this;
-      }
-      dirFixOn() {
-        this.list.push({ code: 35 });
-        return this;
-      }
-      dirFixOff() {
-        this.list.push({ code: 36 });
-        return this;
-      }
-      throughOn() {
-        this.list.push({ code: 37 });
-        return this;
-      }
-      throughOff() {
-        this.list.push({ code: 38 });
-        return this;
-      }
-      transparentOn() {
-        this.list.push({ code: 39 });
-        return this;
-      }
-      transparentOff() {
-        this.list.push({ code: 40 });
-        return this;
-      }
-      changeImage(imageName, imageIndex) {
-        this.list.push({ code: 41, parameters: [imageName, imageIndex] });
-        return this;
-      }
-      changeOpacity(opacity) {
-        this.list.push({ code: 42, parameters: [opacity] });
-        return this;
-      }
-      changeBlendMode(blendMode) {
-        this.list.push({ code: 43, parameters: [blendMode] });
-        return this;
-      }
-      playSE(name, volume = 90, pitch = 100, pan = 0) {
-        this.list.push({
-          code: 44,
-          parameters: [{ name, volume, pitch, pan }]
-        });
-        return this;
-      }
-      callJsFunction(jsFunction) {
-        this.list.push({ code: 45, parameters: [jsFunction] });
-        return this;
-      }
-    };
   }
+  $mvs.ItemListGenerator = class {
+    constructor() {
+      this.itemList = [];
+    }
+    addItem(id, price = null) {
+      itemList.push(0, id, price === null ? 0 : 1, price);
+    }
+    addWeapon(id, price = null) {
+      itemList.push(1, id, price === null ? 0 : 1, price);
+    }
+    addArmor(id, price = null) {
+      itemList.push(2, id, price === null ? 0 : 1, price);
+    }
+    done() {
+      return itemList;
+    }
+  };
+  $mvs.RouteCommandGenerator = class {
+    constructor() {
+      this.list = [];
+    }
+    getCommands(repeat, skippable, wait) {
+      return {
+        list: [...this.list, { code: 0 }],
+        repeat,
+        skippable,
+        wait
+      };
+    }
+    moveDown() {
+      this.list.push({ code: 1 });
+      return this;
+    }
+    moveLeft() {
+      this.list.push({ code: 2 });
+      return this;
+    }
+    moveRight() {
+      this.list.push({ code: 3 });
+      return this;
+    }
+    moveUp() {
+      this.list.push({ code: 4 });
+      return this;
+    }
+    moveLeftDown() {
+      this.list.push({ code: 5 });
+      return this;
+    }
+    moveRightDown() {
+      this.list.push({ code: 6 });
+      return this;
+    }
+    moveLeftUp() {
+      this.list.push({ code: 7 });
+      return this;
+    }
+    moveRightUp() {
+      this.list.push({ code: 8 });
+      return this;
+    }
+    moveRandom() {
+      this.list.push({ code: 9 });
+      return this;
+    }
+    moveToward() {
+      this.list.push({ code: 10 });
+      return this;
+    }
+    moveAway() {
+      this.list.push({ code: 11 });
+      return this;
+    }
+    moveForward() {
+      this.list.push({ code: 12 });
+      return this;
+    }
+    moveBackward() {
+      this.list.push({ code: 13 });
+      return this;
+    }
+    jump(x, y) {
+      this.list.push({ code: 14, parameters: [x, y] });
+      return this;
+    }
+    wait(duration) {
+      this.list.push({ code: 15, parameters: [duration] });
+      return this;
+    }
+    turnDown() {
+      this.list.push({ code: 16 });
+      return this;
+    }
+    turnLeft() {
+      this.list.push({ code: 17 });
+      return this;
+    }
+    turnRight() {
+      this.list.push({ code: 18 });
+      return this;
+    }
+    turnUp() {
+      this.list.push({ code: 19 });
+      return this;
+    }
+    turn90dR() {
+      this.list.push({ code: 20 });
+      return this;
+    }
+    turn90dL() {
+      this.list.push({ code: 21 });
+      return this;
+    }
+    turn180d() {
+      this.list.push({ code: 22 });
+      return this;
+    }
+    turn90dRL() {
+      this.list.push({ code: 23 });
+      return this;
+    }
+    turnRandom() {
+      this.list.push({ code: 24 });
+      return this;
+    }
+    turnToward() {
+      this.list.push({ code: 25 });
+      return this;
+    }
+    turnAway() {
+      this.list.push({ code: 26 });
+      return this;
+    }
+    switchOn(switchId) {
+      this.list.push({ code: 27, parameters: [switchId] });
+      return this;
+    }
+    switchOff(switchId) {
+      this.list.push({ code: 28, parameters: [switchId] });
+      return this;
+    }
+    changeSpeed(speed) {
+      this.list.push({ code: 29, parameters: [speed] });
+      return this;
+    }
+    changeFreq(freq) {
+      this.list.push({ code: 30, parameters: [freq] });
+      return this;
+    }
+    walkAnimeOn() {
+      this.list.push({ code: 31 });
+      return this;
+    }
+    walkAnimeOff() {
+      this.list.push({ code: 32 });
+      return this;
+    }
+    stepAnimeOn() {
+      this.list.push({ code: 33 });
+      return this;
+    }
+    stepAnimeOff() {
+      this.list.push({ code: 34 });
+      return this;
+    }
+    dirFixOn() {
+      this.list.push({ code: 35 });
+      return this;
+    }
+    dirFixOff() {
+      this.list.push({ code: 36 });
+      return this;
+    }
+    throughOn() {
+      this.list.push({ code: 37 });
+      return this;
+    }
+    throughOff() {
+      this.list.push({ code: 38 });
+      return this;
+    }
+    transparentOn() {
+      this.list.push({ code: 39 });
+      return this;
+    }
+    transparentOff() {
+      this.list.push({ code: 40 });
+      return this;
+    }
+    changeImage(imageName, imageIndex) {
+      this.list.push({ code: 41, parameters: [imageName, imageIndex] });
+      return this;
+    }
+    changeOpacity(opacity) {
+      this.list.push({ code: 42, parameters: [opacity] });
+      return this;
+    }
+    changeBlendMode(blendMode) {
+      this.list.push({ code: 43, parameters: [blendMode] });
+      return this;
+    }
+    playSE(name, volume = 90, pitch = 100, pan = 0) {
+      this.list.push({
+        code: 44,
+        parameters: [{ name, volume, pitch, pan }]
+      });
+      return this;
+    }
+    callJsFunction(jsFunction) {
+      this.list.push({ code: 45, parameters: [jsFunction] });
+      return this;
+    }
+  };
+  $mvs.enumBackground = {
+    Window: 0,
+    Dim: 1,
+    Transparent: 2
+  };
+  $mvs.enumPositionV = {
+    Top: 0,
+    Middle: 1,
+    Botton: 2
+  };
+  $mvs.enumPositionH = {
+    Left: 0,
+    Middle: 1,
+    Right: 2
+  };
+  $mvs.enumItemType = {
+    RegularItem: 1,
+    KeyItem: 2,
+    HiddenItemA: 3,
+    HiddenItemB: 4
+  };
+  $mvs.enumSwitchValue = {
+    ON: 0,
+    OFF: 1
+  };
+  $mvs.enumSelfSwitchName = {
+    A: "A",
+    B: "B",
+    C: "C",
+    D: "D"
+  };
+  $mvs.enumVehicleType = {
+    Boat: 0,
+    Ship: 1,
+    Airship: 2
+  };
+  $mvs.enumDirection = {
+    Retain: 0,
+    Down: 1,
+    Left: 2,
+    Right: 3,
+    Top: 4
+  };
+  $mvs.enumFadeType = {
+    Black: 0,
+    White: 1,
+    None: 2
+  };
+  $mvs.enumSpeed = {
+    x8Slower: 1,
+    x4Slower: 2,
+    x2Slower: 3,
+    Normal: 4,
+    x2Faster: 5,
+    x4Faster: 6
+  };
+  $mvs.enumBlendMode = {
+    Normal: 0,
+    Additive: 1,
+    Multiply: 2,
+    Screen: 3
+  };
+  $mvs.enumWeather = {
+    None: "none",
+    Rain: "rain",
+    Storm: "storm",
+    Snow: "snow"
+  };
+  $mvs.enumAbility = {
+    MaxHP: 0,
+    MaxMP: 1,
+    Attack: 2,
+    Defense: 3,
+    MAttack: 4,
+    MDefense: 5,
+    Agility: 6,
+    Luck: 7
+  };
   window.$mvs = $mvs;
 })();

@@ -1,7 +1,10 @@
+/**
+ * @requires Hooks.js
+ */
 (function() {
   /**
-  * 默认场景的背景是模糊
-  */
+   * 默认场景的背景是模糊
+   */
   Scene_Base.prototype.createBackground = function() {
     this._backgroundSprite = new Sprite();
     this._backgroundSprite.bitmap = SceneManager.backgroundBitmap();
@@ -11,28 +14,56 @@
    * 简易的窗体贴图功能，不用写乱糟糟的等资源代码。
    */
   Window_Base.prototype.reserveImageTodo = function(image, callBack) {
-    const unReg = PluginManager.regHook('Window_Base.prototype.update', oFunc => function() {
-      oFunc();
-      if(image.isReady()) {
-        callBack();
-        unReg();
-      }
-    });
-  }
-  Window_Base.prototype.drawHorzLine = function(y) {
-    const line_y = y + this.lineHeight() / 2 - 1
-    this.contents.fillRect(0,line_y,this.contentsWidth(),2,this.normalColor());
+    const unReg = PluginManager.regHook(
+      "Window_Base.prototype.update",
+      oFunc =>
+        function() {
+          oFunc();
+          if (image.isReady()) {
+            callBack();
+            unReg();
+          }
+        }
+    );
   };
-  Window_Base.prototype.drawGaugeBar = function(title,min,max, x, y, width,hasGauge=false,hasText=true,color1,color2) {
+  Window_Base.prototype.drawHorzLine = function(y) {
+    const line_y = y + this.lineHeight() / 2 - 1;
+    this.contents.fillRect(
+      0,
+      line_y,
+      this.contentsWidth(),
+      2,
+      this.normalColor()
+    );
+  };
+  Window_Base.prototype.drawGaugeBar = function(
+    title,
+    min,
+    max,
+    x,
+    y,
+    width,
+    hasGauge = false,
+    hasText = true,
+    color1,
+    color2
+  ) {
     width = width || 186;
-    if(hasGauge) {
-        this.drawGauge(x, y, width, (max==0?0:min / max), color1, color2);
+    if (hasGauge) {
+      this.drawGauge(x, y, width, max == 0 ? 0 : min / max, color1, color2);
     }
     this.changeTextColor(this.systemColor());
     this.drawText(title, x, y, 56);
-    if(hasText) {
-        this.drawCurrentAndMax(min, max, x, y, width,
-                            this.normalColor(), this.normalColor());
+    if (hasText) {
+      this.drawCurrentAndMax(
+        min,
+        max,
+        x,
+        y,
+        width,
+        this.normalColor(),
+        this.normalColor()
+      );
     }
   };
   /**
@@ -69,8 +100,8 @@
   DataManager.loadMapData = function(
     mapId,
     isRefresh = false,
-    nameTempl = 'Map%1.json',
-    basepath = 'data/'
+    nameTempl = "Map%1.json",
+    basepath = "data/"
   ) {
     DataManager._mapCache = DataManager._mapCache || {};
     if (mapId > 0) {
@@ -81,9 +112,9 @@
         var filename = nameTempl.format(mapId.padZero(3));
         this._mapLoader = ResourceHandler.createLoader(
           basepath + filename,
-          this.loadDataFile.bind(this, '$dataMap', filename)
+          this.loadDataFile.bind(this, "$dataMap", filename)
         );
-        this.loadDataFile('$dataMap', filename, basepath).then(() => {
+        this.loadDataFile("$dataMap", filename, basepath).then(() => {
           DataManager.setMapCache(mapId, $dataMap);
         });
       }
@@ -91,12 +122,12 @@
       this.makeEmptyMap();
     }
   };
-  DataManager.loadDataFile = function(name, src, basepath = 'data/') {
+  DataManager.loadDataFile = function(name, src, basepath = "data/") {
     return new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest();
       var url = basepath + src;
-      xhr.open('GET', url);
-      xhr.overrideMimeType('application/json');
+      xhr.open("GET", url);
+      xhr.overrideMimeType("application/json");
       xhr.onload = function() {
         if (xhr.status < 400) {
           window[name] = JSON.parse(xhr.responseText);
