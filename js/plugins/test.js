@@ -8,6 +8,7 @@
       this.initialize.apply(this, arguments);
     }
     initialize() {
+      this._frames = 0;
       var width = this.windowWidth();
       var height = this.windowHeight();
       var x = (Graphics.boxWidth - width) / 2;
@@ -18,6 +19,7 @@
       //this.refresh();
     }
     open() {
+      this._frames = 0;
       var width = this.windowWidth();
       var height = this.windowHeight();
       var x = (Graphics.boxWidth - width) / 2;
@@ -55,10 +57,28 @@
     }
     update() {
       Window_Base.prototype.update.call(this);
+      if (!$gameMessage.progressMax) {
+        this.close();
+        this.deactivate();
+        $gameMessage.clear();
+        return;
+      }
       if (Input.isRepeated("cancel") || TouchInput.isCancelled()) {
         this.close();
         this.deactivate();
-        $gameMessage.progressTitle = "";
+        $gameMessage.clear();
+      }
+      this._frames++;
+      if (this._frames % 60 === 0) {
+        $gameMessage.setProgress(
+          $gameMessage.progressVal + $gameMessage.progressStep
+        );
+        this.refresh();
+        if ($gameMessage.progressVal >= $gameMessage.progressMax) {
+          this.close();
+          this.deactivate();
+          $gameMessage.clear();
+        }
       }
     }
   }
@@ -68,17 +88,19 @@
   Game_Message.prototype.setProgress = function(
     val,
     max = this.progressMax,
-    title = this.progressTitle
+    title = this.progressTitle,
+    step = 1
   ) {
     this.progressMax = max;
     this.progressVal = val;
+    this.progressStep = step;
     this.progressTitle = title;
   };
   PluginManager.regBatchHooks({
     "Game_Message.prototype.clear": oFunc =>
       function() {
         oFunc();
-        this.progressMax = 10;
+        this.progressMax = 0;
         this.progressVal = 0;
         this.progressTitle = "";
       },
@@ -112,5 +134,6 @@
   });
 })();
 function ttt(me) {
-  BasketballManager.enter();
+  // BasketballManager.enter();
+  $gameMessage.setProgress(0, 10, "666");
 }
