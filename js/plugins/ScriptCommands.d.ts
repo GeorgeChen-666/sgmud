@@ -166,13 +166,11 @@ namespace $mvs {
     Luck = 7
   }
   class RouteCommandGenerator {
-    constructor() {
-      this.list = [];
-    }
+    constructor()
     getCommands(
       repeat: boolean,
-      skippable = boolean,
-      wait = boolean
+      skippable : boolean,
+      wait : boolean
     ): {
       list: [{ code: number }];
       repeat: boolean;
@@ -278,7 +276,7 @@ declare class $mvs {
    */
   constructor(
     interpreter: Game_Interpreter,
-    indent: number = interpreter._indent
+    indent?:number
   );
   /**
    * 命令串构造完毕，立即执行。
