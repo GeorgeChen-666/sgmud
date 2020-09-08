@@ -3,19 +3,17 @@
     /**
      * 扩展解释器，在解析器当前执行的命令后面插入命令
      */
-    Game_Interpreter.prototype.insertCommands = function(jsonCmds) {
-      console.log("insertCommands", jsonCmds);
+    Game_Interpreter.prototype.insertCommands = function (jsonCmds) {
       this._freezeChecker = 0;
       if (!this._list) {
         // 没有此处判断仅能在地图事件中调用insertCommands插入命令，有此判断后可以随时随地插入命令。
-        this.clear();
-        this.setup(jsonCmds);
+        this.setup(jsonCmds, this.eventId());
       } else {
         var listCmds = this._list; // 命令列表
         var listCount = listCmds.length; // 这个事件队列中一共多少条命令
         var cuCmdIndex = this._index; // 当前执行的是第几条命令
         var cuCmdIndent = this._indent; // 当前代码的缩进级别
-        jsonCmds.forEach(function(e) {
+        jsonCmds.forEach(function (e) {
           // 将参数命令的indent拼接到当前的indent级别下，参数的indent一定要从0开始。
           e.indent += cuCmdIndent;
         });
@@ -24,13 +22,25 @@
           .concat(jsonCmds)
           .concat(listCmds.slice(cuCmdIndex + 1, listCount));
       }
+      console.log("insertCommands", this._index, jsonCmds, this._list);
+    };
+    //如果当前解释器已经执行完毕会丢失_eventId，所以我们不清空它。
+    const Game_Interpreter_prototype_clear = Game_Interpreter.prototype.clear;
+    Game_Interpreter.prototype.clear = function () {
+      const eventIdTemp = this.eventId();
+      const mapIdTemp = this._mapId;
+      Game_Interpreter_prototype_clear.apply(this);
+      this._branch = {};
+      this._eventId = eventIdTemp;
+      this._mapId = mapIdTemp;
+      this._indent = 0;
     };
     /**
      * 条件支持js代码
      */
     const Game_Interpreter_prototype_command111 =
       Game_Interpreter.prototype.command111;
-    Game_Interpreter.prototype.command111 = function() {
+    Game_Interpreter.prototype.command111 = function () {
       if (typeof this._params[0] === "function") {
         const result = !!this._params[0].apply(this);
         this._branch[this._indent] = result;
@@ -47,7 +57,7 @@
      */
     const Game_Interpreter_prototype_command122 =
       Game_Interpreter.prototype.command122;
-    Game_Interpreter.prototype.command122 = function() {
+    Game_Interpreter.prototype.command122 = function () {
       if (typeof this._params[4] === "function") {
         for (let i = this._params[0]; i <= this._params[1]; i++) {
           this.operateVariable(i, this._params[2], this._params[4].apply(this));
@@ -62,7 +72,7 @@
      */
     const Game_Interpreter_prototype_command355 =
       Game_Interpreter.prototype.command355;
-    Game_Interpreter.prototype.command355 = function() {
+    Game_Interpreter.prototype.command355 = function () {
       if (typeof this._params[0] === "function") {
         this._params[0].apply(this);
         return true;
@@ -75,7 +85,7 @@
      */
     const Game_Character_prototype_processMoveCommand =
       Game_Character.prototype.processMoveCommand;
-    Game_Character.prototype.processMoveCommand = function(command) {
+    Game_Character.prototype.processMoveCommand = function (command) {
       if (
         command.code === Game_Character.ROUTE_SCRIPT &&
         typeof this._params[0] === "function"
@@ -96,10 +106,11 @@
     done() {
       this.interpreter.insertCommands(this.commands);
       this.commands = [];
+      this.indent = this.interpreter._indent;
     }
 
     calculateAndCall(mvCommand) {
-      mvCommand(this);
+      typeof mvCommand === "function" && mvCommand(this);
       return this;
     }
 
@@ -114,13 +125,13 @@
         {
           code: 101,
           indent: this.indent,
-          parameters: [faceName, faceIndex, background, positionType]
+          parameters: [faceName, faceIndex, background, positionType],
         },
-        ...textData.map(text => ({
+        ...[].concat(textData).map((text) => ({
           code: 401,
           indent: this.indent,
-          parameters: [text]
-        }))
+          parameters: [text],
+        })),
       ]);
       return this;
     }
@@ -139,8 +150,8 @@
           cancelValue,
           defaultValue,
           positionType,
-          background
-        ]
+          background,
+        ],
       });
       return this;
     }
@@ -148,10 +159,10 @@
       this.commands.push({
         code: 402,
         indent: this.indent,
-        parameters: [index]
+        parameters: [index],
       });
       this.indent++;
-      subCommand(this);
+      typeof subCommand === "function" && subCommand(this);
       this.commands.push({ code: 0, indent: this.indent });
       this.indent--;
       return this;
@@ -159,7 +170,7 @@
     whenChoicesCancel(subCommand) {
       this.commands.push({ code: 403, indent: this.indent });
       this.indent++;
-      subCommand(this);
+      typeof subCommand === "function" && subCommand(this);
       this.commands.push({ code: 0, indent: this.indent });
       this.indent--;
       return this;
@@ -173,7 +184,7 @@
       this.commands.push({
         code: 103,
         indent: this.indent,
-        parameters: [variableId, maxDigits]
+        parameters: [variableId, maxDigits],
       });
       return this;
     }
@@ -181,7 +192,7 @@
       this.commands.push({
         code: 104,
         indent: this.indent,
-        parameters: [variableId, itemType]
+        parameters: [variableId, itemType],
       });
       return this;
     }
@@ -190,13 +201,13 @@
         {
           code: 105,
           indent: this.indent,
-          parameters: [speed, noFast]
+          parameters: [speed, noFast],
         },
-        ...textData.map(text => ({
+        ...[].concat(textData).map((text) => ({
           code: 405,
           indent: this.indent,
-          parameters: [text]
-        }))
+          parameters: [text],
+        })),
       ]);
       return this;
     }
@@ -204,48 +215,48 @@
       this.commands.push({
         code: 111,
         indent: this.indent,
-        parameters: [conditionFunction]
+        parameters: [conditionFunction],
       });
       this.indent++;
-      subCommand(this);
+      typeof subCommand === "function" && subCommand(this);
       this.indent--;
       return this;
     }
     whenElse(subCommand) {
       this.commands.push({
         code: 411,
-        indent: this.indent
+        indent: this.indent,
       });
       this.indent++;
-      subCommand(this);
+      typeof subCommand === "function" && subCommand(this);
       this.indent--;
       return this;
     }
     loop(subCommand) {
       this.commands.push({
         code: 112,
-        indent: this.indent
+        indent: this.indent,
       });
       this.indent++;
-      subCommand(this);
+      typeof subCommand === "function" && subCommand(this);
       this.indent--;
       this.commands.push({
         code: 413,
-        indent: this.indent
+        indent: this.indent,
       });
       return this;
     }
     loopBreak() {
       this.commands.push({
         code: 113,
-        indent: this.indent
+        indent: this.indent,
       });
       return this;
     }
     exitCommand() {
       this.commands.push({
         code: 115,
-        indent: this.indent
+        indent: this.indent,
       });
       return this;
     }
@@ -253,7 +264,7 @@
       this.commands.push({
         code: 117,
         indent: this.indent,
-        parameters: [eventId]
+        parameters: [eventId],
       });
       return this;
     }
@@ -261,7 +272,7 @@
       this.commands.push({
         code: 118,
         indent: this.indent,
-        parameters: [labelName]
+        parameters: [labelName],
       });
       return this;
     }
@@ -269,7 +280,7 @@
       this.commands.push({
         code: 119,
         indent: this.indent,
-        parameters: [labelName]
+        parameters: [labelName],
       });
       return this;
     }
@@ -277,7 +288,7 @@
       this.commands.push({
         code: 121,
         indent: this.indent,
-        parameters: [switchIdStart, switchIdEnd, srcValue]
+        parameters: [switchIdStart, switchIdEnd, srcValue],
       });
       return this;
     }
@@ -289,7 +300,7 @@
       this.commands.push({
         code: 122,
         indent: this.indent,
-        parameters: [variablesIdStart, variablesIdEnd, 0, 4, valueFunction]
+        parameters: [variablesIdStart, variablesIdEnd, 0, 4, valueFunction],
       });
       return this;
     }
@@ -297,7 +308,7 @@
       this.commands.push({
         code: 123,
         indent: this.indent,
-        parameters: [selfSwitchId, srcValue]
+        parameters: [selfSwitchId, srcValue],
       });
       return this;
     }
@@ -305,7 +316,7 @@
       this.commands.push({
         code: 124,
         indent: this.indent,
-        parameters: [0, count]
+        parameters: [0, count],
       });
       return this;
     }
@@ -313,7 +324,7 @@
       this.commands.push({
         code: 124,
         indent: this.indent,
-        parameters: [1]
+        parameters: [1],
       });
       return this;
     }
@@ -321,7 +332,7 @@
       this.commands.push({
         code: 125,
         indent: this.indent,
-        parameters: [0, 0, amount]
+        parameters: [0, 0, amount],
       });
       return this;
     }
@@ -329,7 +340,7 @@
       this.commands.push({
         code: 126,
         indent: this.indent,
-        parameters: [itemId, 0, 0, amount]
+        parameters: [itemId, 0, 0, amount],
       });
       return this;
     }
@@ -337,7 +348,7 @@
       this.commands.push({
         code: 127,
         indent: this.indent,
-        parameters: [weaponId, 0, 0, amount, includeEquip]
+        parameters: [weaponId, 0, 0, amount, includeEquip],
       });
       return this;
     }
@@ -345,7 +356,7 @@
       this.commands.push({
         code: 128,
         indent: this.indent,
-        parameters: [armorId, 0, 0, amount, includeEquip]
+        parameters: [armorId, 0, 0, amount, includeEquip],
       });
       return this;
     }
@@ -353,7 +364,7 @@
       this.commands.push({
         code: 129,
         indent: this.indent,
-        parameters: [actorId, 0, isInitialize]
+        parameters: [actorId, 0, isInitialize],
       });
       return this;
     }
@@ -361,7 +372,7 @@
       this.commands.push({
         code: 129,
         indent: this.indent,
-        parameters: [actorId, 1]
+        parameters: [actorId, 1],
       });
       return this;
     }
@@ -369,7 +380,7 @@
       this.commands.push({
         code: 132,
         indent: this.indent,
-        parameters: [{ name, volume, pitch, pan }]
+        parameters: [{ name, volume, pitch, pan }],
       });
       return this;
     }
@@ -377,7 +388,7 @@
       this.commands.push({
         code: 133,
         indent: this.indent,
-        parameters: [{ name, volume, pitch, pan }]
+        parameters: [{ name, volume, pitch, pan }],
       });
       return this;
     }
@@ -385,7 +396,7 @@
       this.commands.push({
         code: 134,
         indent: this.indent,
-        parameters: [isAble]
+        parameters: [isAble],
       });
       return this;
     }
@@ -393,7 +404,7 @@
       this.commands.push({
         code: 135,
         indent: this.indent,
-        parameters: [isAble]
+        parameters: [isAble],
       });
       return this;
     }
@@ -401,7 +412,7 @@
       this.commands.push({
         code: 136,
         indent: this.indent,
-        parameters: [isAble]
+        parameters: [isAble],
       });
       return this;
     }
@@ -409,7 +420,7 @@
       this.commands.push({
         code: 137,
         indent: this.indent,
-        parameters: [isAble]
+        parameters: [isAble],
       });
       return this;
     }
@@ -417,7 +428,7 @@
       this.commands.push({
         code: 138,
         indent: this.indent,
-        parameters: [[red, green, blue, 0]]
+        parameters: [[red, green, blue, 0]],
       });
       return this;
     }
@@ -425,7 +436,7 @@
       this.commands.push({
         code: 139,
         indent: this.indent,
-        parameters: [{ name, volume, pitch, pan }]
+        parameters: [{ name, volume, pitch, pan }],
       });
       return this;
     }
@@ -439,7 +450,7 @@
       this.commands.push({
         code: 140,
         indent: this.indent,
-        parameters: [vehicleType, { name, volume, pitch, pan }]
+        parameters: [vehicleType, { name, volume, pitch, pan }],
       });
       return this;
     }
@@ -453,7 +464,7 @@
       this.commands.push({
         code: 201,
         indent: this.indent,
-        parameters: [0, mapId, x, y, d, fadeType]
+        parameters: [0, mapId, x, y, d, fadeType],
       });
       return this;
     }
@@ -461,7 +472,7 @@
       this.commands.push({
         code: 202,
         indent: this.indent,
-        parameters: [vehicleId, 0, mapId, x, y]
+        parameters: [vehicleId, 0, mapId, x, y],
       });
       return this;
     }
@@ -469,7 +480,7 @@
       this.commands.push({
         code: 203,
         indent: this.indent,
-        parameters: [eventId, 0, x, y, d]
+        parameters: [eventId, 0, x, y, d],
       });
       return this;
     }
@@ -481,7 +492,7 @@
       this.commands.push({
         code: 203,
         indent: this.indent,
-        parameters: [eventId, 2, eventId1, , d]
+        parameters: [eventId, 2, eventId1, , d],
       });
       return this;
     }
@@ -489,29 +500,31 @@
       this.commands.push({
         code: 204,
         indent: this.indent,
-        parameters: [direction, distance, speed]
+        parameters: [direction, distance, speed],
       });
       return this;
     }
     setMovementRoute(
       eventId,
-      routeCommandFunc = command => ({
+      routeCommandFunc = (command) => ({
         list: [],
         repeat: false,
         skippable: false,
-        wait: false
+        wait: false,
       })
     ) {
-      const routeParameters = routeCommandFunc(new $mvs.RouteCommandGenerator());
+      const routeParameters = routeCommandFunc(
+        new $mvs.RouteCommandGenerator()
+      );
       this.commands.push({
         code: 205,
         indent: this.indent,
-        parameters: [eventId, routeParameters]
+        parameters: [eventId, routeParameters],
       });
       this.commands.push({
         code: 505,
         indent: this.indent,
-        parameters: routeParameters.list
+        parameters: routeParameters.list,
       });
       return this;
     }
@@ -519,7 +532,7 @@
       this.commands.push({
         code: 206,
         indent: this.indent,
-        parameters: []
+        parameters: [],
       });
       return this;
     }
@@ -527,7 +540,7 @@
       this.commands.push({
         code: 211,
         indent: this.indent,
-        parameters: [isTransparent]
+        parameters: [isTransparent],
       });
       return this;
     }
@@ -535,7 +548,7 @@
       this.commands.push({
         code: 212,
         indent: this.indent,
-        parameters: [eventId, animationId, wait]
+        parameters: [eventId, animationId, wait],
       });
       return this;
     }
@@ -543,7 +556,7 @@
       this.commands.push({
         code: 213,
         indent: this.indent,
-        parameters: [eventId, balloonId, wait]
+        parameters: [eventId, balloonId, wait],
       });
       return this;
     }
@@ -551,7 +564,7 @@
       this.commands.push({
         code: 214,
         indent: this.indent,
-        parameters: []
+        parameters: [],
       });
       return this;
     }
@@ -559,7 +572,7 @@
       this.commands.push({
         code: 216,
         indent: this.indent,
-        parameters: [isShow]
+        parameters: [isShow],
       });
       return this;
     }
@@ -567,7 +580,7 @@
       this.commands.push({
         code: 217,
         indent: this.indent,
-        parameters: []
+        parameters: [],
       });
       return this;
     }
@@ -575,7 +588,7 @@
       this.commands.push({
         code: 221,
         indent: this.indent,
-        parameters: []
+        parameters: [],
       });
       return this;
     }
@@ -583,7 +596,7 @@
       this.commands.push({
         code: 222,
         indent: this.indent,
-        parameters: []
+        parameters: [],
       });
       return this;
     }
@@ -598,7 +611,7 @@
       this.commands.push({
         code: 223,
         indent: this.indent,
-        parameters: [[red, green, blue, gray], duration, isWait]
+        parameters: [[red, green, blue, gray], duration, isWait],
       });
       return this;
     }
@@ -613,7 +626,7 @@
       this.commands.push({
         code: 224,
         indent: this.indent,
-        parameters: [[red, green, blue, intensity], duration, isWait]
+        parameters: [[red, green, blue, intensity], duration, isWait],
       });
       return this;
     }
@@ -621,7 +634,7 @@
       this.commands.push({
         code: 225,
         indent: this.indent,
-        parameters: [power, speed, duration, isWait]
+        parameters: [power, speed, duration, isWait],
       });
       return this;
     }
@@ -629,7 +642,7 @@
       this.commands.push({
         code: 230,
         indent: this.indent,
-        parameters: [duration]
+        parameters: [duration],
       });
       return this;
     }
@@ -657,8 +670,8 @@
           wScale,
           hScale,
           Opacity,
-          blendMode
-        ]
+          blendMode,
+        ],
       });
       return this;
     }
@@ -689,8 +702,8 @@
           Opacity,
           blendMode,
           duration,
-          isWait
-        ]
+          isWait,
+        ],
       });
       return this;
     }
@@ -698,7 +711,7 @@
       this.commands.push({
         code: 233,
         indent: this.indent,
-        parameters: [zindex, angle]
+        parameters: [zindex, angle],
       });
       return this;
     }
@@ -714,7 +727,7 @@
       this.commands.push({
         code: 234,
         indent: this.indent,
-        parameters: [zindex, [red, green, blue, gray], duration, isWait]
+        parameters: [zindex, [red, green, blue, gray], duration, isWait],
       });
       return this;
     }
@@ -722,7 +735,7 @@
       this.commands.push({
         code: 235,
         indent: this.indent,
-        parameters: [zindex]
+        parameters: [zindex],
       });
       return this;
     }
@@ -735,7 +748,7 @@
       this.commands.push({
         code: 236,
         indent: this.indent,
-        parameters: [type, power, duration, isWait]
+        parameters: [type, power, duration, isWait],
       });
       return this;
     }
@@ -743,7 +756,7 @@
       this.commands.push({
         code: 241,
         indent: this.indent,
-        parameters: [{ name, volume, pitch, pan }]
+        parameters: [{ name, volume, pitch, pan }],
       });
       return this;
     }
@@ -751,21 +764,21 @@
       this.commands.push({
         code: 242,
         indent: this.indent,
-        parameters: [duration]
+        parameters: [duration],
       });
       return this;
     }
     saveBGM() {
       this.commands.push({
         code: 243,
-        indent: this.indent
+        indent: this.indent,
       });
       return this;
     }
     resumeBGM() {
       this.commands.push({
         code: 244,
-        indent: this.indent
+        indent: this.indent,
       });
       return this;
     }
@@ -773,7 +786,7 @@
       this.commands.push({
         code: 245,
         indent: this.indent,
-        parameters: [{ name, volume, pitch, pan }]
+        parameters: [{ name, volume, pitch, pan }],
       });
       return this;
     }
@@ -781,7 +794,7 @@
       this.commands.push({
         code: 246,
         indent: this.indent,
-        parameters: [duration]
+        parameters: [duration],
       });
       return this;
     }
@@ -789,7 +802,7 @@
       this.commands.push({
         code: 249,
         indent: this.indent,
-        parameters: [{ name, volume, pitch, pan }]
+        parameters: [{ name, volume, pitch, pan }],
       });
       return this;
     }
@@ -797,14 +810,14 @@
       this.commands.push({
         code: 250,
         indent: this.indent,
-        parameters: [{ name, volume, pitch, pan }]
+        parameters: [{ name, volume, pitch, pan }],
       });
       return this;
     }
     stopSE() {
       this.commands.push({
         code: 251,
-        indent: this.indent
+        indent: this.indent,
       });
       return this;
     }
@@ -812,7 +825,7 @@
       this.commands.push({
         code: 261,
         indent: this.indent,
-        parameters: [name]
+        parameters: [name],
       });
       return this;
     }
@@ -820,7 +833,7 @@
       this.commands.push({
         code: 281,
         indent: this.indent,
-        parameters: [isMapNameDisplay]
+        parameters: [isMapNameDisplay],
       });
       return this;
     }
@@ -828,7 +841,7 @@
       this.commands.push({
         code: 282,
         indent: this.indent,
-        parameters: [tilesetId]
+        parameters: [tilesetId],
       });
       return this;
     }
@@ -836,7 +849,7 @@
       this.commands.push({
         code: 283,
         indent: this.indent,
-        parameters: [imageWall, imageGround]
+        parameters: [imageWall, imageGround],
       });
       return this;
     }
@@ -850,7 +863,7 @@
       this.commands.push({
         code: 284,
         indent: this.indent,
-        parameters: [imageName, repeatX, repeatY, xVal, yVal]
+        parameters: [imageName, repeatX, repeatY, xVal, yVal],
       });
       return this;
     }
@@ -865,12 +878,12 @@
       this.commands.push({
         code: 301,
         indent: this.indent,
-        parameters: [0, troopId, canEscape, canLose]
+        parameters: [0, troopId, canEscape, canLose],
       });
       if (canEscape) {
         this.commands.push({
           code: 601,
-          indent: this.indent
+          indent: this.indent,
         });
         this.indent++;
         subCommandEscape && subCommandEscape(this);
@@ -879,7 +892,7 @@
       if (canLose) {
         this.commands.push({
           code: 602,
-          indent: this.indent
+          indent: this.indent,
         });
         this.indent++;
         subCommandLoss && subCommandLoss(this);
@@ -888,7 +901,7 @@
       if (canEscape || canLose) {
         this.commands.push({
           code: 603,
-          indent: this.indent
+          indent: this.indent,
         });
         this.indent++;
         subCommandWin(this);
@@ -896,7 +909,7 @@
       }
       this.commands.push({
         code: 604,
-        indent: this.indent
+        indent: this.indent,
       });
       return this;
     }
@@ -905,13 +918,13 @@
       this.commands.push({
         code: 302,
         indent: this.indent,
-        parameters: [...firstItem, isPurchaseOnly]
+        parameters: [...firstItem, isPurchaseOnly],
       });
-      restItems.forEach(item => {
+      restItems.forEach((item) => {
         this.commands.push({
           code: 302,
           indent: this.indent,
-          parameters: item
+          parameters: item,
         });
       });
       return this;
@@ -920,7 +933,7 @@
       this.commands.push({
         code: 303,
         indent: this.indent,
-        parameters: [actorId, maxChars]
+        parameters: [actorId, maxChars],
       });
       return this;
     }
@@ -934,8 +947,8 @@
           amount >= 0 ? 0 : 1,
           0,
           Math.abs(amount),
-          causeDead
-        ]
+          causeDead,
+        ],
       });
       return this;
     }
@@ -943,7 +956,7 @@
       this.commands.push({
         code: 312,
         indent: this.indent,
-        parameters: [0, actorId, amount >= 0 ? 0 : 1, 0, Math.abs(amount)]
+        parameters: [0, actorId, amount >= 0 ? 0 : 1, 0, Math.abs(amount)],
       });
       return this;
     }
@@ -951,7 +964,7 @@
       this.commands.push({
         code: 326,
         indent: this.indent,
-        parameters: [0, actorId, amount >= 0 ? 0 : 1, 0, Math.abs(amount)]
+        parameters: [0, actorId, amount >= 0 ? 0 : 1, 0, Math.abs(amount)],
       });
       return this;
     }
@@ -959,7 +972,7 @@
       this.commands.push({
         code: 313,
         indent: this.indent,
-        parameters: [0, actorId, op, stateId]
+        parameters: [0, actorId, op, stateId],
       });
       return this;
     }
@@ -967,7 +980,7 @@
       this.commands.push({
         code: 314,
         indent: this.indent,
-        parameters: [0, actorId]
+        parameters: [0, actorId],
       });
       return this;
     }
@@ -981,8 +994,8 @@
           amount >= 0 ? 0 : 1,
           0,
           Math.abs(amount),
-          showLevelUp
-        ]
+          showLevelUp,
+        ],
       });
       return this;
     }
@@ -996,8 +1009,8 @@
           amount >= 0 ? 0 : 1,
           0,
           Math.abs(amount),
-          showLevelUp
-        ]
+          showLevelUp,
+        ],
       });
       return this;
     }
@@ -1005,7 +1018,14 @@
       this.commands.push({
         code: 317,
         indent: this.indent,
-        parameters: [0, actorId, type, amount >= 0 ? 0 : 1, 0, Math.abs(amount)]
+        parameters: [
+          0,
+          actorId,
+          type,
+          amount >= 0 ? 0 : 1,
+          0,
+          Math.abs(amount),
+        ],
       });
       return this;
     }
@@ -1013,7 +1033,7 @@
       this.commands.push({
         code: 318,
         indent: this.indent,
-        parameters: [0, actorId, op, skillId]
+        parameters: [0, actorId, op, skillId],
       });
       return this;
     }
@@ -1021,7 +1041,7 @@
       this.commands.push({
         code: 319,
         indent: this.indent,
-        parameters: [actorId, equipType, equipId]
+        parameters: [actorId, equipType, equipId],
       });
       return this;
     }
@@ -1029,7 +1049,7 @@
       this.commands.push({
         code: 320,
         indent: this.indent,
-        parameters: [actorId, name]
+        parameters: [actorId, name],
       });
       return this;
     }
@@ -1037,7 +1057,7 @@
       this.commands.push({
         code: 321,
         indent: this.indent,
-        parameters: [actorId, classId, keepLevel]
+        parameters: [actorId, classId, keepLevel],
       });
       return this;
     }
@@ -1058,8 +1078,8 @@
           characterImageIndex,
           faceImageName,
           faceImageIndex,
-          battlerImageName
-        ]
+          battlerImageName,
+        ],
       });
       return this;
     }
@@ -1067,7 +1087,7 @@
       this.commands.push({
         code: 323,
         indent: this.indent,
-        parameters: [vehicleId, imageName, imageIndex]
+        parameters: [vehicleId, imageName, imageIndex],
       });
       return this;
     }
@@ -1075,7 +1095,7 @@
       this.commands.push({
         code: 324,
         indent: this.indent,
-        parameters: [actorId, nickName]
+        parameters: [actorId, nickName],
       });
       return this;
     }
@@ -1083,7 +1103,7 @@
       this.commands.push({
         code: 325,
         indent: this.indent,
-        parameters: [actorId, profile]
+        parameters: [actorId, profile],
       });
       return this;
     }
@@ -1096,8 +1116,8 @@
           amount >= 0 ? 0 : 1,
           0,
           Math.abs(amount),
-          causeDead
-        ]
+          causeDead,
+        ],
       });
       return this;
     }
@@ -1105,7 +1125,7 @@
       this.commands.push({
         code: 332,
         indent: this.indent,
-        parameters: [enemyIndex, amount >= 0 ? 0 : 1, 0, Math.abs(amount)]
+        parameters: [enemyIndex, amount >= 0 ? 0 : 1, 0, Math.abs(amount)],
       });
       return this;
     }
@@ -1113,7 +1133,7 @@
       this.commands.push({
         code: 342,
         indent: this.indent,
-        parameters: [enemyIndex, amount >= 0 ? 0 : 1, 0, Math.abs(amount)]
+        parameters: [enemyIndex, amount >= 0 ? 0 : 1, 0, Math.abs(amount)],
       });
       return this;
     }
@@ -1121,7 +1141,7 @@
       this.commands.push({
         code: 333,
         indent: this.indent,
-        parameters: [enemyIndex, op, stateId]
+        parameters: [enemyIndex, op, stateId],
       });
       return this;
     }
@@ -1129,7 +1149,7 @@
       this.commands.push({
         code: 334,
         indent: this.indent,
-        parameters: [enemyIndex]
+        parameters: [enemyIndex],
       });
       return this;
     }
@@ -1137,7 +1157,7 @@
       this.commands.push({
         code: 335,
         indent: this.indent,
-        parameters: [enemyIndex]
+        parameters: [enemyIndex],
       });
       return this;
     }
@@ -1145,7 +1165,7 @@
       this.commands.push({
         code: 336,
         indent: this.indent,
-        parameters: [enemyIndex, enemyId]
+        parameters: [enemyIndex, enemyId],
       });
       return this;
     }
@@ -1153,7 +1173,7 @@
       this.commands.push({
         code: 337,
         indent: this.indent,
-        parameters: [enemyIndex, animationId, enemyIndex === -1]
+        parameters: [enemyIndex, animationId, enemyIndex === -1],
       });
       return this;
     }
@@ -1161,7 +1181,7 @@
       this.commands.push({
         code: 339,
         indent: this.indent,
-        parameters: [1, actorId, actionId, targetIndex]
+        parameters: [1, actorId, actionId, targetIndex],
       });
       return this;
     }
@@ -1169,7 +1189,7 @@
       this.commands.push({
         code: 339,
         indent: this.indent,
-        parameters: [1, enemyIndex, actionId, targetIndex]
+        parameters: [1, enemyIndex, actionId, targetIndex],
       });
       return this;
     }
@@ -1194,10 +1214,11 @@
       return this;
     }
     callJsFunction(jsFunction) {
+      //this.indent = this.interpreter._indent;
       this.commands.push({
         code: 355,
         indent: this.indent,
-        parameters: [jsFunction]
+        parameters: [jsFunction],
       });
       return this;
     }
@@ -1205,11 +1226,10 @@
       this.commands.push({
         code: 356,
         indent: this.indent,
-        parameters: [command]
+        parameters: [command],
       });
       return this;
     }
-
   }
   $mvs.ItemListGenerator = class {
     constructor() {
@@ -1237,7 +1257,7 @@
         list: [...this.list, { code: 0 }],
         repeat,
         skippable,
-        wait
+        wait,
       };
     }
     moveDown() {
@@ -1415,7 +1435,7 @@
     playSE(name, volume = 90, pitch = 100, pan = 0) {
       this.list.push({
         code: 44,
-        parameters: [{ name, volume, pitch, pan }]
+        parameters: [{ name, volume, pitch, pan }],
       });
       return this;
     }
@@ -1427,50 +1447,50 @@
   $mvs.enumBackground = {
     Window: 0,
     Dim: 1,
-    Transparent: 2
+    Transparent: 2,
   };
   $mvs.enumPositionV = {
     Top: 0,
     Middle: 1,
-    Botton: 2
+    Botton: 2,
   };
   $mvs.enumPositionH = {
     Left: 0,
     Middle: 1,
-    Right: 2
+    Right: 2,
   };
   $mvs.enumItemType = {
     RegularItem: 1,
     KeyItem: 2,
     HiddenItemA: 3,
-    HiddenItemB: 4
+    HiddenItemB: 4,
   };
   $mvs.enumSwitchValue = {
     ON: 0,
-    OFF: 1
+    OFF: 1,
   };
   $mvs.enumSelfSwitchName = {
     A: "A",
     B: "B",
     C: "C",
-    D: "D"
+    D: "D",
   };
   $mvs.enumVehicleType = {
     Boat: 0,
     Ship: 1,
-    Airship: 2
+    Airship: 2,
   };
   $mvs.enumDirection = {
     Retain: 0,
     Down: 1,
     Left: 2,
     Right: 3,
-    Top: 4
+    Top: 4,
   };
   $mvs.enumFadeType = {
     Black: 0,
     White: 1,
-    None: 2
+    None: 2,
   };
   $mvs.enumSpeed = {
     x8Slower: 1,
@@ -1478,19 +1498,19 @@
     x2Slower: 3,
     Normal: 4,
     x2Faster: 5,
-    x4Faster: 6
+    x4Faster: 6,
   };
   $mvs.enumBlendMode = {
     Normal: 0,
     Additive: 1,
     Multiply: 2,
-    Screen: 3
+    Screen: 3,
   };
   $mvs.enumWeather = {
     None: "none",
     Rain: "rain",
     Storm: "storm",
-    Snow: "snow"
+    Snow: "snow",
   };
   $mvs.enumAbility = {
     MaxHP: 0,
@@ -1500,7 +1520,7 @@
     MAttack: 4,
     MDefense: 5,
     Agility: 6,
-    Luck: 7
+    Luck: 7,
   };
   window.$mvs = $mvs;
 })();

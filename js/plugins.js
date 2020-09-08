@@ -9,5 +9,6 @@ var $plugins =
 {"name":"Community_Basic","status":true,"description":"Basic plugin for manipulating important parameters.","parameters":{"cacheLimit":"20","screenWidth":"816","screenHeight":"624","changeWindowWidthTo":"","changeWindowHeightTo":"","renderingMode":"auto","alwaysDash":"off"}},
 {"name":"CharacterEnemy","status":true,"description":"","parameters":{}},
 {"name":"test","status":true,"description":"","parameters":{}},
-{"name":"TextBalloon","status":true,"description":"让NPC显示对话气球.使用方法：在事件编辑器中输入this.setupTextBalloon('你好呀~~！')","parameters":{}}
+{"name":"TextBalloon","status":true,"description":"让NPC显示对话气球.使用方法：在事件编辑器中输入this.setupTextBalloon('你好呀~~！')","parameters":{}},
+{"name":"ProgressBar","status":true,"description":"","parameters":{}}
 ];

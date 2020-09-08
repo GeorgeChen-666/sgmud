@@ -7,7 +7,7 @@
  */
 (() => {
   const maxCharCountPerLine = 16;
-  const gblen = function(text) {
+  const gblen = function (text) {
     let len = 0;
     for (let i = 0; i < text.length; i++) {
       if (text.charCodeAt(i) > 127 || text.charCodeAt(i) === 94) {
@@ -47,14 +47,20 @@
     }
     setText(text) {
       const rtxt = [...text]
-        .slice(0, 18)
+        .slice(0, maxCharCountPerLine * 2)
         .reduce(
-          (pv, cv) => pv + (gblen(pv) == maxCharCountPerLine ? "\n" : "") + cv
+          (pv, cv) =>
+            pv +
+            (gblen(pv) === maxCharCountPerLine ||
+            gblen(pv) + 1 === maxCharCountPerLine
+              ? "\n"
+              : "") +
+            cv
         );
       this._text = rtxt;
       this.refresh();
       const width =
-        this.textWidth(rtxt.split("\n")[0]) + this.standardPadding() * 2;
+        this.textWidth(rtxt.split("\n")[0] + " ") + this.standardPadding() * 2;
       const height = this.fittingHeight(rtxt.includes("\n") ? 2 : 1);
       const offSetX = -24;
       const offSetY = -height - 52;
@@ -81,8 +87,8 @@
 
   PluginManager.regHook(
     "Sprite_Character.prototype.initMembers",
-    oFunc =>
-      function() {
+    (oFunc) =>
+      function () {
         oFunc();
         this._textBalloonWindow = new Window_TextBalloon();
         this.addChild(this._textBalloonWindow);
@@ -91,8 +97,8 @@
 
   PluginManager.regHook(
     "Sprite_Character.prototype.setupBalloon",
-    oFunc =>
-      function() {
+    (oFunc) =>
+      function () {
         oFunc();
         if (
           this._character._balloonText !== undefined &&
@@ -104,27 +110,27 @@
   );
   PluginManager.regHook(
     "Game_CharacterBase.prototype.startBalloon",
-    oFunc =>
-      function() {
+    (oFunc) =>
+      function () {
         oFunc();
         this._balloonText = undefined;
       }
   );
   PluginManager.regHook(
     "Game_CharacterBase.prototype.isBalloonPlaying",
-    oFunc =>
-      function() {
+    (oFunc) =>
+      function () {
         return oFunc() || this._balloonText !== undefined;
       }
   );
-  Game_Interpreter.prototype.setupTextBalloon = function(
+  Game_Interpreter.prototype.setupTextBalloon = function (
     text,
     actorId = 0, //-1 玩家，0 当前事件，其它代表事件编号
     isWait = false //是否等待气球消失再继续下面的事件
   ) {
     this._character = this.character(actorId);
     if (this._character) {
-      this.character()._balloonText = text;
+      this.character(actorId)._balloonText = text;
       if (isWait) {
         this.setWaitMode("balloon");
       }
